@@ -36,7 +36,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         icon="mdi:lan-disconnect",
         native_unit_of_measurement="entities",
         value_fn=lambda data: len(data["offline_entities"]),
-        attrs_fn=lambda data: {"entities": data["offline_entities"]},
+        attrs_fn=lambda data: {
+            "entities": data["offline_entities"],
+            "details": data["offline_details"],
+        },
     ),
     HomeHealthSensorDescription(
         key="low_batteries",
@@ -44,7 +47,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         icon="mdi:battery-alert",
         native_unit_of_measurement="entities",
         value_fn=lambda data: len(data["low_battery_entities"]),
-        attrs_fn=lambda data: {"entities": data["low_battery_entities"]},
+        attrs_fn=lambda data: {
+            "entities": data["low_battery_entities"],
+            "details": data["low_battery_details"],
+        },
     ),
     HomeHealthSensorDescription(
         key="critical_batteries",
@@ -52,7 +58,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         icon="mdi:battery-10",
         native_unit_of_measurement="entities",
         value_fn=lambda data: len(data["critical_battery_entities"]),
-        attrs_fn=lambda data: {"entities": data["critical_battery_entities"]},
+        attrs_fn=lambda data: {
+            "entities": data["critical_battery_entities"],
+            "details": data["critical_battery_details"],
+        },
     ),
     HomeHealthSensorDescription(
         key="stale_entities",
@@ -60,7 +69,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         icon="mdi:clock-alert-outline",
         native_unit_of_measurement="entities",
         value_fn=lambda data: len(data["stale_entities"]),
-        attrs_fn=lambda data: {"entities": data["stale_entities"]},
+        attrs_fn=lambda data: {
+            "entities": data["stale_entities"],
+            "details": data["stale_details"],
+        },
     ),
     HomeHealthSensorDescription(
         key="temperature_median",
@@ -82,7 +94,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         icon="mdi:thermometer-alert",
         native_unit_of_measurement="entities",
         value_fn=lambda data: len(data["temperature_outliers"]),
-        attrs_fn=lambda data: {"entities": data["temperature_outliers"]},
+        attrs_fn=lambda data: {
+            "entities": data["temperature_outliers"],
+            "details": data["temperature_outlier_details"],
+        },
     ),
     HomeHealthSensorDescription(
         key="apis_offline",
@@ -90,7 +105,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         icon="mdi:api-off",
         native_unit_of_measurement="entities",
         value_fn=lambda data: len(data["api_offline_entities"]),
-        attrs_fn=lambda data: {"entities": data["api_offline_entities"]},
+        attrs_fn=lambda data: {
+            "entities": data["api_offline_entities"],
+            "details": data["api_offline_details"],
+        },
     ),
 )
 

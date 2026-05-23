@@ -9,6 +9,9 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import area_registry as ar
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
@@ -29,6 +32,7 @@ from .const import (
 )
 
 LOGGER = logging.getLogger(__name__)
+MAX_DETAIL_ITEMS = 100
 
 
 class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
@@ -69,6 +73,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         api_entities = _parse_entity_list(
             settings.get(CONF_API_ENTITIES, DEFAULT_API_ENTITIES)
         )
+        entity_registry = er.async_get(self.hass)
+        device_registry = dr.async_get(self.hass)
+        area_registry = ar.async_get(self.hass)
 
         states = list(self.hass.states.async_all())
         offline_entities = [
@@ -131,6 +138,54 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if (state := self.hass.states.get(entity_id)) is None
             or state.state in {"off", "unavailable", "unknown"}
         ]
+        offline_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            offline_entities,
+        )
+        low_battery_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            low_battery_entities,
+        )
+        critical_battery_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            critical_battery_entities,
+        )
+        stale_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            stale_entities,
+        )
+        temperature_outlier_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            temp_outliers,
+            extra_fn=lambda state: {
+                "median": temp_median,
+                "difference": round(float(state.state) - temp_median, 1)
+                if temp_median is not None and _float_or_none(state.state) is not None
+                else None,
+            },
+        )
+        api_offline_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            api_offline_entities,
+        )
 
         score = max(
             100
@@ -146,13 +201,19 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         return {
             "score": score,
             "offline_entities": offline_entities,
+            "offline_details": offline_details,
             "low_battery_entities": low_battery_entities,
+            "low_battery_details": low_battery_details,
             "critical_battery_entities": critical_battery_entities,
+            "critical_battery_details": critical_battery_details,
             "stale_entities": stale_entities,
+            "stale_details": stale_details,
             "temperature_median": temp_median,
             "temperature_average": temp_average,
             "temperature_outliers": temp_outliers,
+            "temperature_outlier_details": temperature_outlier_details,
             "api_offline_entities": api_offline_entities,
+            "api_offline_details": api_offline_details,
             "critical": score < 70
             or bool(offline_entities)
             or bool(api_offline_entities),
@@ -182,3 +243,50 @@ def _float_or_none(value: Any) -> float | None:
 def _starts_with(value: str, prefixes: tuple[str, ...]) -> bool:
     """Return whether value starts with one of the prefixes."""
     return any(value.startswith(prefix) for prefix in prefixes)
+
+
+def _entity_details(
+    hass: HomeAssistant,
+    entity_registry: er.EntityRegistry,
+    device_registry: dr.DeviceRegistry,
+    area_registry: ar.AreaRegistry,
+    entity_ids: list[str],
+    extra_fn: Any | None = None,
+) -> list[dict[str, Any]]:
+    """Return display details for entities."""
+    details = []
+    for entity_id in entity_ids[:MAX_DETAIL_ITEMS]:
+        state = hass.states.get(entity_id)
+        entity_entry = entity_registry.async_get(entity_id)
+        device_entry = (
+            device_registry.async_get(entity_entry.device_id)
+            if entity_entry and entity_entry.device_id
+            else None
+        )
+        area_id = None
+        if entity_entry and entity_entry.area_id:
+            area_id = entity_entry.area_id
+        elif device_entry and device_entry.area_id:
+            area_id = device_entry.area_id
+        area_entry = area_registry.async_get_area(area_id) if area_id else None
+
+        item = {
+            "entity_id": entity_id,
+            "name": state.name if state else entity_id,
+            "state": state.state if state else "missing",
+            "area": area_entry.name if area_entry else None,
+            "device": _device_name(device_entry),
+            "last_updated": state.last_updated.isoformat() if state else None,
+            "last_changed": state.last_changed.isoformat() if state else None,
+        }
+        if state and extra_fn:
+            item.update(extra_fn(state))
+        details.append(item)
+    return details
+
+
+def _device_name(device_entry: dr.DeviceEntry | None) -> str | None:
+    """Return a human-friendly device name."""
+    if device_entry is None:
+        return None
+    return device_entry.name_by_user or device_entry.name

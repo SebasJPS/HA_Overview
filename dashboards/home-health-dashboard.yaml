@@ -5,7 +5,7 @@ views:
     icon: mdi:heart-pulse
     cards:
       - type: gauge
-        entity: sensor.home_health_score
+        entity: sensor.home_health_overview_health_score
         name: Home Health Score
         min: 0
         max: 100
@@ -18,33 +18,33 @@ views:
         title: Kritische Übersicht
         show_header_toggle: false
         entities:
-          - entity: binary_sensor.home_health_critical
+          - entity: binary_sensor.home_health_overview_critical
             name: Kritischer Zustand
-          - entity: binary_sensor.home_health_warning
+          - entity: binary_sensor.home_health_overview_warning
             name: Warnungen vorhanden
-          - entity: sensor.home_health_offline_entities
+          - entity: sensor.home_health_overview_offline_entities
             name: Offline / unbekannt
-          - entity: sensor.home_health_apis_offline
+          - entity: sensor.home_health_overview_apis_offline
             name: APIs offline
-          - entity: sensor.home_health_stale_entities
+          - entity: sensor.home_health_overview_stale_entities
             name: Keine Updates > 4 Std.
-          - entity: sensor.home_health_low_batteries
+          - entity: sensor.home_health_overview_low_batteries
             name: Batterien < 20 %
-          - entity: sensor.home_health_critical_batteries
+          - entity: sensor.home_health_overview_critical_batteries
             name: Batterien < 10 %
 
       - type: markdown
         title: Statusbericht
         content: >
-          **Home Health:** {{ states('sensor.home_health_score') }} %
+          **Home Health:** {{ states('sensor.home_health_overview_health_score') }} %
 
-          **Offline/Unknown:** {{ states('sensor.home_health_offline_entities') }}
+          **Offline/Unknown:** {{ states('sensor.home_health_overview_offline_entities') }}
 
-          **APIs offline:** {{ states('sensor.home_health_apis_offline') }}
+          **APIs offline:** {{ states('sensor.home_health_overview_apis_offline') }}
 
-          **Batterien < 20 %:** {{ states('sensor.home_health_low_batteries') }}
+          **Batterien < 20 %:** {{ states('sensor.home_health_overview_low_batteries') }}
 
-          **Keine Updates > 4 Std.:** {{ states('sensor.home_health_stale_entities') }}
+          **Keine Updates > 4 Std.:** {{ states('sensor.home_health_overview_stale_entities') }}
 
   - title: Sensoren
     path: sensor-health
@@ -53,24 +53,29 @@ views:
       - type: markdown
         title: Offline-Entitäten
         content: >
-          {% set items = state_attr('sensor.home_health_offline_entities', 'entities') or [] %}
+          {% set items = state_attr('sensor.home_health_overview_offline_entities', 'details') or [] %}
           {% if items | count == 0 %}
           Keine offline/unknown Entitäten.
           {% else %}
           {% for item in items %}
-          - `{{ item }}`
+          - **{{ item.name }}**  
+            `{{ item.entity_id }}`  
+            Status: `{{ item.state }}`{% if item.area %} · Bereich: {{ item.area }}{% endif %}{% if item.device %} · Gerät: {{ item.device }}{% endif %}
           {% endfor %}
           {% endif %}
 
       - type: markdown
         title: Keine Updates seit mehr als 4 Stunden
         content: >
-          {% set items = state_attr('sensor.home_health_stale_entities', 'entities') or [] %}
+          {% set items = state_attr('sensor.home_health_overview_stale_entities', 'details') or [] %}
           {% if items | count == 0 %}
           Keine veralteten Entitäten.
           {% else %}
           {% for item in items %}
-          - `{{ item }}`
+          - **{{ item.name }}**  
+            `{{ item.entity_id }}`  
+            Status: `{{ item.state }}`{% if item.area %} · Bereich: {{ item.area }}{% endif %}{% if item.device %} · Gerät: {{ item.device }}{% endif %}  
+            Letztes Update: {{ item.last_updated }}
           {% endfor %}
           {% endif %}
 
@@ -82,18 +87,32 @@ views:
         title: Batterie-Status
         show_header_toggle: false
         entities:
-          - sensor.home_health_low_batteries
-          - sensor.home_health_critical_batteries
+          - sensor.home_health_overview_low_batteries
+          - sensor.home_health_overview_critical_batteries
 
       - type: markdown
         title: Batterien unter 20 %
         content: >
-          {% set items = state_attr('sensor.home_health_low_batteries', 'entities') or [] %}
+          {% set items = state_attr('sensor.home_health_overview_low_batteries', 'details') or [] %}
           {% if items | count == 0 %}
           Keine Batterien unter 20 %.
           {% else %}
           {% for item in items %}
-          - `{{ item }}`: {{ states(item) }} %
+          - **{{ item.name }}**  
+            `{{ item.entity_id }}`: {{ item.state }} %{% if item.area %} · Bereich: {{ item.area }}{% endif %}{% if item.device %} · Gerät: {{ item.device }}{% endif %}
+          {% endfor %}
+          {% endif %}
+
+      - type: markdown
+        title: Batterien unter 10 %
+        content: >
+          {% set items = state_attr('sensor.home_health_overview_critical_batteries', 'details') or [] %}
+          {% if items | count == 0 %}
+          Keine Batterien unter 10 %.
+          {% else %}
+          {% for item in items %}
+          - **{{ item.name }}**  
+            `{{ item.entity_id }}`: {{ item.state }} %{% if item.area %} · Bereich: {{ item.area }}{% endif %}{% if item.device %} · Gerät: {{ item.device }}{% endif %}
           {% endfor %}
           {% endif %}
 
@@ -105,29 +124,31 @@ views:
         title: Temperatur-Statistik
         show_header_toggle: false
         entities:
-          - entity: sensor.home_health_temperature_median
+          - entity: sensor.home_health_overview_temperature_median
             name: Median
-          - entity: sensor.home_health_temperature_average
+          - entity: sensor.home_health_overview_temperature_average
             name: Mittelwert
-          - entity: sensor.home_health_temperature_outliers
+          - entity: sensor.home_health_overview_temperature_outliers
             name: Ausreißer
 
       - type: history-graph
         title: Temperatur-Trend
         hours_to_show: 24
         entities:
-          - sensor.home_health_temperature_median
-          - sensor.home_health_temperature_average
+          - sensor.home_health_overview_temperature_median
+          - sensor.home_health_overview_temperature_average
 
       - type: markdown
         title: Temperatur-Ausreißer
         content: >
-          {% set items = state_attr('sensor.home_health_temperature_outliers', 'entities') or [] %}
+          {% set items = state_attr('sensor.home_health_overview_temperature_outliers', 'details') or [] %}
           {% if items | count == 0 %}
           Keine Temperatur-Ausreißer.
           {% else %}
           {% for item in items %}
-          - `{{ item }}`: {{ states(item) }} °C
+          - **{{ item.name }}**  
+            `{{ item.entity_id }}`: {{ item.state }} °C  
+            Median: {{ item.median }} °C · Abweichung: {{ item.difference }} °C{% if item.area %} · Bereich: {{ item.area }}{% endif %}{% if item.device %} · Gerät: {{ item.device }}{% endif %}
           {% endfor %}
           {% endif %}
 
@@ -152,7 +173,7 @@ views:
         entities:
           - type: section
             label: Hier deine Batterie-/Speicher-Entitäten eintragen
-          - sensor.home_health_score
+          - sensor.home_health_overview_health_score
 
   - title: Integrationen
     path: integrations-health
@@ -162,17 +183,19 @@ views:
         title: API-Status
         show_header_toggle: false
         entities:
-          - sensor.home_health_apis_offline
+          - sensor.home_health_overview_apis_offline
 
       - type: markdown
         title: APIs nicht erreichbar
         content: >
-          {% set items = state_attr('sensor.home_health_apis_offline', 'entities') or [] %}
+          {% set items = state_attr('sensor.home_health_overview_apis_offline', 'details') or [] %}
           {% if items | count == 0 %}
           Keine überwachten APIs offline.
           {% else %}
           {% for item in items %}
-          - `{{ item }}`: {{ states(item) }}
+          - **{{ item.name }}**  
+            `{{ item.entity_id }}`  
+            Status: `{{ item.state }}`{% if item.area %} · Bereich: {{ item.area }}{% endif %}{% if item.device %} · Gerät: {{ item.device }}{% endif %}
           {% endfor %}
           {% endif %}
 

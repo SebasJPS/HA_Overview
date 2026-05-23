@@ -44,6 +44,8 @@ Danach erscheinen eigene Sensoren wie:
 - `binary_sensor.home_health_overview_critical`
 - `binary_sensor.home_health_overview_warning`
 
+Die Zähler-Sensoren enthalten zusätzlich ein Attribut `details` mit Name, Entity-ID, Bereich, Gerät, Status und letztem Update der betroffenen Entitäten.
+
 ## Dateien
 
 - [custom_components/home_health_overview](custom_components/home_health_overview)
