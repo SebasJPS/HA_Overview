@@ -41,14 +41,16 @@ Beim Hinzufügen kannst du konfigurieren:
 - Batterie-Warnschwelle
 - Batterie-kritisch-Schwelle
 - Temperatur-Ausreißer-Abstand
-- API-/Watchlist-Entitäten, kommagetrennt
+- API-/Watchlist-Entitäten per Entity-Selector
 - Zigbee Linkquality-Warnschwelle
-- Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt
+- Add-on-/Bridge-Watchlist-Entitäten per Entity-Selector
 - CPU-, RAM- und Speicher-Warnschwellen
-- Systemressourcen-Watchlist, kommagetrennt
-- Entitäten immer überwachen, kommagetrennt
-- Entitäten ignorieren, kommagetrennt
+- Systemressourcen-Watchlist per Entity-Selector
+- Entitäten immer überwachen per Entity-Selector
+- Entitäten ignorieren per Entity-Selector
 - Entitäts-Prefixe ignorieren, kommagetrennt
+
+Ab Version `0.7.0` nutzt die Options-Oberfläche Entity-Selectoren für Entitätslisten. Im `Home Health` Sidebar-Panel kannst du Entitäten direkt öffnen, suchen, filtern und per Button ignorieren oder explizit überwachen.
 
 Beispiel für API-/Watchlist-Entitäten:
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
+from .api import async_register_api
 from .const import PLATFORMS
 from .coordinator import HomeHealthCoordinator
 from .frontend import async_register_panel, async_remove_home_health_panel
@@ -22,6 +23,7 @@ async def async_setup_entry(
 
     entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    async_register_api(hass)
     await async_register_panel(hass)
     entry.async_on_unload(entry.add_update_listener(async_update_options))
     return True

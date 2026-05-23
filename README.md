@@ -67,6 +67,8 @@ Eine einzelne Offline-Entität senkt den Score nur proportional zum Gesamtbestan
 
 Über `Geräte & Dienste -> Home Health Overview -> Konfigurieren` kannst du Entitäten ignorieren, Prefixe ausblenden oder Entitäten explizit überwachen lassen.
 
+Die Optionen nutzen Entity-Selectoren für Watchlists und Ignore-Listen. Im Sidebar-Panel kannst du betroffene Entitäten anklicken, suchen, filtern und direkt auf `Ignorieren` oder `Überwachen` setzen.
+
 ## Dateien
 
 - [custom_components/home_health_overview](custom_components/home_health_overview)

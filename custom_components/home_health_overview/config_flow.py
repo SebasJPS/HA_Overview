@@ -7,6 +7,7 @@ from typing import Any
 import voluptuous as vol
 
 from homeassistant import config_entries
+from homeassistant.helpers import selector
 from homeassistant.core import callback
 
 from .const import (
@@ -152,30 +153,49 @@ def _schema(values: dict[str, Any] | None = None) -> vol.Schema:
             ): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
             vol.Optional(
                 CONF_API_ENTITIES,
-                default=values.get(CONF_API_ENTITIES, DEFAULT_API_ENTITIES),
-            ): str,
+                default=_as_list(values.get(CONF_API_ENTITIES, DEFAULT_API_ENTITIES)),
+            ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
             vol.Optional(
                 CONF_ADDON_ENTITIES,
-                default=values.get(CONF_ADDON_ENTITIES, DEFAULT_ADDON_ENTITIES),
-            ): str,
+                default=_as_list(
+                    values.get(CONF_ADDON_ENTITIES, DEFAULT_ADDON_ENTITIES)
+                ),
+            ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
             vol.Optional(
                 CONF_SYSTEM_RESOURCE_ENTITIES,
-                default=values.get(
-                    CONF_SYSTEM_RESOURCE_ENTITIES,
-                    DEFAULT_SYSTEM_RESOURCE_ENTITIES,
+                default=_as_list(
+                    values.get(
+                        CONF_SYSTEM_RESOURCE_ENTITIES,
+                        DEFAULT_SYSTEM_RESOURCE_ENTITIES,
+                    )
                 ),
-            ): str,
+            ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
             vol.Optional(
                 CONF_INCLUDE_ENTITIES,
-                default=values.get(CONF_INCLUDE_ENTITIES, DEFAULT_INCLUDE_ENTITIES),
-            ): str,
+                default=_as_list(
+                    values.get(CONF_INCLUDE_ENTITIES, DEFAULT_INCLUDE_ENTITIES)
+                ),
+            ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
             vol.Optional(
                 CONF_IGNORE_ENTITIES,
-                default=values.get(CONF_IGNORE_ENTITIES, DEFAULT_IGNORE_ENTITIES),
-            ): str,
+                default=_as_list(
+                    values.get(CONF_IGNORE_ENTITIES, DEFAULT_IGNORE_ENTITIES)
+                ),
+            ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
             vol.Optional(
                 CONF_IGNORE_PREFIXES,
                 default=values.get(CONF_IGNORE_PREFIXES, DEFAULT_IGNORE_PREFIXES),
-            ): str,
+            ): selector.TextSelector(
+                selector.TextSelectorConfig(multiline=True)
+            ),
         }
     )
+
+
+def _as_list(value: Any) -> list[str]:
+    """Return a config value as a list for entity selectors."""
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return [str(item).strip() for item in value if str(item).strip()]
