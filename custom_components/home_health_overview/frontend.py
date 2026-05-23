@@ -26,14 +26,14 @@ async def async_register_panel(hass: HomeAssistant) -> None:
             StaticPathConfig(
                 FRONTEND_URL,
                 str(FRONTEND_PATH),
-                True,
+                False,
             )
         ]
     )
 
     async_register_built_in_panel(
         hass,
-        component_name="custom-panel",
+        component_name="custom",
         sidebar_title="Home Health",
         sidebar_icon="mdi:heart-pulse",
         frontend_url_path=PANEL_URL_PATH,
@@ -42,7 +42,7 @@ async def async_register_panel(hass: HomeAssistant) -> None:
                 "name": PANEL_COMPONENT_NAME,
                 "module_url": f"{FRONTEND_URL}/panel.js",
                 "embed_iframe": False,
-                "trust_external_script": False,
+                "trust_external": False,
             }
         },
         require_admin=False,
