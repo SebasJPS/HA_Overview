@@ -82,3 +82,7 @@ Für HACS ist keine manuelle Kopie der Integration nötig. Die ältere YAML-Pake
 
 Eine GitHub-Actions-Vorlage liegt in [.github/workflows/deploy-home-assistant.yml](.github/workflows/deploy-home-assistant.yml).
 Die Anleitung dazu steht in [docs/GITHUB_DEPLOY.md](docs/GITHUB_DEPLOY.md).
+
+## Releases
+
+HACS-Validierung und GitHub Releases sind automatisiert. Der Ablauf steht in [docs/RELEASE_PROCESS.md](docs/RELEASE_PROCESS.md).
