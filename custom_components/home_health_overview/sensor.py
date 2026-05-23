@@ -35,6 +35,8 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
             "total_battery_entities": data["total_battery_entities"],
             "total_temperature_entities": data["total_temperature_entities"],
             "total_api_entities": data["total_api_entities"],
+            "temperature_median": data["temperature_median"],
+            "temperature_average": data["temperature_average"],
             "categories": {
                 "offline": {
                     "count": len(data["offline_entities"]),

@@ -27,8 +27,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const score = asNumber(entities.score?.state, 0);
     const breakdown = entities.score?.attributes?.breakdown?.components || [];
     const categories = entities.score?.attributes?.categories || {};
-    const temperatureMedian = entities.tempMedian?.state ?? "?";
-    const temperatureAverage = entities.tempAverage?.state ?? "?";
+    const temperatureMedian = entities.score?.attributes?.temperature_median ?? entities.tempMedian?.state ?? "?";
+    const temperatureAverage = entities.score?.attributes?.temperature_average ?? entities.tempAverage?.state ?? "?";
 
     this.innerHTML = `
       <style>

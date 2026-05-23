@@ -8,6 +8,7 @@ from statistics import mean, median
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import device_registry as dr
@@ -121,8 +122,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         temperature_entities = [
             (state.entity_id, _float_or_none(state.state))
             for state in states
-            if state.entity_id.startswith("sensor.")
-            and state.attributes.get("device_class") == "temperature"
+            if _is_temperature_sensor(state)
         ]
         temperatures = [
             value for _, value in temperature_entities if value is not None
@@ -255,6 +255,23 @@ def _float_or_none(value: Any) -> float | None:
 def _starts_with(value: str, prefixes: tuple[str, ...]) -> bool:
     """Return whether value starts with one of the prefixes."""
     return any(value.startswith(prefix) for prefix in prefixes)
+
+
+def _is_temperature_sensor(state: Any) -> bool:
+    """Return whether a state looks like a temperature sensor."""
+    if not state.entity_id.startswith("sensor."):
+        return False
+    if state.attributes.get("device_class") == "temperature":
+        return True
+    unit = state.attributes.get("unit_of_measurement")
+    return unit in {
+        UnitOfTemperature.CELSIUS,
+        UnitOfTemperature.FAHRENHEIT,
+        "°C",
+        "°F",
+        "C",
+        "F",
+    }
 
 
 def _calculate_score(
