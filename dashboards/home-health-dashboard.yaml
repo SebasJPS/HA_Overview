@@ -1,0 +1,190 @@
+title: Home Health
+views:
+  - title: Übersicht
+    path: home-health
+    icon: mdi:heart-pulse
+    cards:
+      - type: gauge
+        entity: sensor.home_health_score
+        name: Home Health Score
+        min: 0
+        max: 100
+        severity:
+          green: 90
+          yellow: 70
+          red: 0
+
+      - type: entities
+        title: Kritische Übersicht
+        show_header_toggle: false
+        entities:
+          - entity: binary_sensor.home_health_critical
+            name: Kritischer Zustand
+          - entity: binary_sensor.home_health_warning
+            name: Warnungen vorhanden
+          - entity: sensor.home_health_offline_entities
+            name: Offline / unbekannt
+          - entity: sensor.home_health_apis_offline
+            name: APIs offline
+          - entity: sensor.home_health_stale_entities
+            name: Keine Updates > 4 Std.
+          - entity: sensor.home_health_low_batteries
+            name: Batterien < 20 %
+          - entity: sensor.home_health_critical_batteries
+            name: Batterien < 10 %
+
+      - type: markdown
+        title: Statusbericht
+        content: >
+          **Home Health:** {{ states('sensor.home_health_score') }} %
+
+          **Offline/Unknown:** {{ states('sensor.home_health_offline_entities') }}
+
+          **APIs offline:** {{ states('sensor.home_health_apis_offline') }}
+
+          **Batterien < 20 %:** {{ states('sensor.home_health_low_batteries') }}
+
+          **Keine Updates > 4 Std.:** {{ states('sensor.home_health_stale_entities') }}
+
+  - title: Sensoren
+    path: sensor-health
+    icon: mdi:access-point-network-off
+    cards:
+      - type: markdown
+        title: Offline-Entitäten
+        content: >
+          {% set items = state_attr('sensor.home_health_offline_entities', 'entities') or [] %}
+          {% if items | count == 0 %}
+          Keine offline/unknown Entitäten.
+          {% else %}
+          {% for item in items %}
+          - `{{ item }}`
+          {% endfor %}
+          {% endif %}
+
+      - type: markdown
+        title: Keine Updates seit mehr als 4 Stunden
+        content: >
+          {% set items = state_attr('sensor.home_health_stale_entities', 'entities') or [] %}
+          {% if items | count == 0 %}
+          Keine veralteten Entitäten.
+          {% else %}
+          {% for item in items %}
+          - `{{ item }}`
+          {% endfor %}
+          {% endif %}
+
+  - title: Batterien
+    path: batteries
+    icon: mdi:battery-alert
+    cards:
+      - type: entities
+        title: Batterie-Status
+        show_header_toggle: false
+        entities:
+          - sensor.home_health_low_batteries
+          - sensor.home_health_critical_batteries
+
+      - type: markdown
+        title: Batterien unter 20 %
+        content: >
+          {% set items = state_attr('sensor.home_health_low_batteries', 'entities') or [] %}
+          {% if items | count == 0 %}
+          Keine Batterien unter 20 %.
+          {% else %}
+          {% for item in items %}
+          - `{{ item }}`: {{ states(item) }} %
+          {% endfor %}
+          {% endif %}
+
+  - title: Klima
+    path: climate-health
+    icon: mdi:thermometer-lines
+    cards:
+      - type: entities
+        title: Temperatur-Statistik
+        show_header_toggle: false
+        entities:
+          - entity: sensor.home_health_temperature_median
+            name: Median
+          - entity: sensor.home_health_temperature_average
+            name: Mittelwert
+          - entity: sensor.home_health_temperature_outliers
+            name: Ausreißer
+
+      - type: history-graph
+        title: Temperatur-Trend
+        hours_to_show: 24
+        entities:
+          - sensor.home_health_temperature_median
+          - sensor.home_health_temperature_average
+
+      - type: markdown
+        title: Temperatur-Ausreißer
+        content: >
+          {% set items = state_attr('sensor.home_health_temperature_outliers', 'entities') or [] %}
+          {% if items | count == 0 %}
+          Keine Temperatur-Ausreißer.
+          {% else %}
+          {% for item in items %}
+          - `{{ item }}`: {{ states(item) }} °C
+          {% endfor %}
+          {% endif %}
+
+  - title: Energie
+    path: energy-health
+    icon: mdi:lightning-bolt
+    cards:
+      - type: energy-date-selection
+
+      - type: energy-usage-graph
+        title: Energieverbrauch
+
+      - type: energy-solar-graph
+        title: Solarproduktion
+
+      - type: energy-distribution
+        title: Energieverteilung
+
+      - type: entities
+        title: SoC / Speicher
+        show_header_toggle: false
+        entities:
+          - type: section
+            label: Hier deine Batterie-/Speicher-Entitäten eintragen
+          - sensor.home_health_score
+
+  - title: Integrationen
+    path: integrations-health
+    icon: mdi:api
+    cards:
+      - type: entities
+        title: API-Status
+        show_header_toggle: false
+        entities:
+          - sensor.home_health_apis_offline
+
+      - type: markdown
+        title: APIs nicht erreichbar
+        content: >
+          {% set items = state_attr('sensor.home_health_apis_offline', 'entities') or [] %}
+          {% if items | count == 0 %}
+          Keine überwachten APIs offline.
+          {% else %}
+          {% for item in items %}
+          - `{{ item }}`: {{ states(item) }}
+          {% endfor %}
+          {% endif %}
+
+  - title: Wartung
+    path: maintenance
+    icon: mdi:wrench-clock
+    cards:
+      - type: markdown
+        title: Nächste Ausbaustufe
+        content: >
+          - Automationen mit Fehlern
+          - Entitäten ohne Raumzuordnung
+          - Logger-Warnungen der letzten 24 Stunden
+          - Geräte mit häufigem Offline/Online-Wechsel
+          - Batterie-Trends und schneller Verbrauch

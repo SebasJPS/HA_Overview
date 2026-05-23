@@ -1,0 +1,245 @@
+# Home Health package for Home Assistant.
+#
+# Install:
+# 1. Copy this file to /config/packages/home_health.yaml.
+# 2. Ensure configuration.yaml contains:
+#      homeassistant:
+#        packages: !include_dir_named packages
+# 3. Restart Home Assistant.
+#
+# Optional configuration:
+# - Add a group named group.home_health_api_watchlist with binary_sensors that
+#   represent API availability.
+# - Add ping binary_sensors for devices you want to track explicitly.
+
+template:
+  - sensor:
+      - name: Home Health Offline Entities
+        unique_id: home_health_offline_entities
+        icon: mdi:lan-disconnect
+        state: >
+          {{ states
+            | selectattr('state', 'in', ['unavailable', 'unknown'])
+            | rejectattr('entity_id', 'search', '^button\\.')
+            | rejectattr('entity_id', 'search', '^event\\.')
+            | list
+            | count }}
+        attributes:
+          entities: >
+            {{ states
+              | selectattr('state', 'in', ['unavailable', 'unknown'])
+              | rejectattr('entity_id', 'search', '^button\\.')
+              | rejectattr('entity_id', 'search', '^event\\.')
+              | map(attribute='entity_id')
+              | list }}
+
+      - name: Home Health Low Batteries
+        unique_id: home_health_low_batteries
+        icon: mdi:battery-alert
+        unit_of_measurement: entities
+        state: >
+          {% set ns = namespace(count=0) %}
+          {% for entity in states.sensor
+            | selectattr('attributes.device_class', 'eq', 'battery')
+            | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+            {% if entity.state | float(101) < 20 %}
+              {% set ns.count = ns.count + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.count }}
+        attributes:
+          entities: >
+            {% set ns = namespace(items=[]) %}
+            {% for entity in states.sensor
+              | selectattr('attributes.device_class', 'eq', 'battery')
+              | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+              {% if entity.state | float(101) < 20 %}
+                {% set ns.items = ns.items + [entity.entity_id] %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.items }}
+
+      - name: Home Health Critical Batteries
+        unique_id: home_health_critical_batteries
+        icon: mdi:battery-10
+        unit_of_measurement: entities
+        state: >
+          {% set ns = namespace(count=0) %}
+          {% for entity in states.sensor
+            | selectattr('attributes.device_class', 'eq', 'battery')
+            | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+            {% if entity.state | float(101) < 10 %}
+              {% set ns.count = ns.count + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.count }}
+
+      - name: Home Health Stale Entities
+        unique_id: home_health_stale_entities
+        icon: mdi:clock-alert-outline
+        unit_of_measurement: entities
+        state: >
+          {% set ignore = ['automation.', 'button.', 'calendar.', 'camera.', 'event.', 'group.', 'input_', 'person.', 'scene.', 'script.', 'sun.', 'update.', 'zone.'] %}
+          {{ states
+            | rejectattr('entity_id', 'search', '^(' ~ ignore | join('|') ~ ')')
+            | rejectattr('state', 'in', ['unavailable', 'unknown'])
+            | selectattr('last_updated', 'lt', now() - timedelta(hours=4))
+            | list
+            | count }}
+        attributes:
+          entities: >
+            {% set ignore = ['automation.', 'button.', 'calendar.', 'camera.', 'event.', 'group.', 'input_', 'person.', 'scene.', 'script.', 'sun.', 'update.', 'zone.'] %}
+            {{ states
+              | rejectattr('entity_id', 'search', '^(' ~ ignore | join('|') ~ ')')
+              | rejectattr('state', 'in', ['unavailable', 'unknown'])
+              | selectattr('last_updated', 'lt', now() - timedelta(hours=4))
+              | map(attribute='entity_id')
+              | list }}
+
+      - name: Home Health Temperature Median
+        unique_id: home_health_temperature_median
+        icon: mdi:thermometer-lines
+        unit_of_measurement: °C
+        state: >
+          {% set ns = namespace(values=[]) %}
+          {% for entity in states.sensor
+            | selectattr('attributes.device_class', 'eq', 'temperature')
+            | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+            {% set value = entity.state | float(none) %}
+            {% if value is not none %}
+              {% set ns.values = ns.values + [value] %}
+            {% endif %}
+          {% endfor %}
+          {% set values = ns.values | sort %}
+          {% set count = values | count %}
+          {% if count == 0 %}
+            unknown
+          {% elif count % 2 == 1 %}
+            {{ values[count // 2] | round(1) }}
+          {% else %}
+            {{ ((values[(count // 2) - 1] + values[count // 2]) / 2) | round(1) }}
+          {% endif %}
+
+      - name: Home Health Temperature Average
+        unique_id: home_health_temperature_average
+        icon: mdi:thermometer
+        unit_of_measurement: °C
+        state: >
+          {% set ns = namespace(total=0, count=0) %}
+          {% for entity in states.sensor
+            | selectattr('attributes.device_class', 'eq', 'temperature')
+            | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+            {% set value = entity.state | float(none) %}
+            {% if value is not none %}
+              {% set ns.total = ns.total + value %}
+              {% set ns.count = ns.count + 1 %}
+            {% endif %}
+          {% endfor %}
+          {{ (ns.total / ns.count) | round(1) if ns.count > 0 else 'unknown' }}
+
+      - name: Home Health Temperature Outliers
+        unique_id: home_health_temperature_outliers
+        icon: mdi:thermometer-alert
+        unit_of_measurement: entities
+        state: >
+          {% set temp = namespace(values=[]) %}
+          {% for entity in states.sensor
+            | selectattr('attributes.device_class', 'eq', 'temperature')
+            | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+            {% set value = entity.state | float(none) %}
+            {% if value is not none %}
+              {% set temp.values = temp.values + [value] %}
+            {% endif %}
+          {% endfor %}
+          {% set values = temp.values | sort %}
+          {% set count = values | count %}
+          {% if count == 0 %}
+            0
+          {% else %}
+            {% set median = values[count // 2] if count % 2 == 1 else (values[(count // 2) - 1] + values[count // 2]) / 2 %}
+            {% set ns = namespace(count=0) %}
+            {% for entity in states.sensor
+              | selectattr('attributes.device_class', 'eq', 'temperature')
+              | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+              {% set value = entity.state | float(none) %}
+              {% if value is not none and (value < median - 4 or value > median + 4) %}
+                {% set ns.count = ns.count + 1 %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.count }}
+          {% endif %}
+        attributes:
+          entities: >
+            {% set temp = namespace(values=[]) %}
+            {% for entity in states.sensor
+              | selectattr('attributes.device_class', 'eq', 'temperature')
+              | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+              {% set value = entity.state | float(none) %}
+              {% if value is not none %}
+                {% set temp.values = temp.values + [value] %}
+              {% endif %}
+            {% endfor %}
+            {% set values = temp.values | sort %}
+            {% set count = values | count %}
+            {% set median = values[count // 2] if count > 0 and count % 2 == 1 else ((values[(count // 2) - 1] + values[count // 2]) / 2 if count > 0 else none) %}
+            {% set ns = namespace(items=[]) %}
+            {% if median is not none %}
+              {% for entity in states.sensor
+                | selectattr('attributes.device_class', 'eq', 'temperature')
+                | rejectattr('state', 'in', ['unknown', 'unavailable']) %}
+                {% set value = entity.state | float(none) %}
+                {% if value is not none and (value < median - 4 or value > median + 4) %}
+                  {% set ns.items = ns.items + [entity.entity_id] %}
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+            {{ ns.items }}
+
+      - name: Home Health APIs Offline
+        unique_id: home_health_apis_offline
+        icon: mdi:api-off
+        unit_of_measurement: entities
+        state: >
+          {% set api_group = state_attr('group.home_health_api_watchlist', 'entity_id') or [] %}
+          {{ expand(api_group)
+            | selectattr('state', 'in', ['off', 'unavailable', 'unknown'])
+            | list
+            | count }}
+        attributes:
+          entities: >
+            {% set api_group = state_attr('group.home_health_api_watchlist', 'entity_id') or [] %}
+            {{ expand(api_group)
+              | selectattr('state', 'in', ['off', 'unavailable', 'unknown'])
+              | map(attribute='entity_id')
+              | list }}
+
+      - name: Home Health Score
+        unique_id: home_health_score
+        icon: mdi:heart-pulse
+        unit_of_measurement: "%"
+        state: >
+          {% set offline = states('sensor.home_health_offline_entities') | int(0) %}
+          {% set critical_battery = states('sensor.home_health_critical_batteries') | int(0) %}
+          {% set low_battery = states('sensor.home_health_low_batteries') | int(0) %}
+          {% set stale = states('sensor.home_health_stale_entities') | int(0) %}
+          {% set api = states('sensor.home_health_apis_offline') | int(0) %}
+          {% set temp_outliers = states('sensor.home_health_temperature_outliers') | int(0) %}
+          {% set penalty = offline * 8 + critical_battery * 6 + low_battery * 3 + stale * 2 + api * 10 + temp_outliers * 3 %}
+          {{ [100 - penalty, 0] | max }}
+
+  - binary_sensor:
+      - name: Home Health Critical
+        unique_id: home_health_critical
+        icon: mdi:alert-octagon
+        state: >
+          {{ states('sensor.home_health_score') | int(100) < 70
+             or states('sensor.home_health_offline_entities') | int(0) > 0
+             or states('sensor.home_health_apis_offline') | int(0) > 0 }}
+
+      - name: Home Health Warning
+        unique_id: home_health_warning
+        icon: mdi:alert
+        state: >
+          {{ states('sensor.home_health_score') | int(100) < 90
+             or states('sensor.home_health_low_batteries') | int(0) > 0
+             or states('sensor.home_health_stale_entities') | int(0) > 0 }}
