@@ -39,6 +39,7 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
                 "total_zigbee_linkquality_entities"
             ],
             "total_addon_watchlist_entities": data["total_addon_watchlist_entities"],
+            "total_system_resource_entities": data["total_system_resource_entities"],
             "source_status": data["source_status"],
             "temperature_median": data["temperature_median"],
             "temperature_average": data["temperature_average"],
@@ -74,6 +75,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
                 "addon_problems": {
                     "count": len(data["addon_problem_entities"]),
                     "details": data["addon_problem_details"],
+                },
+                "system_resource_problems": {
+                    "count": len(data["system_resource_problem_entities"]),
+                    "details": data["system_resource_problem_details"],
                 },
             },
         },
@@ -178,6 +183,17 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         attrs_fn=lambda data: {
             "entities": data["addon_problem_entities"],
             "details": data["addon_problem_details"],
+        },
+    ),
+    HomeHealthSensorDescription(
+        key="system_resource_problems",
+        translation_key="system_resource_problems",
+        icon="mdi:server-network",
+        native_unit_of_measurement="entities",
+        value_fn=lambda data: len(data["system_resource_problem_entities"]),
+        attrs_fn=lambda data: {
+            "entities": data["system_resource_problem_entities"],
+            "details": data["system_resource_problem_details"],
         },
     ),
 )

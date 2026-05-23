@@ -18,18 +18,26 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import (
     CONF_ADDON_ENTITIES,
     CONF_API_ENTITIES,
+    CONF_CPU_WARNING_THRESHOLD,
     CONF_CRITICAL_BATTERY_THRESHOLD,
     CONF_LINKQUALITY_THRESHOLD,
     CONF_LOW_BATTERY_THRESHOLD,
+    CONF_MEMORY_WARNING_THRESHOLD,
     CONF_STALE_HOURS,
+    CONF_STORAGE_WARNING_THRESHOLD,
+    CONF_SYSTEM_RESOURCE_ENTITIES,
     CONF_TEMPERATURE_OUTLIER_DELTA,
     DEFAULT_ADDON_ENTITIES,
     DEFAULT_API_ENTITIES,
+    DEFAULT_CPU_WARNING_THRESHOLD,
     DEFAULT_CRITICAL_BATTERY_THRESHOLD,
     DEFAULT_LINKQUALITY_THRESHOLD,
     DEFAULT_LOW_BATTERY_THRESHOLD,
+    DEFAULT_MEMORY_WARNING_THRESHOLD,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STALE_HOURS,
+    DEFAULT_STORAGE_WARNING_THRESHOLD,
+    DEFAULT_SYSTEM_RESOURCE_ENTITIES,
     DEFAULT_TEMPERATURE_OUTLIER_DELTA,
     DOMAIN,
     IGNORED_OFFLINE_PREFIXES,
@@ -78,11 +86,32 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         linkquality_threshold = float(
             settings.get(CONF_LINKQUALITY_THRESHOLD, DEFAULT_LINKQUALITY_THRESHOLD)
         )
+        cpu_threshold = float(
+            settings.get(CONF_CPU_WARNING_THRESHOLD, DEFAULT_CPU_WARNING_THRESHOLD)
+        )
+        memory_threshold = float(
+            settings.get(
+                CONF_MEMORY_WARNING_THRESHOLD,
+                DEFAULT_MEMORY_WARNING_THRESHOLD,
+            )
+        )
+        storage_threshold = float(
+            settings.get(
+                CONF_STORAGE_WARNING_THRESHOLD,
+                DEFAULT_STORAGE_WARNING_THRESHOLD,
+            )
+        )
         api_entities = _parse_entity_list(
             settings.get(CONF_API_ENTITIES, DEFAULT_API_ENTITIES)
         )
         addon_entities = _parse_entity_list(
             settings.get(CONF_ADDON_ENTITIES, DEFAULT_ADDON_ENTITIES)
+        )
+        system_resource_watchlist = _parse_entity_list(
+            settings.get(
+                CONF_SYSTEM_RESOURCE_ENTITIES,
+                DEFAULT_SYSTEM_RESOURCE_ENTITIES,
+            )
         )
         entity_registry = er.async_get(self.hass)
         device_registry = dr.async_get(self.hass)
@@ -187,6 +216,20 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if (state := self.hass.states.get(entity_id)) is None
             or _is_problem_state(state.state)
         ]
+        system_resources = _detect_system_resources(
+            states,
+            system_resource_watchlist,
+        )
+        system_resource_problem_entities = [
+            resource["entity_id"]
+            for resource in system_resources
+            if _is_system_resource_problem(
+                resource,
+                cpu_threshold,
+                memory_threshold,
+                storage_threshold,
+            )
+        ]
         offline_details = _entity_details(
             self.hass,
             entity_registry,
@@ -253,6 +296,20 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             area_registry,
             addon_problem_entities,
         )
+        system_resource_problem_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            system_resource_problem_entities,
+            extra_fn=lambda state: _system_resource_extra(
+                state,
+                system_resources,
+                cpu_threshold,
+                memory_threshold,
+                storage_threshold,
+            ),
+        )
         source_status = {
             "mqtt_entities_found": len(mqtt_entities),
             "zigbee2mqtt_entities_found": len(
@@ -276,6 +333,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     or "add_on" in state.entity_id.lower()
                 ]
             ),
+            "system_resource_entities_found": len(system_resources),
         }
 
         score, score_breakdown = _calculate_score(
@@ -293,6 +351,8 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             zigbee_linkquality_low_count=len(zigbee_linkquality_low_entities),
             addon_count=len(addon_watchlist_entities),
             addon_problem_count=len(addon_problem_entities),
+            system_resource_count=len(system_resources),
+            system_resource_problem_count=len(system_resource_problem_entities),
         )
 
         return {
@@ -304,6 +364,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "total_api_entities": len(api_entities),
             "total_zigbee_linkquality_entities": len(zigbee_linkquality_entities),
             "total_addon_watchlist_entities": len(addon_watchlist_entities),
+            "total_system_resource_entities": len(system_resources),
             "source_status": source_status,
             "offline_entities": offline_entities,
             "offline_details": offline_details,
@@ -323,6 +384,8 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "zigbee_linkquality_low_details": zigbee_linkquality_low_details,
             "addon_problem_entities": addon_problem_entities,
             "addon_problem_details": addon_problem_details,
+            "system_resource_problem_entities": system_resource_problem_entities,
+            "system_resource_problem_details": system_resource_problem_details,
             "critical": score < 60 or bool(critical_battery_entities),
             "warning": score < 90
             or bool(offline_entities)
@@ -330,6 +393,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             or bool(low_battery_entities)
             or bool(zigbee_linkquality_low_entities)
             or bool(addon_problem_entities)
+            or bool(system_resource_problem_entities)
             or bool(stale_entities),
         }
 
@@ -424,6 +488,124 @@ def _dedupe(values: list[str]) -> list[str]:
     return result
 
 
+def _detect_system_resources(
+    states: list[Any],
+    watchlist: list[str],
+) -> list[dict[str, Any]]:
+    """Detect CPU, memory, and storage usage entities."""
+    resources: list[dict[str, Any]] = []
+    watchlist_set = set(watchlist)
+    for state in states:
+        resource_type = _system_resource_type(state)
+        if state.entity_id in watchlist_set and resource_type is None:
+            resource_type = "resource"
+        if resource_type is None:
+            continue
+        value = _normalize_percent_usage(state, resource_type)
+        if value is None:
+            continue
+        resources.append(
+            {
+                "entity_id": state.entity_id,
+                "type": resource_type,
+                "value": value,
+            }
+        )
+    return resources
+
+
+def _system_resource_type(state: Any) -> str | None:
+    """Return system resource type for common HA system monitor sensors."""
+    if not state.entity_id.startswith("sensor."):
+        return None
+    haystack = (
+        f"{state.entity_id} {state.attributes.get('friendly_name', '')}"
+    ).lower()
+    unit = str(state.attributes.get("unit_of_measurement", "")).lower()
+    if any(token in haystack for token in ("processor_use", "cpu_usage", "cpu use", "cpu_used", "cpu load", "processor use")):
+        return "cpu"
+    if "cpu" in haystack and unit == "%":
+        return "cpu"
+    if any(token in haystack for token in ("memory_use_percent", "memory usage", "memory used", "ram usage", "ram use", "memory_use")):
+        return "memory"
+    if ("memory" in haystack or "ram" in haystack) and unit == "%":
+        return "memory"
+    if any(token in haystack for token in ("disk_use_percent", "disk usage", "storage usage", "data_disk_used", "disk use")):
+        return "storage"
+    if any(token in haystack for token in ("disk", "storage")) and unit == "%":
+        return "storage"
+    return None
+
+
+def _normalize_percent_usage(state: Any, resource_type: str) -> float | None:
+    """Return resource usage as a percentage where possible."""
+    value = _float_or_none(state.state)
+    if value is None:
+        return None
+    unit = str(state.attributes.get("unit_of_measurement", "")).lower()
+    if unit == "%" or resource_type in {"cpu", "memory", "storage", "resource"}:
+        return value
+    return None
+
+
+def _is_system_resource_problem(
+    resource: dict[str, Any],
+    cpu_threshold: float,
+    memory_threshold: float,
+    storage_threshold: float,
+) -> bool:
+    """Return whether a resource exceeds its configured threshold."""
+    threshold = _resource_threshold(
+        resource["type"],
+        cpu_threshold,
+        memory_threshold,
+        storage_threshold,
+    )
+    return float(resource["value"]) >= threshold
+
+
+def _system_resource_extra(
+    state: Any,
+    resources: list[dict[str, Any]],
+    cpu_threshold: float,
+    memory_threshold: float,
+    storage_threshold: float,
+) -> dict[str, Any]:
+    """Return resource details for an entity."""
+    resource = next(
+        (item for item in resources if item["entity_id"] == state.entity_id),
+        None,
+    )
+    resource_type = resource["type"] if resource else "resource"
+    threshold = _resource_threshold(
+        resource_type,
+        cpu_threshold,
+        memory_threshold,
+        storage_threshold,
+    )
+    return {
+        "resource_type": resource_type,
+        "usage": resource["value"] if resource else _float_or_none(state.state),
+        "threshold": threshold,
+    }
+
+
+def _resource_threshold(
+    resource_type: str,
+    cpu_threshold: float,
+    memory_threshold: float,
+    storage_threshold: float,
+) -> float:
+    """Return the threshold for a resource type."""
+    if resource_type == "cpu":
+        return cpu_threshold
+    if resource_type == "memory":
+        return memory_threshold
+    if resource_type == "storage":
+        return storage_threshold
+    return max(cpu_threshold, memory_threshold, storage_threshold)
+
+
 def _calculate_score(
     *,
     total_entities: int,
@@ -440,6 +622,8 @@ def _calculate_score(
     zigbee_linkquality_low_count: int,
     addon_count: int,
     addon_problem_count: int,
+    system_resource_count: int,
+    system_resource_problem_count: int,
 ) -> tuple[int, dict[str, Any]]:
     """Calculate a weighted health score from all available health categories."""
     components = []
@@ -532,6 +716,21 @@ def _calculate_score(
                 "score": _ratio_score(addon_count, addon_problem_count),
                 "affected": addon_problem_count,
                 "total": addon_count,
+            }
+        )
+
+    if system_resource_count:
+        components.append(
+            {
+                "key": "system_resources",
+                "label": "System resources",
+                "weight": 15,
+                "score": _ratio_score(
+                    system_resource_count,
+                    system_resource_problem_count,
+                ),
+                "affected": system_resource_problem_count,
+                "total": system_resource_count,
             }
         )
 

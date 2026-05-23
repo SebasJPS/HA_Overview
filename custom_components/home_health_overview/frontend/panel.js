@@ -22,6 +22,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
       apisOffline: findEntity(hass, "sensor.home_health_overview_apis_offline", "apis_offline"),
       zigbeeLinkqualityLow: findEntity(hass, "sensor.home_health_overview_zigbee_linkquality_low", "zigbee_linkquality_low"),
       addonProblems: findEntity(hass, "sensor.home_health_overview_addon_problems", "addon_problems"),
+      systemResourceProblems: findEntity(hass, "sensor.home_health_overview_system_resource_problems", "system_resource_problems"),
       tempMedian: findEntity(hass, "sensor.home_health_overview_temperature_median", "temperature_median"),
       tempAverage: findEntity(hass, "sensor.home_health_overview_temperature_average", "temperature_average"),
     };
@@ -172,6 +173,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
             ${categoryKpi(categories.apis_offline, entities.apisOffline, "APIs offline")}
             ${categoryKpi(categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, "Zigbee Signal schwach")}
             ${categoryKpi(categories.addon_problems, entities.addonProblems, "Add-on Probleme")}
+            ${categoryKpi(categories.system_resource_problems, entities.systemResourceProblems, "Systemlast hoch")}
             ${valueKpi(temperatureMedian, "Temperatur Median", "°C")}
             ${valueKpi(temperatureAverage, "Temperatur Mittelwert", "°C")}
           </div>
@@ -188,6 +190,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
           ${detailSection("APIs nicht erreichbar", categories.apis_offline, entities.apisOffline)}
           ${detailSection("Zigbee Signal schwach", categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, false, false, true)}
           ${detailSection("Add-ons / Bridges mit Problemen", categories.addon_problems, entities.addonProblems)}
+          ${detailSection("CPU / RAM / Speicher kritisch", categories.system_resource_problems, entities.systemResourceProblems, false, false, false, true)}
         </div>
       </div>
     `;
@@ -224,10 +227,10 @@ function valueKpi(value, label, suffix = "") {
   `;
 }
 
-function detailSection(title, category, entity, showLastUpdate = false, showTemperatureMeta = false, showZigbeeMeta = false) {
+function detailSection(title, category, entity, showLastUpdate = false, showTemperatureMeta = false, showZigbeeMeta = false, showResourceMeta = false) {
   const details = category?.details || entity?.attributes?.details || [];
   const rows = details.length
-    ? details.map((item) => detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta)).join("")
+    ? details.map((item) => detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta, showResourceMeta)).join("")
     : `<div class="empty">Keine Einträge.</div>`;
 
   return `
@@ -238,7 +241,7 @@ function detailSection(title, category, entity, showLastUpdate = false, showTemp
   `;
 }
 
-function detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta) {
+function detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta, showResourceMeta) {
   const context = [
     item.entity_id ? `<code>${escapeHtml(item.entity_id)}</code>` : "",
     item.state ? `Status: <code>${escapeHtml(item.state)}</code>` : "",
@@ -255,6 +258,9 @@ function detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta) {
   const zigbee = showZigbeeMeta
     ? `<div class="meta">Linkquality: ${item.linkquality ?? "-"} · Schwelle: ${item.threshold ?? "-"}</div>`
     : "";
+  const resource = showResourceMeta
+    ? `<div class="meta">Typ: ${item.resource_type ?? "-"} · Auslastung: ${item.usage ?? "-"}% · Schwelle: ${item.threshold ?? "-"}%</div>`
+    : "";
 
   return `
     <div class="item">
@@ -262,6 +268,7 @@ function detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta) {
       <div class="meta">${context}</div>
       ${temp}
       ${zigbee}
+      ${resource}
       ${update}
     </div>
   `;
@@ -275,6 +282,7 @@ function sourceSection(sourceStatus) {
     ["Bridge-Status-Entitäten", sourceStatus.zigbee_bridge_entities_found],
     ["Add-on Watchlist", sourceStatus.addon_watchlist_entities_found],
     ["Supervisor/Add-on Hinweise", sourceStatus.supervisor_entities_found],
+    ["Systemressourcen", sourceStatus.system_resource_entities_found],
   ];
   return `
     <section class="section">

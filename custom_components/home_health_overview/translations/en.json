@@ -10,8 +10,12 @@
           "critical_battery_threshold": "Critical battery threshold (%)",
           "temperature_outlier_delta": "Temperature outlier delta (°C)",
           "linkquality_threshold": "Zigbee linkquality warning threshold",
+          "cpu_warning_threshold": "CPU warning threshold (%)",
+          "memory_warning_threshold": "RAM warning threshold (%)",
+          "storage_warning_threshold": "Storage warning threshold (%)",
           "api_entities": "API/watchlist entities, comma-separated",
-          "addon_entities": "Add-on/bridge watchlist entities, comma-separated"
+          "addon_entities": "Add-on/bridge watchlist entities, comma-separated",
+          "system_resource_entities": "System resource watchlist, comma-separated"
         }
       }
     }
@@ -26,8 +30,12 @@
           "critical_battery_threshold": "Critical battery threshold (%)",
           "temperature_outlier_delta": "Temperature outlier delta (°C)",
           "linkquality_threshold": "Zigbee linkquality warning threshold",
+          "cpu_warning_threshold": "CPU warning threshold (%)",
+          "memory_warning_threshold": "RAM warning threshold (%)",
+          "storage_warning_threshold": "Storage warning threshold (%)",
           "api_entities": "API/watchlist entities, comma-separated",
-          "addon_entities": "Add-on/bridge watchlist entities, comma-separated"
+          "addon_entities": "Add-on/bridge watchlist entities, comma-separated",
+          "system_resource_entities": "System resource watchlist, comma-separated"
         }
       }
     }
@@ -44,7 +52,8 @@
       "temperature_outliers": { "name": "Temperature Outliers" },
       "apis_offline": { "name": "APIs Offline" },
       "zigbee_linkquality_low": { "name": "Weak Zigbee Signal" },
-      "addon_problems": { "name": "Add-on Problems" }
+      "addon_problems": { "name": "Add-on Problems" },
+      "system_resource_problems": { "name": "High System Load" }
     },
     "binary_sensor": {
       "critical": { "name": "Critical" },

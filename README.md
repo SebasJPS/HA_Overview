@@ -16,6 +16,7 @@ Eine HACS-installierbare Home-Assistant-Integration für Geräte-, Sensor-, Batt
 - Zigbee2MQTT/MQTT-Quellen-Erkennung
 - schwache Zigbee-Linkquality
 - Add-on-/Bridge-Watchlist
+- CPU-/RAM-/Speicher-Auslastung
 - Sidebar-Panel `Home Health`
 - Lovelace-Dashboard mit Seiten für Übersicht, Sensoren, Batterien, Klima, Energie, Integrationen und Wartung
 
@@ -59,6 +60,7 @@ Der Home Health Score ist eine gewichtete Bewertung über alle überwachten Bere
 - API-/Watchlist-Verfügbarkeit
 - Zigbee-Linkquality
 - Add-on-/Bridge-Watchlist
+- Systemressourcen wie CPU, RAM und Speicher
 
 Eine einzelne Offline-Entität senkt den Score nur proportional zum Gesamtbestand und markiert den Zustand nicht automatisch als kritisch.
 

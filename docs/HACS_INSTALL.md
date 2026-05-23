@@ -44,6 +44,8 @@ Beim Hinzufügen kannst du konfigurieren:
 - API-/Watchlist-Entitäten, kommagetrennt
 - Zigbee Linkquality-Warnschwelle
 - Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt
+- CPU-, RAM- und Speicher-Warnschwellen
+- Systemressourcen-Watchlist, kommagetrennt
 
 Beispiel für API-/Watchlist-Entitäten:
 
