@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Home Health Overview",
+        "description": "Create health sensors for Home Assistant entities.",
+        "data": {
+          "stale_hours": "Hours without update before an entity is stale",
+          "low_battery_threshold": "Low battery threshold (%)",
+          "critical_battery_threshold": "Critical battery threshold (%)",
+          "temperature_outlier_delta": "Temperature outlier delta (°C)",
+          "api_entities": "API/watchlist entities, comma-separated"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home Health Overview options",
+        "data": {
+          "stale_hours": "Hours without update before an entity is stale",
+          "low_battery_threshold": "Low battery threshold (%)",
+          "critical_battery_threshold": "Critical battery threshold (%)",
+          "temperature_outlier_delta": "Temperature outlier delta (°C)",
+          "api_entities": "API/watchlist entities, comma-separated"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "score": { "name": "Health Score" },
+      "offline_entities": { "name": "Offline Entities" },
+      "low_batteries": { "name": "Low Batteries" },
+      "critical_batteries": { "name": "Critical Batteries" },
+      "stale_entities": { "name": "Stale Entities" },
+      "temperature_median": { "name": "Temperature Median" },
+      "temperature_average": { "name": "Temperature Average" },
+      "temperature_outliers": { "name": "Temperature Outliers" },
+      "apis_offline": { "name": "APIs Offline" }
+    },
+    "binary_sensor": {
+      "critical": { "name": "Critical" },
+      "warning": { "name": "Warning" }
+    }
+  }
+}

@@ -1,6 +1,6 @@
-# Home Health Dashboard for Home Assistant
+# Home Health Overview for Home Assistant
 
-Ein fertiger Startpunkt für ein Home-Assistant-Dashboard, das Geräte-, Sensor-, Batterie-, API-, Klima- und Energiezustand sichtbar macht.
+Eine HACS-installierbare Home-Assistant-Integration für Geräte-, Sensor-, Batterie-, API-, Klima- und Energiezustand.
 
 ## Enthalten
 
@@ -15,15 +15,45 @@ Ein fertiger Startpunkt für ein Home-Assistant-Dashboard, das Geräte-, Sensor-
 - API-Watchlist
 - Lovelace-Dashboard mit Seiten für Übersicht, Sensoren, Batterien, Klima, Energie, Integrationen und Wartung
 
+## Installation über HACS
+
+1. Öffne HACS in Home Assistant.
+2. Gehe zu `Integrationen`.
+3. Öffne das Menü oben rechts.
+4. Wähle `Benutzerdefinierte Repositories`.
+5. Füge dieses Repository hinzu:
+
+   ```text
+   https://github.com/SebasJPS/HA_Overview
+   ```
+
+6. Kategorie: `Integration`
+7. Installiere `Home Health Overview`.
+8. Starte Home Assistant neu.
+9. Gehe zu `Einstellungen -> Geräte & Dienste -> Integration hinzufügen`.
+10. Suche nach `Home Health Overview` und füge die Integration hinzu.
+
+Danach erscheinen eigene Sensoren wie:
+
+- `sensor.home_health_overview_health_score`
+- `sensor.home_health_overview_offline_entities`
+- `sensor.home_health_overview_low_batteries`
+- `sensor.home_health_overview_stale_entities`
+- `sensor.home_health_overview_temperature_median`
+- `sensor.home_health_overview_apis_offline`
+- `binary_sensor.home_health_overview_critical`
+- `binary_sensor.home_health_overview_warning`
+
 ## Dateien
 
+- [custom_components/home_health_overview](custom_components/home_health_overview)
 - [packages/home_health.yaml](packages/home_health.yaml)
 - [dashboards/home-health-dashboard.yaml](dashboards/home-health-dashboard.yaml)
 - [docs/LIVE_STELLEN.md](docs/LIVE_STELLEN.md)
 
 ## Live stellen
 
-Die genaue Anleitung steht in [docs/LIVE_STELLEN.md](docs/LIVE_STELLEN.md).
+Für HACS ist keine manuelle Kopie der Integration nötig. Die ältere YAML-Paket-Variante bleibt als Alternative erhalten; die Anleitung steht in [docs/LIVE_STELLEN.md](docs/LIVE_STELLEN.md).
 
 ## Deployment über GitHub
 

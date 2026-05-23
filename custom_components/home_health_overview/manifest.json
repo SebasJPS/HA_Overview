@@ -1,0 +1,12 @@
+{
+  "domain": "home_health_overview",
+  "name": "Home Health Overview",
+  "codeowners": ["@SebasJPS"],
+  "config_flow": true,
+  "documentation": "https://github.com/SebasJPS/HA_Overview",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/SebasJPS/HA_Overview/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

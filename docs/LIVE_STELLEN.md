@@ -1,5 +1,21 @@
 # Home Health Dashboard live stellen
 
+## Empfohlen: HACS
+
+1. In HACS `Benutzerdefinierte Repositories` öffnen.
+2. Repository hinzufügen:
+
+   ```text
+   https://github.com/SebasJPS/HA_Overview
+   ```
+
+3. Kategorie `Integration` wählen.
+4. `Home Health Overview` installieren.
+5. Home Assistant neu starten.
+6. Unter `Einstellungen -> Geräte & Dienste -> Integration hinzufügen` nach `Home Health Overview` suchen.
+
+Die Integration erzeugt die Health-Sensoren direkt. Das YAML-Paket unten ist nur noch die manuelle Alternative.
+
 ## Dateien
 
 - `packages/home_health.yaml`

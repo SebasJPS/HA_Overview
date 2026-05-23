@@ -1,0 +1,48 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Home Health Overview",
+        "description": "Erstellt Health-Sensoren für deine Home-Assistant-Entitäten.",
+        "data": {
+          "stale_hours": "Stunden ohne Update bis eine Entität als veraltet gilt",
+          "low_battery_threshold": "Schwelle für niedrige Batterie (%)",
+          "critical_battery_threshold": "Schwelle für kritische Batterie (%)",
+          "temperature_outlier_delta": "Temperatur-Ausreißer Abstand (°C)",
+          "api_entities": "API-/Watchlist-Entitäten, kommagetrennt"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home Health Overview Optionen",
+        "data": {
+          "stale_hours": "Stunden ohne Update bis eine Entität als veraltet gilt",
+          "low_battery_threshold": "Schwelle für niedrige Batterie (%)",
+          "critical_battery_threshold": "Schwelle für kritische Batterie (%)",
+          "temperature_outlier_delta": "Temperatur-Ausreißer Abstand (°C)",
+          "api_entities": "API-/Watchlist-Entitäten, kommagetrennt"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "score": { "name": "Health Score" },
+      "offline_entities": { "name": "Offline Entitäten" },
+      "low_batteries": { "name": "Niedrige Batterien" },
+      "critical_batteries": { "name": "Kritische Batterien" },
+      "stale_entities": { "name": "Veraltete Entitäten" },
+      "temperature_median": { "name": "Temperatur Median" },
+      "temperature_average": { "name": "Temperatur Mittelwert" },
+      "temperature_outliers": { "name": "Temperatur Ausreißer" },
+      "apis_offline": { "name": "APIs offline" }
+    },
+    "binary_sensor": {
+      "critical": { "name": "Kritisch" },
+      "warning": { "name": "Warnung" }
+    }
+  }
+}
