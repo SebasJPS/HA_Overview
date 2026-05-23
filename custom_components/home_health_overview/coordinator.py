@@ -78,9 +78,16 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         area_registry = ar.async_get(self.hass)
 
         states = list(self.hass.states.async_all())
+        monitored_states = [
+            state
+            for state in states
+            if not _starts_with(state.entity_id, IGNORED_STALE_PREFIXES)
+            and not state.entity_id.startswith(f"sensor.{DOMAIN}_")
+            and not state.entity_id.startswith(f"binary_sensor.{DOMAIN}_")
+        ]
         offline_entities = [
             state.entity_id
-            for state in states
+            for state in monitored_states
             if state.state in {"unavailable", "unknown"}
             and not _starts_with(state.entity_id, IGNORED_OFFLINE_PREFIXES)
         ]
@@ -104,9 +111,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         stale_entities = []
         now = datetime.now(timezone.utc)
-        for state in states:
-            if _starts_with(state.entity_id, IGNORED_STALE_PREFIXES):
-                continue
+        for state in monitored_states:
             if state.state in {"unavailable", "unknown"}:
                 continue
             age = now - state.last_updated
@@ -187,19 +192,26 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             api_offline_entities,
         )
 
-        score = max(
-            100
-            - len(offline_entities) * 8
-            - len(critical_battery_entities) * 6
-            - len(low_battery_entities) * 3
-            - len(stale_entities) * 2
-            - len(api_offline_entities) * 10
-            - len(temp_outliers) * 3,
-            0,
+        score, score_breakdown = _calculate_score(
+            total_entities=len(monitored_states),
+            offline_count=len(offline_entities),
+            stale_count=len(stale_entities),
+            battery_count=len(battery_entities),
+            low_battery_count=len(low_battery_entities),
+            critical_battery_count=len(critical_battery_entities),
+            temperature_count=len(temperatures),
+            temperature_outlier_count=len(temp_outliers),
+            api_count=len(api_entities),
+            api_offline_count=len(api_offline_entities),
         )
 
         return {
             "score": score,
+            "score_breakdown": score_breakdown,
+            "total_monitored_entities": len(monitored_states),
+            "total_battery_entities": len(battery_entities),
+            "total_temperature_entities": len(temperatures),
+            "total_api_entities": len(api_entities),
             "offline_entities": offline_entities,
             "offline_details": offline_details,
             "low_battery_entities": low_battery_entities,
@@ -214,10 +226,10 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "temperature_outlier_details": temperature_outlier_details,
             "api_offline_entities": api_offline_entities,
             "api_offline_details": api_offline_details,
-            "critical": score < 70
-            or bool(offline_entities)
-            or bool(api_offline_entities),
+            "critical": score < 60 or bool(critical_battery_entities),
             "warning": score < 90
+            or bool(offline_entities)
+            or bool(api_offline_entities)
             or bool(low_battery_entities)
             or bool(stale_entities),
         }
@@ -243,6 +255,107 @@ def _float_or_none(value: Any) -> float | None:
 def _starts_with(value: str, prefixes: tuple[str, ...]) -> bool:
     """Return whether value starts with one of the prefixes."""
     return any(value.startswith(prefix) for prefix in prefixes)
+
+
+def _calculate_score(
+    *,
+    total_entities: int,
+    offline_count: int,
+    stale_count: int,
+    battery_count: int,
+    low_battery_count: int,
+    critical_battery_count: int,
+    temperature_count: int,
+    temperature_outlier_count: int,
+    api_count: int,
+    api_offline_count: int,
+) -> tuple[int, dict[str, Any]]:
+    """Calculate a weighted health score from all available health categories."""
+    components = []
+    availability_score = _ratio_score(total_entities, offline_count)
+    components.append(
+        {
+            "key": "availability",
+            "label": "Availability",
+            "weight": 35,
+            "score": availability_score,
+            "affected": offline_count,
+            "total": total_entities,
+        }
+    )
+
+    freshness_score = _ratio_score(total_entities, stale_count)
+    components.append(
+        {
+            "key": "freshness",
+            "label": "Freshness",
+            "weight": 20,
+            "score": freshness_score,
+            "affected": stale_count,
+            "total": total_entities,
+        }
+    )
+
+    if battery_count:
+        battery_penalty = (
+            (low_battery_count / battery_count) * 50
+            + (critical_battery_count / battery_count) * 50
+        )
+        components.append(
+            {
+                "key": "battery",
+                "label": "Battery",
+                "weight": 20,
+                "score": round(max(100 - battery_penalty, 0), 1),
+                "affected": low_battery_count,
+                "critical": critical_battery_count,
+                "total": battery_count,
+            }
+        )
+
+    if temperature_count:
+        components.append(
+            {
+                "key": "temperature",
+                "label": "Temperature",
+                "weight": 15,
+                "score": _ratio_score(temperature_count, temperature_outlier_count),
+                "affected": temperature_outlier_count,
+                "total": temperature_count,
+            }
+        )
+
+    if api_count:
+        components.append(
+            {
+                "key": "api",
+                "label": "APIs",
+                "weight": 10,
+                "score": _ratio_score(api_count, api_offline_count),
+                "affected": api_offline_count,
+                "total": api_count,
+            }
+        )
+
+    total_weight = sum(component["weight"] for component in components)
+    if not total_weight:
+        return 100, {"components": [], "method": "weighted_average"}
+
+    score = round(
+        sum(component["score"] * component["weight"] for component in components)
+        / total_weight
+    )
+    return max(min(score, 100), 0), {
+        "method": "weighted_average",
+        "components": components,
+    }
+
+
+def _ratio_score(total: int, affected: int) -> float:
+    """Return a 0-100 score based on the affected ratio."""
+    if total <= 0:
+        return 100
+    return round(max(100 - (affected / total) * 100, 0), 1)
 
 
 def _entity_details(

@@ -29,6 +29,13 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         icon="mdi:heart-pulse",
         native_unit_of_measurement=PERCENTAGE,
         value_fn=lambda data: data["score"],
+        attrs_fn=lambda data: {
+            "breakdown": data["score_breakdown"],
+            "total_monitored_entities": data["total_monitored_entities"],
+            "total_battery_entities": data["total_battery_entities"],
+            "total_temperature_entities": data["total_temperature_entities"],
+            "total_api_entities": data["total_api_entities"],
+        },
     ),
     HomeHealthSensorDescription(
         key="offline_entities",

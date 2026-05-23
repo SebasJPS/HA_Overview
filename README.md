@@ -13,6 +13,7 @@ Eine HACS-installierbare Home-Assistant-Integration für Geräte-, Sensor-, Batt
 - Temperatur-Mittelwert
 - Temperatur-Ausreißer
 - API-Watchlist
+- Sidebar-Panel `Home Health`
 - Lovelace-Dashboard mit Seiten für Übersicht, Sensoren, Batterien, Klima, Energie, Integrationen und Wartung
 
 ## Installation über HACS
@@ -45,6 +46,16 @@ Danach erscheinen eigene Sensoren wie:
 - `binary_sensor.home_health_overview_warning`
 
 Die Zähler-Sensoren enthalten zusätzlich ein Attribut `details` mit Name, Entity-ID, Bereich, Gerät, Status und letztem Update der betroffenen Entitäten.
+
+Der Home Health Score ist eine gewichtete Bewertung über alle überwachten Bereiche:
+
+- Verfügbarkeit aller überwachten Entitäten
+- Aktualität aller überwachten Entitäten
+- Batteriezustand
+- Temperatur-Ausreißer
+- API-/Watchlist-Verfügbarkeit
+
+Eine einzelne Offline-Entität senkt den Score nur proportional zum Gesamtbestand und markiert den Zustand nicht automatisch als kritisch.
 
 ## Dateien
 

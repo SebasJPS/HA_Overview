@@ -54,3 +54,5 @@ binary_sensor.router_ping,binary_sensor.internet_ping,binary_sensor.nas_ping
 Die Integration erstellt Sensoren. Das Dashboard kannst du danach in Home Assistant mit diesen Entitäten bauen oder die YAML-Vorlage im Ordner `dashboards/` als Startpunkt verwenden.
 
 Die Zähler-Sensoren zeigen nicht nur die Anzahl. Im Attribut `details` stehen die betroffenen Entitäten mit Name, Entity-ID, Bereich, Gerät, Status und letztem Update.
+
+Ab Version `0.3.0` erscheint zusätzlich ein Eintrag `Home Health` in der linken Home-Assistant-Seitenleiste. Dort werden Score, Score-Berechnung und die betroffenen Entitäten direkt angezeigt.

@@ -8,6 +8,7 @@ Home Health Overview creates health sensors for Home Assistant:
 - stale entities without updates
 - temperature median, average, and outliers
 - API/watchlist availability
+- Sidebar panel with actionable issue lists
 
 Install as a HACS custom repository:
 
