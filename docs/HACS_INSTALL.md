@@ -42,6 +42,8 @@ Beim Hinzufügen kannst du konfigurieren:
 - Batterie-kritisch-Schwelle
 - Temperatur-Ausreißer-Abstand
 - API-/Watchlist-Entitäten, kommagetrennt
+- Zigbee Linkquality-Warnschwelle
+- Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt
 
 Beispiel für API-/Watchlist-Entitäten:
 

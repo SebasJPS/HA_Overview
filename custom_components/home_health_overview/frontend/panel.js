@@ -20,6 +20,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
       criticalBattery: findEntity(hass, "sensor.home_health_overview_critical_batteries", "critical_batteries"),
       temperatureOutliers: findEntity(hass, "sensor.home_health_overview_temperature_outliers", "temperature_outliers"),
       apisOffline: findEntity(hass, "sensor.home_health_overview_apis_offline", "apis_offline"),
+      zigbeeLinkqualityLow: findEntity(hass, "sensor.home_health_overview_zigbee_linkquality_low", "zigbee_linkquality_low"),
+      addonProblems: findEntity(hass, "sensor.home_health_overview_addon_problems", "addon_problems"),
       tempMedian: findEntity(hass, "sensor.home_health_overview_temperature_median", "temperature_median"),
       tempAverage: findEntity(hass, "sensor.home_health_overview_temperature_average", "temperature_average"),
     };
@@ -27,6 +29,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const score = asNumber(entities.score?.state, 0);
     const breakdown = entities.score?.attributes?.breakdown?.components || [];
     const categories = entities.score?.attributes?.categories || {};
+    const sourceStatus = entities.score?.attributes?.source_status || {};
     const temperatureMedian = entities.score?.attributes?.temperature_median ?? entities.tempMedian?.state ?? "?";
     const temperatureAverage = entities.score?.attributes?.temperature_average ?? entities.tempAverage?.state ?? "?";
 
@@ -167,6 +170,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
             ${categoryKpi(categories.critical_battery, entities.criticalBattery, "Batterien kritisch")}
             ${categoryKpi(categories.temperature_outliers, entities.temperatureOutliers, "Temp. Ausreißer")}
             ${categoryKpi(categories.apis_offline, entities.apisOffline, "APIs offline")}
+            ${categoryKpi(categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, "Zigbee Signal schwach")}
+            ${categoryKpi(categories.addon_problems, entities.addonProblems, "Add-on Probleme")}
             ${valueKpi(temperatureMedian, "Temperatur Median", "°C")}
             ${valueKpi(temperatureAverage, "Temperatur Mittelwert", "°C")}
           </div>
@@ -174,12 +179,15 @@ class HomeHealthOverviewPanel extends HTMLElement {
 
         <div class="grid">
           ${breakdownSection(breakdown)}
+          ${sourceSection(sourceStatus)}
           ${detailSection("Offline / unbekannt", categories.offline, entities.offline)}
           ${detailSection("Keine Updates", categories.stale, entities.stale, true)}
           ${detailSection("Batterien unter Schwelle", categories.low_battery, entities.lowBattery)}
           ${detailSection("Kritische Batterien", categories.critical_battery, entities.criticalBattery)}
           ${detailSection("Temperatur-Ausreißer", categories.temperature_outliers, entities.temperatureOutliers, false, true)}
           ${detailSection("APIs nicht erreichbar", categories.apis_offline, entities.apisOffline)}
+          ${detailSection("Zigbee Signal schwach", categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, false, false, true)}
+          ${detailSection("Add-ons / Bridges mit Problemen", categories.addon_problems, entities.addonProblems)}
         </div>
       </div>
     `;
@@ -216,10 +224,10 @@ function valueKpi(value, label, suffix = "") {
   `;
 }
 
-function detailSection(title, category, entity, showLastUpdate = false, showTemperatureMeta = false) {
+function detailSection(title, category, entity, showLastUpdate = false, showTemperatureMeta = false, showZigbeeMeta = false) {
   const details = category?.details || entity?.attributes?.details || [];
   const rows = details.length
-    ? details.map((item) => detailItem(item, showLastUpdate, showTemperatureMeta)).join("")
+    ? details.map((item) => detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta)).join("")
     : `<div class="empty">Keine Einträge.</div>`;
 
   return `
@@ -230,7 +238,7 @@ function detailSection(title, category, entity, showLastUpdate = false, showTemp
   `;
 }
 
-function detailItem(item, showLastUpdate, showTemperatureMeta) {
+function detailItem(item, showLastUpdate, showTemperatureMeta, showZigbeeMeta) {
   const context = [
     item.entity_id ? `<code>${escapeHtml(item.entity_id)}</code>` : "",
     item.state ? `Status: <code>${escapeHtml(item.state)}</code>` : "",
@@ -244,14 +252,42 @@ function detailItem(item, showLastUpdate, showTemperatureMeta) {
   const temp = showTemperatureMeta
     ? `<div class="meta">Median: ${item.median ?? "-"} °C · Abweichung: ${item.difference ?? "-"} °C</div>`
     : "";
+  const zigbee = showZigbeeMeta
+    ? `<div class="meta">Linkquality: ${item.linkquality ?? "-"} · Schwelle: ${item.threshold ?? "-"}</div>`
+    : "";
 
   return `
     <div class="item">
       <div class="name">${escapeHtml(item.name || item.entity_id || "Unbekannt")}</div>
       <div class="meta">${context}</div>
       ${temp}
+      ${zigbee}
       ${update}
     </div>
+  `;
+}
+
+function sourceSection(sourceStatus) {
+  const items = [
+    ["MQTT-Entitäten", sourceStatus.mqtt_entities_found],
+    ["Zigbee2MQTT-Entitäten", sourceStatus.zigbee2mqtt_entities_found],
+    ["Zigbee Linkquality-Sensoren", sourceStatus.zigbee_linkquality_sensors_found],
+    ["Bridge-Status-Entitäten", sourceStatus.zigbee_bridge_entities_found],
+    ["Add-on Watchlist", sourceStatus.addon_watchlist_entities_found],
+    ["Supervisor/Add-on Hinweise", sourceStatus.supervisor_entities_found],
+  ];
+  return `
+    <section class="section">
+      <h2>Gefundene Quellen</h2>
+      <div class="list">
+        ${items.map(([label, value]) => `
+          <div class="item">
+            <div class="name">${escapeHtml(label)}</div>
+            <div class="meta">${value ?? 0}</div>
+          </div>
+        `).join("")}
+      </div>
+    </section>
   `;
 }
 

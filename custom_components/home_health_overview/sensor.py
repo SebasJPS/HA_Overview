@@ -35,6 +35,11 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
             "total_battery_entities": data["total_battery_entities"],
             "total_temperature_entities": data["total_temperature_entities"],
             "total_api_entities": data["total_api_entities"],
+            "total_zigbee_linkquality_entities": data[
+                "total_zigbee_linkquality_entities"
+            ],
+            "total_addon_watchlist_entities": data["total_addon_watchlist_entities"],
+            "source_status": data["source_status"],
             "temperature_median": data["temperature_median"],
             "temperature_average": data["temperature_average"],
             "categories": {
@@ -61,6 +66,14 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
                 "apis_offline": {
                     "count": len(data["api_offline_entities"]),
                     "details": data["api_offline_details"],
+                },
+                "zigbee_linkquality_low": {
+                    "count": len(data["zigbee_linkquality_low_entities"]),
+                    "details": data["zigbee_linkquality_low_details"],
+                },
+                "addon_problems": {
+                    "count": len(data["addon_problem_entities"]),
+                    "details": data["addon_problem_details"],
                 },
             },
         },
@@ -143,6 +156,28 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         attrs_fn=lambda data: {
             "entities": data["api_offline_entities"],
             "details": data["api_offline_details"],
+        },
+    ),
+    HomeHealthSensorDescription(
+        key="zigbee_linkquality_low",
+        translation_key="zigbee_linkquality_low",
+        icon="mdi:zigbee",
+        native_unit_of_measurement="entities",
+        value_fn=lambda data: len(data["zigbee_linkquality_low_entities"]),
+        attrs_fn=lambda data: {
+            "entities": data["zigbee_linkquality_low_entities"],
+            "details": data["zigbee_linkquality_low_details"],
+        },
+    ),
+    HomeHealthSensorDescription(
+        key="addon_problems",
+        translation_key="addon_problems",
+        icon="mdi:puzzle-alert",
+        native_unit_of_measurement="entities",
+        value_fn=lambda data: len(data["addon_problem_entities"]),
+        attrs_fn=lambda data: {
+            "entities": data["addon_problem_entities"],
+            "details": data["addon_problem_details"],
         },
     ),
 )

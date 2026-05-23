@@ -9,7 +9,9 @@
           "low_battery_threshold": "Schwelle für niedrige Batterie (%)",
           "critical_battery_threshold": "Schwelle für kritische Batterie (%)",
           "temperature_outlier_delta": "Temperatur-Ausreißer Abstand (°C)",
-          "api_entities": "API-/Watchlist-Entitäten, kommagetrennt"
+          "linkquality_threshold": "Zigbee Linkquality-Warnschwelle",
+          "api_entities": "API-/Watchlist-Entitäten, kommagetrennt",
+          "addon_entities": "Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt"
         }
       }
     }
@@ -23,7 +25,9 @@
           "low_battery_threshold": "Schwelle für niedrige Batterie (%)",
           "critical_battery_threshold": "Schwelle für kritische Batterie (%)",
           "temperature_outlier_delta": "Temperatur-Ausreißer Abstand (°C)",
-          "api_entities": "API-/Watchlist-Entitäten, kommagetrennt"
+          "linkquality_threshold": "Zigbee Linkquality-Warnschwelle",
+          "api_entities": "API-/Watchlist-Entitäten, kommagetrennt",
+          "addon_entities": "Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt"
         }
       }
     }
@@ -38,7 +42,9 @@
       "temperature_median": { "name": "Temperatur Median" },
       "temperature_average": { "name": "Temperatur Mittelwert" },
       "temperature_outliers": { "name": "Temperatur Ausreißer" },
-      "apis_offline": { "name": "APIs offline" }
+      "apis_offline": { "name": "APIs offline" },
+      "zigbee_linkquality_low": { "name": "Zigbee Signal schwach" },
+      "addon_problems": { "name": "Add-on Probleme" }
     },
     "binary_sensor": {
       "critical": { "name": "Kritisch" },

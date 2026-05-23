@@ -16,13 +16,17 @@ from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
+    CONF_ADDON_ENTITIES,
     CONF_API_ENTITIES,
     CONF_CRITICAL_BATTERY_THRESHOLD,
+    CONF_LINKQUALITY_THRESHOLD,
     CONF_LOW_BATTERY_THRESHOLD,
     CONF_STALE_HOURS,
     CONF_TEMPERATURE_OUTLIER_DELTA,
+    DEFAULT_ADDON_ENTITIES,
     DEFAULT_API_ENTITIES,
     DEFAULT_CRITICAL_BATTERY_THRESHOLD,
+    DEFAULT_LINKQUALITY_THRESHOLD,
     DEFAULT_LOW_BATTERY_THRESHOLD,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STALE_HOURS,
@@ -71,8 +75,14 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 CONF_TEMPERATURE_OUTLIER_DELTA, DEFAULT_TEMPERATURE_OUTLIER_DELTA
             )
         )
+        linkquality_threshold = float(
+            settings.get(CONF_LINKQUALITY_THRESHOLD, DEFAULT_LINKQUALITY_THRESHOLD)
+        )
         api_entities = _parse_entity_list(
             settings.get(CONF_API_ENTITIES, DEFAULT_API_ENTITIES)
+        )
+        addon_entities = _parse_entity_list(
+            settings.get(CONF_ADDON_ENTITIES, DEFAULT_ADDON_ENTITIES)
         )
         entity_registry = er.async_get(self.hass)
         device_registry = dr.async_get(self.hass)
@@ -143,6 +153,40 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if (state := self.hass.states.get(entity_id)) is None
             or state.state in {"off", "unavailable", "unknown"}
         ]
+        zigbee_linkquality_entities = [
+            (state.entity_id, _float_or_none(state.state))
+            for state in states
+            if _is_linkquality_sensor(state)
+        ]
+        zigbee_linkquality_low_entities = [
+            entity_id
+            for entity_id, value in zigbee_linkquality_entities
+            if value is not None and value < linkquality_threshold
+        ]
+        zigbee_bridge_entities = [
+            state.entity_id
+            for state in states
+            if _is_zigbee_bridge_entity(state)
+        ]
+        zigbee_bridge_problem_entities = [
+            entity_id
+            for entity_id in zigbee_bridge_entities
+            if (state := self.hass.states.get(entity_id)) is not None
+            and _is_problem_state(state.state)
+        ]
+        mqtt_entities = [
+            state.entity_id
+            for state in states
+            if "mqtt" in state.entity_id.lower()
+            or "mqtt" in str(state.attributes.get("friendly_name", "")).lower()
+        ]
+        addon_watchlist_entities = _dedupe(addon_entities + zigbee_bridge_entities)
+        addon_problem_entities = [
+            entity_id
+            for entity_id in addon_watchlist_entities
+            if (state := self.hass.states.get(entity_id)) is None
+            or _is_problem_state(state.state)
+        ]
         offline_details = _entity_details(
             self.hass,
             entity_registry,
@@ -191,6 +235,48 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             area_registry,
             api_offline_entities,
         )
+        zigbee_linkquality_low_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            zigbee_linkquality_low_entities,
+            extra_fn=lambda state: {
+                "threshold": linkquality_threshold,
+                "linkquality": _float_or_none(state.state),
+            },
+        )
+        addon_problem_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            addon_problem_entities,
+        )
+        source_status = {
+            "mqtt_entities_found": len(mqtt_entities),
+            "zigbee2mqtt_entities_found": len(
+                [
+                    state
+                    for state in states
+                    if "zigbee2mqtt" in state.entity_id.lower()
+                    or "zigbee2mqtt"
+                    in str(state.attributes.get("friendly_name", "")).lower()
+                ]
+            ),
+            "zigbee_linkquality_sensors_found": len(zigbee_linkquality_entities),
+            "zigbee_bridge_entities_found": len(zigbee_bridge_entities),
+            "addon_watchlist_entities_found": len(addon_watchlist_entities),
+            "supervisor_entities_found": len(
+                [
+                    state
+                    for state in states
+                    if "supervisor" in state.entity_id.lower()
+                    or "addon" in state.entity_id.lower()
+                    or "add_on" in state.entity_id.lower()
+                ]
+            ),
+        }
 
         score, score_breakdown = _calculate_score(
             total_entities=len(monitored_states),
@@ -203,6 +289,10 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             temperature_outlier_count=len(temp_outliers),
             api_count=len(api_entities),
             api_offline_count=len(api_offline_entities),
+            zigbee_linkquality_count=len(zigbee_linkquality_entities),
+            zigbee_linkquality_low_count=len(zigbee_linkquality_low_entities),
+            addon_count=len(addon_watchlist_entities),
+            addon_problem_count=len(addon_problem_entities),
         )
 
         return {
@@ -212,6 +302,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "total_battery_entities": len(battery_entities),
             "total_temperature_entities": len(temperatures),
             "total_api_entities": len(api_entities),
+            "total_zigbee_linkquality_entities": len(zigbee_linkquality_entities),
+            "total_addon_watchlist_entities": len(addon_watchlist_entities),
+            "source_status": source_status,
             "offline_entities": offline_entities,
             "offline_details": offline_details,
             "low_battery_entities": low_battery_entities,
@@ -226,11 +319,17 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "temperature_outlier_details": temperature_outlier_details,
             "api_offline_entities": api_offline_entities,
             "api_offline_details": api_offline_details,
+            "zigbee_linkquality_low_entities": zigbee_linkquality_low_entities,
+            "zigbee_linkquality_low_details": zigbee_linkquality_low_details,
+            "addon_problem_entities": addon_problem_entities,
+            "addon_problem_details": addon_problem_details,
             "critical": score < 60 or bool(critical_battery_entities),
             "warning": score < 90
             or bool(offline_entities)
             or bool(api_offline_entities)
             or bool(low_battery_entities)
+            or bool(zigbee_linkquality_low_entities)
+            or bool(addon_problem_entities)
             or bool(stale_entities),
         }
 
@@ -274,6 +373,57 @@ def _is_temperature_sensor(state: Any) -> bool:
     }
 
 
+def _is_linkquality_sensor(state: Any) -> bool:
+    """Return whether a state looks like a Zigbee linkquality/LQI sensor."""
+    if not state.entity_id.startswith("sensor."):
+        return False
+    entity_id = state.entity_id.lower()
+    name = str(state.attributes.get("friendly_name", "")).lower()
+    return any(token in entity_id or token in name for token in ("linkquality", "lqi"))
+
+
+def _is_zigbee_bridge_entity(state: Any) -> bool:
+    """Return whether a state looks like a Zigbee2MQTT/MQTT bridge status entity."""
+    entity_id = state.entity_id.lower()
+    name = str(state.attributes.get("friendly_name", "")).lower()
+    haystack = f"{entity_id} {name}"
+    return (
+        "zigbee2mqtt" in haystack
+        and any(token in haystack for token in ("bridge", "state", "status", "connection"))
+    ) or (
+        "mqtt" in haystack and any(token in haystack for token in ("bridge", "state", "status"))
+    )
+
+
+def _is_problem_state(value: str) -> bool:
+    """Return whether an entity state represents a problem."""
+    normalized = str(value).lower()
+    return normalized in {
+        "off",
+        "offline",
+        "unavailable",
+        "unknown",
+        "error",
+        "failed",
+        "stopped",
+        "not_running",
+        "disconnected",
+        "false",
+    }
+
+
+def _dedupe(values: list[str]) -> list[str]:
+    """Return values without duplicates while keeping order."""
+    seen = set()
+    result = []
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        result.append(value)
+    return result
+
+
 def _calculate_score(
     *,
     total_entities: int,
@@ -286,6 +436,10 @@ def _calculate_score(
     temperature_outlier_count: int,
     api_count: int,
     api_offline_count: int,
+    zigbee_linkquality_count: int,
+    zigbee_linkquality_low_count: int,
+    addon_count: int,
+    addon_problem_count: int,
 ) -> tuple[int, dict[str, Any]]:
     """Calculate a weighted health score from all available health categories."""
     components = []
@@ -351,6 +505,33 @@ def _calculate_score(
                 "score": _ratio_score(api_count, api_offline_count),
                 "affected": api_offline_count,
                 "total": api_count,
+            }
+        )
+
+    if zigbee_linkquality_count:
+        components.append(
+            {
+                "key": "zigbee",
+                "label": "Zigbee",
+                "weight": 10,
+                "score": _ratio_score(
+                    zigbee_linkquality_count,
+                    zigbee_linkquality_low_count,
+                ),
+                "affected": zigbee_linkquality_low_count,
+                "total": zigbee_linkquality_count,
+            }
+        )
+
+    if addon_count:
+        components.append(
+            {
+                "key": "addons",
+                "label": "Add-ons / Bridges",
+                "weight": 10,
+                "score": _ratio_score(addon_count, addon_problem_count),
+                "affected": addon_problem_count,
+                "total": addon_count,
             }
         )
 

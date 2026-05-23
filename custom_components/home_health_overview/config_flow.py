@@ -11,12 +11,16 @@ from homeassistant.core import callback
 
 from .const import (
     CONF_API_ENTITIES,
+    CONF_ADDON_ENTITIES,
     CONF_CRITICAL_BATTERY_THRESHOLD,
+    CONF_LINKQUALITY_THRESHOLD,
     CONF_LOW_BATTERY_THRESHOLD,
     CONF_STALE_HOURS,
     CONF_TEMPERATURE_OUTLIER_DELTA,
     DEFAULT_API_ENTITIES,
+    DEFAULT_ADDON_ENTITIES,
     DEFAULT_CRITICAL_BATTERY_THRESHOLD,
+    DEFAULT_LINKQUALITY_THRESHOLD,
     DEFAULT_LOW_BATTERY_THRESHOLD,
     DEFAULT_NAME,
     DEFAULT_STALE_HOURS,
@@ -105,8 +109,19 @@ def _schema(values: dict[str, Any] | None = None) -> vol.Schema:
                 ),
             ): vol.All(vol.Coerce(float), vol.Range(min=0.5, max=50)),
             vol.Optional(
+                CONF_LINKQUALITY_THRESHOLD,
+                default=values.get(
+                    CONF_LINKQUALITY_THRESHOLD,
+                    DEFAULT_LINKQUALITY_THRESHOLD,
+                ),
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=255)),
+            vol.Optional(
                 CONF_API_ENTITIES,
                 default=values.get(CONF_API_ENTITIES, DEFAULT_API_ENTITIES),
+            ): str,
+            vol.Optional(
+                CONF_ADDON_ENTITIES,
+                default=values.get(CONF_ADDON_ENTITIES, DEFAULT_ADDON_ENTITIES),
             ): str,
         }
     )

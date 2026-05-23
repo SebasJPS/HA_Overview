@@ -9,7 +9,9 @@
           "low_battery_threshold": "Low battery threshold (%)",
           "critical_battery_threshold": "Critical battery threshold (%)",
           "temperature_outlier_delta": "Temperature outlier delta (°C)",
-          "api_entities": "API/watchlist entities, comma-separated"
+          "linkquality_threshold": "Zigbee linkquality warning threshold",
+          "api_entities": "API/watchlist entities, comma-separated",
+          "addon_entities": "Add-on/bridge watchlist entities, comma-separated"
         }
       }
     }
@@ -23,7 +25,9 @@
           "low_battery_threshold": "Low battery threshold (%)",
           "critical_battery_threshold": "Critical battery threshold (%)",
           "temperature_outlier_delta": "Temperature outlier delta (°C)",
-          "api_entities": "API/watchlist entities, comma-separated"
+          "linkquality_threshold": "Zigbee linkquality warning threshold",
+          "api_entities": "API/watchlist entities, comma-separated",
+          "addon_entities": "Add-on/bridge watchlist entities, comma-separated"
         }
       }
     }
@@ -38,7 +42,9 @@
       "temperature_median": { "name": "Temperature Median" },
       "temperature_average": { "name": "Temperature Average" },
       "temperature_outliers": { "name": "Temperature Outliers" },
-      "apis_offline": { "name": "APIs Offline" }
+      "apis_offline": { "name": "APIs Offline" },
+      "zigbee_linkquality_low": { "name": "Weak Zigbee Signal" },
+      "addon_problems": { "name": "Add-on Problems" }
     },
     "binary_sensor": {
       "critical": { "name": "Critical" },
