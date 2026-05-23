@@ -26,6 +26,9 @@ class HomeHealthOverviewPanel extends HTMLElement {
 
     const score = asNumber(entities.score?.state, 0);
     const breakdown = entities.score?.attributes?.breakdown?.components || [];
+    const categories = entities.score?.attributes?.categories || {};
+    const temperatureMedian = entities.tempMedian?.state ?? "?";
+    const temperatureAverage = entities.tempAverage?.state ?? "?";
 
     this.innerHTML = `
       <style>
@@ -158,25 +161,25 @@ class HomeHealthOverviewPanel extends HTMLElement {
             <div class="score-label">Home Health Score</div>
           </section>
           <div class="kpis">
-            ${kpi(entities.offline, "Offline / unbekannt")}
-            ${kpi(entities.stale, "Keine Updates")}
-            ${kpi(entities.lowBattery, "Batterien niedrig")}
-            ${kpi(entities.criticalBattery, "Batterien kritisch")}
-            ${kpi(entities.temperatureOutliers, "Temp. Ausreißer")}
-            ${kpi(entities.apisOffline, "APIs offline")}
-            ${kpi(entities.tempMedian, "Temperatur Median", "°C")}
-            ${kpi(entities.tempAverage, "Temperatur Mittelwert", "°C")}
+            ${categoryKpi(categories.offline, entities.offline, "Offline / unbekannt")}
+            ${categoryKpi(categories.stale, entities.stale, "Keine Updates")}
+            ${categoryKpi(categories.low_battery, entities.lowBattery, "Batterien niedrig")}
+            ${categoryKpi(categories.critical_battery, entities.criticalBattery, "Batterien kritisch")}
+            ${categoryKpi(categories.temperature_outliers, entities.temperatureOutliers, "Temp. Ausreißer")}
+            ${categoryKpi(categories.apis_offline, entities.apisOffline, "APIs offline")}
+            ${valueKpi(temperatureMedian, "Temperatur Median", "°C")}
+            ${valueKpi(temperatureAverage, "Temperatur Mittelwert", "°C")}
           </div>
         </div>
 
         <div class="grid">
           ${breakdownSection(breakdown)}
-          ${detailSection("Offline / unbekannt", entities.offline)}
-          ${detailSection("Keine Updates", entities.stale, true)}
-          ${detailSection("Batterien unter Schwelle", entities.lowBattery)}
-          ${detailSection("Kritische Batterien", entities.criticalBattery)}
-          ${detailSection("Temperatur-Ausreißer", entities.temperatureOutliers, false, true)}
-          ${detailSection("APIs nicht erreichbar", entities.apisOffline)}
+          ${detailSection("Offline / unbekannt", categories.offline, entities.offline)}
+          ${detailSection("Keine Updates", categories.stale, entities.stale, true)}
+          ${detailSection("Batterien unter Schwelle", categories.low_battery, entities.lowBattery)}
+          ${detailSection("Kritische Batterien", categories.critical_battery, entities.criticalBattery)}
+          ${detailSection("Temperatur-Ausreißer", categories.temperature_outliers, entities.temperatureOutliers, false, true)}
+          ${detailSection("APIs nicht erreichbar", categories.apis_offline, entities.apisOffline)}
         </div>
       </div>
     `;
@@ -196,16 +199,25 @@ function asNumber(value, fallback) {
 }
 
 function kpi(entity, label, suffix = "") {
+  return valueKpi(entity ? entity.state : "?", label, suffix);
+}
+
+function categoryKpi(category, entity, label, suffix = "") {
+  const value = category?.count ?? entity?.state ?? "?";
+  return valueKpi(value, label, suffix);
+}
+
+function valueKpi(value, label, suffix = "") {
   return `
     <div class="kpi">
-      <div class="kpi-value">${entity ? entity.state : "?"}${suffix}</div>
+      <div class="kpi-value">${value}${suffix}</div>
       <div class="kpi-label">${label}</div>
     </div>
   `;
 }
 
-function detailSection(title, entity, showLastUpdate = false, showTemperatureMeta = false) {
-  const details = entity?.attributes?.details || [];
+function detailSection(title, category, entity, showLastUpdate = false, showTemperatureMeta = false) {
+  const details = category?.details || entity?.attributes?.details || [];
   const rows = details.length
     ? details.map((item) => detailItem(item, showLastUpdate, showTemperatureMeta)).join("")
     : `<div class="empty">Keine Einträge.</div>`;

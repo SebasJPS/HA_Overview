@@ -35,6 +35,32 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
             "total_battery_entities": data["total_battery_entities"],
             "total_temperature_entities": data["total_temperature_entities"],
             "total_api_entities": data["total_api_entities"],
+            "categories": {
+                "offline": {
+                    "count": len(data["offline_entities"]),
+                    "details": data["offline_details"],
+                },
+                "stale": {
+                    "count": len(data["stale_entities"]),
+                    "details": data["stale_details"],
+                },
+                "low_battery": {
+                    "count": len(data["low_battery_entities"]),
+                    "details": data["low_battery_details"],
+                },
+                "critical_battery": {
+                    "count": len(data["critical_battery_entities"]),
+                    "details": data["critical_battery_details"],
+                },
+                "temperature_outliers": {
+                    "count": len(data["temperature_outliers"]),
+                    "details": data["temperature_outlier_details"],
+                },
+                "apis_offline": {
+                    "count": len(data["api_offline_entities"]),
+                    "details": data["api_offline_details"],
+                },
+            },
         },
     ),
     HomeHealthSensorDescription(
