@@ -14,6 +14,9 @@ from .const import (
     CONF_ADDON_ENTITIES,
     CONF_CPU_WARNING_THRESHOLD,
     CONF_CRITICAL_BATTERY_THRESHOLD,
+    CONF_IGNORE_ENTITIES,
+    CONF_IGNORE_PREFIXES,
+    CONF_INCLUDE_ENTITIES,
     CONF_LINKQUALITY_THRESHOLD,
     CONF_LOW_BATTERY_THRESHOLD,
     CONF_MEMORY_WARNING_THRESHOLD,
@@ -25,6 +28,9 @@ from .const import (
     DEFAULT_ADDON_ENTITIES,
     DEFAULT_CPU_WARNING_THRESHOLD,
     DEFAULT_CRITICAL_BATTERY_THRESHOLD,
+    DEFAULT_IGNORE_ENTITIES,
+    DEFAULT_IGNORE_PREFIXES,
+    DEFAULT_INCLUDE_ENTITIES,
     DEFAULT_LINKQUALITY_THRESHOLD,
     DEFAULT_LOW_BATTERY_THRESHOLD,
     DEFAULT_MEMORY_WARNING_THRESHOLD,
@@ -158,6 +164,18 @@ def _schema(values: dict[str, Any] | None = None) -> vol.Schema:
                     CONF_SYSTEM_RESOURCE_ENTITIES,
                     DEFAULT_SYSTEM_RESOURCE_ENTITIES,
                 ),
+            ): str,
+            vol.Optional(
+                CONF_INCLUDE_ENTITIES,
+                default=values.get(CONF_INCLUDE_ENTITIES, DEFAULT_INCLUDE_ENTITIES),
+            ): str,
+            vol.Optional(
+                CONF_IGNORE_ENTITIES,
+                default=values.get(CONF_IGNORE_ENTITIES, DEFAULT_IGNORE_ENTITIES),
+            ): str,
+            vol.Optional(
+                CONF_IGNORE_PREFIXES,
+                default=values.get(CONF_IGNORE_PREFIXES, DEFAULT_IGNORE_PREFIXES),
             ): str,
         }
     )

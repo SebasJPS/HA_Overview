@@ -46,6 +46,9 @@ Beim Hinzufügen kannst du konfigurieren:
 - Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt
 - CPU-, RAM- und Speicher-Warnschwellen
 - Systemressourcen-Watchlist, kommagetrennt
+- Entitäten immer überwachen, kommagetrennt
+- Entitäten ignorieren, kommagetrennt
+- Entitäts-Prefixe ignorieren, kommagetrennt
 
 Beispiel für API-/Watchlist-Entitäten:
 

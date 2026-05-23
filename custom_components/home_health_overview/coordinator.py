@@ -20,6 +20,9 @@ from .const import (
     CONF_API_ENTITIES,
     CONF_CPU_WARNING_THRESHOLD,
     CONF_CRITICAL_BATTERY_THRESHOLD,
+    CONF_IGNORE_ENTITIES,
+    CONF_IGNORE_PREFIXES,
+    CONF_INCLUDE_ENTITIES,
     CONF_LINKQUALITY_THRESHOLD,
     CONF_LOW_BATTERY_THRESHOLD,
     CONF_MEMORY_WARNING_THRESHOLD,
@@ -31,6 +34,9 @@ from .const import (
     DEFAULT_API_ENTITIES,
     DEFAULT_CPU_WARNING_THRESHOLD,
     DEFAULT_CRITICAL_BATTERY_THRESHOLD,
+    DEFAULT_IGNORE_ENTITIES,
+    DEFAULT_IGNORE_PREFIXES,
+    DEFAULT_INCLUDE_ENTITIES,
     DEFAULT_LINKQUALITY_THRESHOLD,
     DEFAULT_LOW_BATTERY_THRESHOLD,
     DEFAULT_MEMORY_WARNING_THRESHOLD,
@@ -113,18 +119,41 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 DEFAULT_SYSTEM_RESOURCE_ENTITIES,
             )
         )
+        include_entities = _parse_entity_list(
+            settings.get(CONF_INCLUDE_ENTITIES, DEFAULT_INCLUDE_ENTITIES)
+        )
+        ignore_entities = set(
+            _parse_entity_list(settings.get(CONF_IGNORE_ENTITIES, DEFAULT_IGNORE_ENTITIES))
+        )
+        ignore_prefixes = tuple(
+            _parse_entity_list(settings.get(CONF_IGNORE_PREFIXES, DEFAULT_IGNORE_PREFIXES))
+        )
         entity_registry = er.async_get(self.hass)
         device_registry = dr.async_get(self.hass)
         area_registry = ar.async_get(self.hass)
 
-        states = list(self.hass.states.async_all())
+        states = [
+            state
+            for state in self.hass.states.async_all()
+            if not _is_ignored_entity(state.entity_id, ignore_entities, ignore_prefixes)
+            or state.entity_id in include_entities
+        ]
         monitored_states = [
             state
             for state in states
-            if not _starts_with(state.entity_id, IGNORED_STALE_PREFIXES)
-            and not state.entity_id.startswith(f"sensor.{DOMAIN}_")
-            and not state.entity_id.startswith(f"binary_sensor.{DOMAIN}_")
+            if (
+                state.entity_id in include_entities
+                or (
+                    not _starts_with(state.entity_id, IGNORED_STALE_PREFIXES)
+                    and not state.entity_id.startswith(f"sensor.{DOMAIN}_")
+                    and not state.entity_id.startswith(f"binary_sensor.{DOMAIN}_")
+                )
+            )
         ]
+        for entity_id in include_entities:
+            state = self.hass.states.get(entity_id)
+            if state is not None and state not in monitored_states:
+                monitored_states.append(state)
         offline_entities = [
             state.entity_id
             for state in monitored_states
@@ -334,6 +363,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 ]
             ),
             "system_resource_entities_found": len(system_resources),
+            "explicitly_included_entities": len(include_entities),
+            "ignored_entities": len(ignore_entities),
+            "ignored_prefixes": len(ignore_prefixes),
         }
 
         score, score_breakdown = _calculate_score(
@@ -365,6 +397,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "total_zigbee_linkquality_entities": len(zigbee_linkquality_entities),
             "total_addon_watchlist_entities": len(addon_watchlist_entities),
             "total_system_resource_entities": len(system_resources),
+            "include_entities": include_entities,
+            "ignore_entities": sorted(ignore_entities),
+            "ignore_prefixes": list(ignore_prefixes),
             "source_status": source_status,
             "offline_entities": offline_entities,
             "offline_details": offline_details,
@@ -418,6 +453,15 @@ def _float_or_none(value: Any) -> float | None:
 def _starts_with(value: str, prefixes: tuple[str, ...]) -> bool:
     """Return whether value starts with one of the prefixes."""
     return any(value.startswith(prefix) for prefix in prefixes)
+
+
+def _is_ignored_entity(
+    entity_id: str,
+    ignored_entities: set[str],
+    ignored_prefixes: tuple[str, ...],
+) -> bool:
+    """Return whether an entity should be ignored by user settings."""
+    return entity_id in ignored_entities or _starts_with(entity_id, ignored_prefixes)
 
 
 def _is_temperature_sensor(state: Any) -> bool:

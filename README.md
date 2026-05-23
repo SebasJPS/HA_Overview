@@ -17,6 +17,7 @@ Eine HACS-installierbare Home-Assistant-Integration für Geräte-, Sensor-, Batt
 - schwache Zigbee-Linkquality
 - Add-on-/Bridge-Watchlist
 - CPU-/RAM-/Speicher-Auslastung
+- Setup-Optionen für Ignore-Listen und explizit überwachte Entitäten
 - Sidebar-Panel `Home Health`
 - Lovelace-Dashboard mit Seiten für Übersicht, Sensoren, Batterien, Klima, Energie, Integrationen und Wartung
 
@@ -63,6 +64,8 @@ Der Home Health Score ist eine gewichtete Bewertung über alle überwachten Bere
 - Systemressourcen wie CPU, RAM und Speicher
 
 Eine einzelne Offline-Entität senkt den Score nur proportional zum Gesamtbestand und markiert den Zustand nicht automatisch als kritisch.
+
+Über `Geräte & Dienste -> Home Health Overview -> Konfigurieren` kannst du Entitäten ignorieren, Prefixe ausblenden oder Entitäten explizit überwachen lassen.
 
 ## Dateien
 

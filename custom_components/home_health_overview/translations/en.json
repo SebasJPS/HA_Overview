@@ -15,7 +15,10 @@
           "storage_warning_threshold": "Storage warning threshold (%)",
           "api_entities": "API/watchlist entities, comma-separated",
           "addon_entities": "Add-on/bridge watchlist entities, comma-separated",
-          "system_resource_entities": "System resource watchlist, comma-separated"
+          "system_resource_entities": "System resource watchlist, comma-separated",
+          "include_entities": "Always monitor entities, comma-separated",
+          "ignore_entities": "Ignore entities, comma-separated",
+          "ignore_prefixes": "Ignore entity prefixes, comma-separated"
         }
       }
     }
@@ -35,7 +38,10 @@
           "storage_warning_threshold": "Storage warning threshold (%)",
           "api_entities": "API/watchlist entities, comma-separated",
           "addon_entities": "Add-on/bridge watchlist entities, comma-separated",
-          "system_resource_entities": "System resource watchlist, comma-separated"
+          "system_resource_entities": "System resource watchlist, comma-separated",
+          "include_entities": "Always monitor entities, comma-separated",
+          "ignore_entities": "Ignore entities, comma-separated",
+          "ignore_prefixes": "Ignore entity prefixes, comma-separated"
         }
       }
     }

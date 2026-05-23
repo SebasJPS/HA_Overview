@@ -283,6 +283,9 @@ function sourceSection(sourceStatus) {
     ["Add-on Watchlist", sourceStatus.addon_watchlist_entities_found],
     ["Supervisor/Add-on Hinweise", sourceStatus.supervisor_entities_found],
     ["Systemressourcen", sourceStatus.system_resource_entities_found],
+    ["Explizit überwacht", sourceStatus.explicitly_included_entities],
+    ["Ignorierte Entitäten", sourceStatus.ignored_entities],
+    ["Ignorierte Prefixe", sourceStatus.ignored_prefixes],
   ];
   return `
     <section class="section">
