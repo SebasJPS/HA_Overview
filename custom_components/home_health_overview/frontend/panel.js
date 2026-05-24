@@ -33,83 +33,269 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const visibleSections = sections
       .map((section) => ({ ...section, rows: filterRows(section.rows, this._search, this._filter, section.key) }))
       .filter((section) => this._filter === "all" || section.rows.length || ["sources", "score"].includes(section.key));
+    const problemCount = sections.reduce((sum, section) => sum + section.rows.length, 0);
+    const statusLabel = score >= 90 ? "Stabil" : score >= 70 ? "Prüfen" : "Kritisch";
 
     this.innerHTML = `
       <style>
         :host {
+          --hh-ink: #111111;
+          --hh-paper: #f7f4ed;
+          --hh-surface: #fffdf7;
+          --hh-line: rgba(17, 17, 17, .18);
+          --hh-muted: rgba(17, 17, 17, .62);
+          --hh-red: #e53935;
+          --hh-blue: #1565c0;
+          --hh-yellow: #f6c431;
+          --hh-green: #1b8a5a;
           display: block;
           min-height: 100vh;
-          color: var(--primary-text-color);
-          background: var(--primary-background-color);
-          font-family: var(--paper-font-body1_-_font-family, Roboto, system-ui, sans-serif);
+          color: var(--hh-ink);
+          background:
+            linear-gradient(90deg, rgba(17, 17, 17, .045) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(17, 17, 17, .045) 1px, transparent 1px),
+            var(--hh-paper);
+          background-size: 42px 42px;
+          font-family: Inter, "IBM Plex Sans", var(--paper-font-body1_-_font-family, Roboto, system-ui, sans-serif);
         }
-        .page { max-width: 1440px; margin: 0 auto; padding: 24px; }
-        .header { display: grid; grid-template-columns: minmax(220px, 320px) 1fr; gap: 16px; align-items: stretch; }
-        .score, .kpi, .section, .toolbar { border: 1px solid var(--divider-color); border-radius: 8px; background: var(--card-background-color); }
-        .score { padding: 20px; }
-        .score-value { font-size: 56px; line-height: 1; font-weight: 650; color: ${scoreColor(score)}; }
-        .score-label, .kpi-label, .muted { color: var(--secondary-text-color); }
-        .score-label { margin-top: 8px; }
-        .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-        .kpi { padding: 14px; min-height: 74px; }
-        .kpi-value { font-size: 28px; line-height: 1; font-weight: 600; }
-        .kpi-label { margin-top: 8px; font-size: 13px; }
-        .toolbar { display: flex; gap: 10px; align-items: center; margin-top: 16px; padding: 12px; flex-wrap: wrap; }
+        * { box-sizing: border-box; }
+        .page { max-width: 1480px; margin: 0 auto; padding: 28px; }
+        .masthead {
+          display: grid;
+          grid-template-columns: 1fr auto;
+          gap: 18px;
+          align-items: end;
+          margin-bottom: 18px;
+        }
+        .brand {
+          display: flex;
+          gap: 14px;
+          align-items: center;
+          min-width: 0;
+        }
+        .mark {
+          position: relative;
+          width: 54px;
+          height: 54px;
+          flex: 0 0 auto;
+          background: var(--hh-ink);
+          overflow: hidden;
+        }
+        .mark::before {
+          content: "";
+          position: absolute;
+          width: 24px;
+          height: 24px;
+          left: 7px;
+          top: 7px;
+          border-radius: 50%;
+          background: var(--hh-yellow);
+        }
+        .mark::after {
+          content: "";
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          width: 27px;
+          height: 27px;
+          background: var(--hh-red);
+        }
+        .eyebrow {
+          color: var(--hh-muted);
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0;
+          text-transform: uppercase;
+        }
+        h1 {
+          margin: 2px 0 0;
+          font-size: 46px;
+          line-height: .96;
+          font-weight: 900;
+          letter-spacing: 0;
+        }
+        .status-chip {
+          display: inline-flex;
+          align-items: center;
+          min-height: 40px;
+          padding: 0 14px;
+          border: 2px solid var(--hh-ink);
+          background: ${statusColor(score)};
+          color: ${score >= 70 && score < 90 ? "var(--hh-ink)" : "#ffffff"};
+          font-weight: 900;
+          text-transform: uppercase;
+        }
+        .header {
+          display: grid;
+          grid-template-columns: minmax(250px, 360px) 1fr;
+          gap: 14px;
+          align-items: stretch;
+        }
+        .score, .kpi, .section, .toolbar {
+          border: 2px solid var(--hh-ink);
+          border-radius: 6px;
+          background: var(--hh-surface);
+          box-shadow: 6px 6px 0 var(--hh-ink);
+        }
+        .score {
+          position: relative;
+          display: grid;
+          align-content: space-between;
+          min-height: 230px;
+          padding: 22px;
+          overflow: hidden;
+        }
+        .score::after {
+          content: "";
+          position: absolute;
+          right: -34px;
+          top: -34px;
+          width: 118px;
+          height: 118px;
+          border-radius: 50%;
+          background: ${scoreColor(score)};
+        }
+        .score-value {
+          position: relative;
+          z-index: 1;
+          font-size: 104px;
+          line-height: .82;
+          font-weight: 950;
+          color: var(--hh-ink);
+        }
+        .score-label, .kpi-label, .muted { color: var(--hh-muted); }
+        .score-label {
+          margin-top: 10px;
+          font-size: 16px;
+          font-weight: 800;
+          text-transform: uppercase;
+        }
+        .score-meta {
+          display: grid;
+          gap: 4px;
+          margin-top: 24px;
+        }
+        .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(155px, 1fr)); gap: 10px; }
+        .kpi {
+          position: relative;
+          min-height: 100px;
+          padding: 14px 14px 16px;
+          box-shadow: none;
+          overflow: hidden;
+        }
+        .kpi::before {
+          content: "";
+          position: absolute;
+          inset: 0 auto 0 0;
+          width: 8px;
+          background: var(--hh-blue);
+        }
+        .kpi:nth-child(3n)::before { background: var(--hh-yellow); }
+        .kpi:nth-child(4n)::before { background: var(--hh-red); }
+        .kpi-value { font-size: 34px; line-height: .95; font-weight: 900; color: var(--hh-ink); }
+        .kpi-label { margin-top: 10px; padding-left: 2px; font-size: 12px; font-weight: 750; text-transform: uppercase; }
+        .toolbar {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          margin-top: 20px;
+          padding: 12px;
+          flex-wrap: wrap;
+          box-shadow: 4px 4px 0 var(--hh-ink);
+        }
         .search { flex: 1 1 260px; min-width: 180px; }
         input, select {
           width: 100%;
-          box-sizing: border-box;
-          border: 1px solid var(--divider-color);
-          border-radius: 6px;
-          padding: 10px 12px;
-          color: var(--primary-text-color);
-          background: var(--secondary-background-color);
+          border: 2px solid var(--hh-ink);
+          border-radius: 4px;
+          padding: 12px 13px;
+          color: var(--hh-ink);
+          background: #ffffff;
           font: inherit;
+          font-weight: 700;
         }
+        input:focus, select:focus { outline: 3px solid var(--hh-yellow); outline-offset: 1px; }
         .filter { flex: 0 0 220px; }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 16px; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 20px; }
         .section { overflow: hidden; }
-        .section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--divider-color); }
-        .section h2 { margin: 0; font-size: 17px; }
-        .count { color: var(--secondary-text-color); font-size: 13px; white-space: nowrap; }
+        .section-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 16px;
+          border-bottom: 2px solid var(--hh-ink);
+          background: var(--hh-ink);
+          color: #ffffff;
+        }
+        .section h2 { margin: 0; font-size: 18px; line-height: 1.1; font-weight: 900; }
+        .count { color: rgba(255, 255, 255, .78); font-size: 12px; font-weight: 800; white-space: nowrap; text-transform: uppercase; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { padding: 10px 12px; border-bottom: 1px solid var(--divider-color); text-align: left; vertical-align: top; font-size: 13px; }
-        th { color: var(--secondary-text-color); font-weight: 600; background: var(--secondary-background-color); }
+        th, td { padding: 12px; border-bottom: 1px solid var(--hh-line); text-align: left; vertical-align: top; font-size: 13px; }
+        th { color: var(--hh-muted); font-weight: 900; background: #f0eadf; text-transform: uppercase; font-size: 11px; }
         tr:last-child td { border-bottom: 0; }
-        .entity { color: var(--primary-color); cursor: pointer; overflow-wrap: anywhere; font-weight: 600; }
-        .small { color: var(--secondary-text-color); font-size: 12px; margin-top: 3px; overflow-wrap: anywhere; }
-        .state { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+        tr:hover td { background: rgba(21, 101, 192, .06); }
+        .entity { color: var(--hh-blue); cursor: pointer; overflow-wrap: anywhere; font-weight: 900; }
+        .small { color: var(--hh-muted); font-size: 12px; margin-top: 4px; line-height: 1.35; overflow-wrap: anywhere; }
+        .state { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 800; }
         .actions { display: flex; gap: 6px; flex-wrap: wrap; }
         button {
-          border: 1px solid var(--divider-color);
-          border-radius: 6px;
-          padding: 7px 10px;
-          color: var(--primary-text-color);
-          background: var(--secondary-background-color);
+          border: 2px solid var(--hh-ink);
+          border-radius: 4px;
+          padding: 8px 10px;
+          color: var(--hh-ink);
+          background: #ffffff;
           cursor: pointer;
           font: inherit;
-          font-size: 12px;
+          font-size: 11px;
+          font-weight: 900;
+          text-transform: uppercase;
         }
-        button:hover { border-color: var(--primary-color); }
+        button:hover { background: var(--hh-yellow); }
         button[disabled] { opacity: .5; cursor: wait; }
-        .empty { padding: 18px 16px; color: var(--secondary-text-color); }
-        .bar { height: 8px; border-radius: 999px; background: var(--divider-color); overflow: hidden; margin-top: 6px; }
-        .fill { height: 100%; background: var(--primary-color); }
-        .score-grid, .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; padding: 12px; }
-        .mini { border: 1px solid var(--divider-color); border-radius: 8px; padding: 10px; }
+        .empty { padding: 20px 16px; color: var(--hh-muted); font-weight: 700; }
+        .bar { height: 10px; border: 2px solid var(--hh-ink); border-radius: 0; background: #ffffff; overflow: hidden; margin-top: 10px; }
+        .fill { height: 100%; background: var(--hh-blue); }
+        .score-grid, .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; padding: 14px; }
+        .mini { border: 2px solid var(--hh-line); border-radius: 4px; padding: 12px; background: #ffffff; }
+        .mini strong { font-weight: 900; }
         @media (max-width: 760px) {
           .page { padding: 12px; }
+          .masthead { grid-template-columns: 1fr; align-items: start; }
           .header { grid-template-columns: 1fr; }
+          .score, .toolbar, .section { box-shadow: 3px 3px 0 var(--hh-ink); }
+          .score { min-height: 190px; }
+          h1 { font-size: 32px; }
+          .score-value { font-size: 76px; }
           .filter { flex: 1 1 220px; }
           th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) { display: none; }
+          th, td { padding: 10px 8px; }
+          .actions { gap: 4px; }
+          button { padding: 7px 8px; }
         }
       </style>
       <div class="page">
+        <div class="masthead">
+          <div class="brand">
+            <div class="mark" aria-hidden="true"></div>
+            <div>
+              <div class="eyebrow">Home Assistant Kontrollzentrum</div>
+              <h1>Home Health</h1>
+            </div>
+          </div>
+          <div class="status-chip">${statusLabel} · ${problemCount} Hinweise</div>
+        </div>
+
         <div class="header">
           <section class="score">
-            <div class="score-value">${score}%</div>
-            <div class="score-label">Home Health Score</div>
-            <div class="small">Explizit überwacht: ${includeEntities.length} · Ignoriert: ${ignoreEntities.length}</div>
+            <div>
+              <div class="score-value">${score}%</div>
+              <div class="score-label">Systemzustand</div>
+            </div>
+            <div class="score-meta">
+              <div class="small">Explizit überwacht: ${includeEntities.length}</div>
+              <div class="small">Ignoriert: ${ignoreEntities.length}</div>
+            </div>
           </section>
           <div class="kpis">
             ${categoryKpi(categories.offline, entities.offline, "Offline / unbekannt")}
@@ -398,6 +584,12 @@ function scoreColor(score) {
   if (score >= 90) return "var(--success-color, #2e7d32)";
   if (score >= 70) return "var(--warning-color, #f9a825)";
   return "var(--error-color, #c62828)";
+}
+
+function statusColor(score) {
+  if (score >= 90) return "var(--hh-green)";
+  if (score >= 70) return "var(--hh-yellow)";
+  return "var(--hh-red)";
 }
 
 function formatDate(value) {
