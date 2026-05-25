@@ -4,7 +4,7 @@ Eine HACS-installierbare Home-Assistant-Integration, die den Zustand deines Smar
 
 A HACS-installable Home Assistant integration that summarizes your smart home health in one compact dashboard.
 
-![Home Health Overview Panel Mockup](docs/assets/home-health-panel-mockup.svg)
+![Home Health Overview Nothing Apple Clean Mockup](docs/assets/home-health-panel-mockup.svg)
 
 ## Deutsch
 
@@ -12,7 +12,8 @@ Home Health Overview erkennt problematische Entitäten, schwache Batterien, vera
 
 ### Highlights
 
-- Moderner `Home Health` Sidebar-Bereich im Neo-Bauhaus-Stil
+- Moderner `Home Health` Sidebar-Bereich im Nothing-/Apple-Clean-Look
+- Umschaltbarer Dashboard-Look: `Nothing / Apple Clean` oder `Neo-Bauhaus Klassisch`
 - Gewichteter Home Health Score von 0 bis 100
 - Erkennung von `offline`- und `unknown`-Entitäten
 - Warnungen für niedrige und kritische Batteriestände
@@ -52,6 +53,8 @@ Betroffene Entitäten können im Panel angeklickt werden, um die Home-Assistant-
 
 ![Home Health Overview Workflow Mockup](docs/assets/home-health-workflow-mockup.svg)
 
+Der neue Standard-Look ist bewusst ruhiger: helle Flächen, kompakte KPI-Kacheln, klare Problemsektionen und dezente Dot-Matrix-Details. Wenn du den bisherigen kantigeren Look bevorzugst, kannst du ihn in den Optionen wieder aktivieren.
+
 ### Wichtige Sensoren
 
 ```text
@@ -84,13 +87,21 @@ Einstellungen -> Geräte & Dienste -> Home Health Overview -> Konfigurieren
 
 Dort kannst du Entitäten explizit überwachen, Entitäten ignorieren, Prefixe ausblenden, API-/Add-on-/Bridge-Watchlists pflegen und Schwellenwerte passend zu deinem Setup setzen.
 
+Zusätzlich kannst du unter `Dashboard-Look` zwischen diesen Panel-Designs wählen:
+
+- `Nothing / Apple Clean`: neuer Standard-Look mit hellen, ruhigen Karten und Dot-Matrix-Akzenten
+- `Neo-Bauhaus Klassisch`: bisheriger kontrastreicher Look mit Raster, harten Linien und Bauhaus-Akzenten
+
+![Home Health Overview Style Options Mockup](docs/assets/home-health-style-options-mockup.svg)
+
 ## English
 
 Home Health Overview detects problematic entities, weak batteries, stale sensor values, available updates, API/bridge issues, Zigbee signal quality, and system resource problems. It also provides a weighted health score and a dedicated sidebar panel with search, filters, and direct actions.
 
 ### Highlights
 
-- Modern `Home Health` sidebar panel in a neo-Bauhaus style
+- Modern `Home Health` sidebar panel in a Nothing / Apple Clean style
+- Selectable dashboard look: `Nothing / Apple Clean` or `Neo-Bauhaus Classic`
 - Weighted Home Health Score from 0 to 100
 - Detection of `offline` and `unknown` entities
 - Warnings for low and critical batteries
@@ -128,6 +139,8 @@ The sidebar panel shows the current system health score, important problem count
 
 Affected entities can be clicked in the panel to open the Home Assistant more-info dialog.
 
+The new default look is intentionally calmer: bright surfaces, compact KPI cards, clear problem sections, and subtle dot-matrix details. If you prefer the previous sharper look, you can switch it back in the options.
+
 ### Important Sensors
 
 ```text
@@ -159,6 +172,13 @@ Settings -> Devices & services -> Home Health Overview -> Configure
 ```
 
 You can explicitly monitor entities, ignore entities, hide prefixes, maintain API/add-on/bridge watchlists, and adjust thresholds for your setup.
+
+You can also choose the panel design under `Dashboard look`:
+
+- `Nothing / Apple Clean`: new default with bright, calm cards and dot-matrix accents
+- `Neo-Bauhaus Classic`: previous high-contrast look with grid, hard lines, and Bauhaus accents
+
+![Home Health Overview Style Options Mockup](docs/assets/home-health-style-options-mockup.svg)
 
 ## Lovelace Dashboard
 
@@ -204,7 +224,7 @@ This repository uses GitHub Actions for validation and releases. The release pro
 
 1. Version in `custom_components/home_health_overview/manifest.json` erhöhen / bump the version.
 2. Änderung nach `main` committen und pushen / commit and push to `main`.
-3. Passenden Tag erstellen, zum Beispiel `v0.7.6` / create the matching tag, for example `v0.7.6`.
+3. Passenden Tag erstellen, zum Beispiel `v0.7.8` / create the matching tag, for example `v0.7.8`.
 4. Tag pushen / push the tag.
 
 Der Release-Workflow prüft, ob Tag und Manifest-Version zusammenpassen.
