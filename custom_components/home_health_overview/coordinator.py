@@ -1196,6 +1196,10 @@ def _device_health_details(
             )
             item["score"] = max(item["score"] - severity, 0)
 
+    for item in devices.values():
+        item["state"] = _device_health_state(item["score"], item["problem_count"])
+        item["summary"] = _device_health_summary(item)
+
     return sorted(
         devices.values(),
         key=lambda item: (item["score"], item["area"] or "", item["name"]),
@@ -1212,6 +1216,42 @@ def _device_issue_severity(category: str) -> int:
         "stale": 12,
         "temperature_outliers": 10,
     }.get(category, 10)
+
+
+def _device_health_state(score: int, problem_count: int) -> str:
+    """Return a readable device health state."""
+    if not problem_count:
+        return "ok"
+    if score < 50:
+        return "critical"
+    if score < 85:
+        return "warning"
+    return "notice"
+
+
+def _device_health_summary(device: dict[str, Any]) -> list[str]:
+    """Return compact issue descriptions for device health rows."""
+    labels = {
+        "offline": "Offline",
+        "critical_battery": "Batterie kritisch",
+        "low_battery": "Batterie niedrig",
+        "zigbee_linkquality_low": "Zigbee schwach",
+        "temperature_outliers": "Temperatur",
+        "stale": "Veraltet",
+    }
+    categories = device.get("issue_categories", {})
+    result = [
+        f"{labels.get(category, category)}: {count}"
+        for category, count in sorted(categories.items())
+    ]
+    affected = [
+        issue.get("entity_id") or issue.get("name")
+        for issue in device.get("issues", [])[:5]
+        if issue.get("entity_id") or issue.get("name")
+    ]
+    if affected:
+        result.append("Betroffen: " + ", ".join(str(item) for item in affected))
+    return result
 
 
 def _device_name(device_entry: dr.DeviceEntry | None) -> str | None:

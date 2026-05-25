@@ -58,6 +58,7 @@ const TEXT = {
     installed: "Installiert",
     latest: "Neu",
     duration: "Dauer",
+    affected: "Betroffen",
     sources: "Gefundene Quellen",
     groups: "Gruppen",
     mqttEntities: "MQTT-Entitäten",
@@ -148,6 +149,7 @@ const TEXT = {
     installed: "Installed",
     latest: "Latest",
     duration: "Duration",
+    affected: "Affected",
     sources: "Detected sources",
     groups: "groups",
     mqttEntities: "MQTT entities",
@@ -887,7 +889,10 @@ function detailMeta(row, meta, text) {
   if (meta.zigbee) details.push(`LQI ${row.linkquality ?? "-"}`, `${text.threshold} ${row.threshold ?? "-"}`);
   if (meta.resource) details.push(`${row.resource_type ?? "resource"}`, `${row.usage ?? "-"}% / ${row.threshold ?? "-"}%`);
   if (meta.update) details.push(`${text.installed} ${row.installed_version ?? "-"}`, `${text.latest} ${row.latest_version ?? "-"}`);
-  if (meta.deviceHealth) details.push(`Score ${row.score ?? "-"}%`, `${row.problem_count ?? 0} ${text.hints}`, `${text.duration} ${row.longest_problem_duration_hours ?? 0} h`);
+  if (meta.deviceHealth) {
+    details.push(`Score ${row.score ?? "-"}%`, `${row.problem_count ?? 0} ${text.hints}`, `${text.duration} ${row.longest_problem_duration_hours ?? 0} h`);
+    if (Array.isArray(row.summary) && row.summary.length) details.push(...row.summary);
+  }
   if (meta.lastUpdate && row.last_updated) details.push(`${text.update} ${formatDate(row.last_updated)}`);
   if (row.type === "device") details.push(`${row.unavailable_count || row.entity_count || 0} ${text.of} ${row.entity_count || 0}`);
   return details.length ? `<span class="small">${escapeHtml(details.join(" · "))}</span>` : `<span class="muted">-</span>`;
