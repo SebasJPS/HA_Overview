@@ -224,7 +224,7 @@ This repository uses GitHub Actions for validation and releases. The release pro
 
 1. Version in `custom_components/home_health_overview/manifest.json` erhöhen / bump the version.
 2. Änderung nach `main` committen und pushen / commit and push to `main`.
-3. Passenden Tag erstellen, zum Beispiel `v0.7.8` / create the matching tag, for example `v0.7.8`.
+3. Passenden Tag erstellen, zum Beispiel `v0.7.9` / create the matching tag, for example `v0.7.9`.
 4. Tag pushen / push the tag.
 
 Der Release-Workflow prüft, ob Tag und Manifest-Version zusammenpassen.
@@ -233,4 +233,4 @@ The release workflow checks that the tag and manifest version match.
 
 ## Status
 
-Aktuelle Version / Current version: `0.7.8`
+Aktuelle Version / Current version: `0.7.9`

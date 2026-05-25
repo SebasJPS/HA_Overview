@@ -9,7 +9,6 @@ const TEXT = {
     explicitlyMonitored: "Explizit überwacht",
     ignored: "Ignoriert",
     ignoredDevices: "Ignorierte Geräte",
-    searchPlaceholder: "Suchen nach Name, Entity, Bereich, Gerät",
     filterProblems: "Nur Probleme",
     filterAll: "Alle Sektionen",
     filterOffline: "Offline",
@@ -95,7 +94,6 @@ const TEXT = {
     explicitlyMonitored: "Explicitly monitored",
     ignored: "Ignored",
     ignoredDevices: "Ignored devices",
-    searchPlaceholder: "Search by name, entity, area, device",
     filterProblems: "Problems only",
     filterAll: "All sections",
     filterOffline: "Offline",
@@ -176,7 +174,6 @@ const TEXT = {
 class HomeHealthOverviewPanel extends HTMLElement {
   constructor() {
     super();
-    this._search = "";
     this._filter = "problems";
     this._busy = new Set();
   }
@@ -209,7 +206,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const text = getText(hass);
     const sections = buildSections(categories, entities, text);
     const visibleSections = sections
-      .map((section) => ({ ...section, rows: filterRows(section.rows, this._search, this._filter, section.key) }))
+      .map((section) => ({ ...section, rows: filterRows(section.rows, this._filter, section.key) }))
       .filter((section) => this._filter === "all" || section.rows.length || ["sources", "score"].includes(section.key));
     const problemCount = sections.reduce((sum, section) => sum + section.rows.length, 0);
     const statusLevel = getStatusLevel(score, problemCount);
@@ -374,13 +371,13 @@ class HomeHealthOverviewPanel extends HTMLElement {
           display: flex;
           gap: 10px;
           align-items: center;
+          justify-content: flex-end;
           margin-top: 20px;
           padding: 12px;
           flex-wrap: wrap;
           box-shadow: 4px 4px 0 var(--hh-ink);
         }
-        .search { flex: 1 1 260px; min-width: 180px; }
-        input, select {
+        select {
           width: 100%;
           border: 2px solid var(--hh-ink);
           border-radius: 4px;
@@ -390,7 +387,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
           font: inherit;
           font-weight: 700;
         }
-        input:focus, select:focus { outline: 3px solid var(--hh-yellow); outline-offset: 1px; }
+        select:focus { outline: 3px solid var(--hh-yellow); outline-offset: 1px; }
         .filter { flex: 0 0 220px; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 20px; }
         .section { overflow: hidden; }
@@ -517,11 +514,11 @@ class HomeHealthOverviewPanel extends HTMLElement {
           right: 28px;
           bottom: 28px;
           top: auto;
-          width: 142px;
-          height: 142px;
+          width: 118px;
+          height: 118px;
           border-radius: 50%;
           background: conic-gradient(${scoreColor(score)} 0 ${Math.min(Math.max(score, 0), 100)}%, rgba(17, 17, 17, .08) ${Math.min(Math.max(score, 0), 100)}% 100%);
-          box-shadow: inset 0 0 0 16px rgba(255, 255, 255, .82);
+          box-shadow: inset 0 0 0 14px rgba(255, 255, 255, .82);
         }
         .theme-nothing .score::before {
           content: "";
@@ -547,7 +544,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
-          max-width: 270px;
+          max-width: 230px;
         }
         .theme-nothing .score-meta .small {
           margin: 0;
@@ -585,7 +582,6 @@ class HomeHealthOverviewPanel extends HTMLElement {
           padding: 10px;
           box-shadow: 0 18px 44px rgba(0, 0, 0, .1);
         }
-        .theme-nothing input,
         .theme-nothing select {
           border: 1px solid rgba(17, 17, 17, .1);
           border-radius: 16px;
@@ -593,7 +589,6 @@ class HomeHealthOverviewPanel extends HTMLElement {
           font-weight: 520;
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, .85);
         }
-        .theme-nothing input:focus,
         .theme-nothing select:focus {
           outline: 3px solid rgba(10, 132, 255, .22);
         }
@@ -673,8 +668,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
           .theme-nothing .score { min-height: 300px; }
           .theme-nothing .score-value { font-size: 82px; }
           .theme-nothing .score::after {
-            width: 112px;
-            height: 112px;
+            width: 96px;
+            height: 96px;
           }
         }
       </style>
@@ -719,9 +714,6 @@ class HomeHealthOverviewPanel extends HTMLElement {
         </div>
 
         <div class="toolbar">
-          <div class="search">
-            <input id="hh-search" type="search" placeholder="${escapeAttr(text.searchPlaceholder)}" value="${escapeAttr(this._search)}">
-          </div>
           <div class="filter">
             <select id="hh-filter">
               ${option("problems", text.filterProblems, this._filter)}
@@ -750,10 +742,6 @@ class HomeHealthOverviewPanel extends HTMLElement {
   }
 
   bindEvents() {
-    this.querySelector("#hh-search")?.addEventListener("input", (event) => {
-      this._search = event.target.value;
-      this.render();
-    });
     this.querySelector("#hh-filter")?.addEventListener("change", (event) => {
       this._filter = event.target.value;
       this.render();
@@ -835,19 +823,9 @@ function section(key, title, group, category, entity, meta = {}) {
   };
 }
 
-function filterRows(rows, search, filter, group) {
+function filterRows(rows, filter, group) {
   if (filter !== "all" && filter !== "problems" && filter !== group) return [];
-  const query = search.trim().toLowerCase();
-  if (!query) return rows;
-  return rows.filter((row) => [
-    row.name,
-    row.entity_id,
-    row.device_id,
-    row.area,
-    row.device,
-    row.state,
-    ...(row.entity_ids || []),
-  ].filter(Boolean).join(" ").toLowerCase().includes(query));
+  return rows;
 }
 
 function tableSection(sectionData, busy, text) {
