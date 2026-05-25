@@ -44,6 +44,7 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
             "ignore_entities": data["ignore_entities"],
             "ignore_devices": data["ignore_devices"],
             "ignore_prefixes": data["ignore_prefixes"],
+            "panel_style": data["panel_style"],
             "source_status": data["source_status"],
             "temperature_median": data["temperature_median"],
             "temperature_average": data["temperature_average"],

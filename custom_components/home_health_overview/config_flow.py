@@ -22,6 +22,7 @@ from .const import (
     CONF_LINKQUALITY_THRESHOLD,
     CONF_LOW_BATTERY_THRESHOLD,
     CONF_MEMORY_WARNING_THRESHOLD,
+    CONF_PANEL_STYLE,
     CONF_STALE_HOURS,
     CONF_STORAGE_WARNING_THRESHOLD,
     CONF_SYSTEM_RESOURCE_ENTITIES,
@@ -38,11 +39,13 @@ from .const import (
     DEFAULT_LOW_BATTERY_THRESHOLD,
     DEFAULT_MEMORY_WARNING_THRESHOLD,
     DEFAULT_NAME,
+    DEFAULT_PANEL_STYLE,
     DEFAULT_STALE_HOURS,
     DEFAULT_STORAGE_WARNING_THRESHOLD,
     DEFAULT_SYSTEM_RESOURCE_ENTITIES,
     DEFAULT_TEMPERATURE_OUTLIER_DELTA,
     DOMAIN,
+    PANEL_STYLES,
 )
 
 
@@ -153,6 +156,16 @@ def _schema(values: dict[str, Any] | None = None) -> vol.Schema:
                     DEFAULT_STORAGE_WARNING_THRESHOLD,
                 ),
             ): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
+            vol.Optional(
+                CONF_PANEL_STYLE,
+                default=values.get(CONF_PANEL_STYLE, DEFAULT_PANEL_STYLE),
+            ): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=list(PANEL_STYLES),
+                    translation_key=CONF_PANEL_STYLE,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
             vol.Optional(
                 CONF_API_ENTITIES,
                 default=_as_list(values.get(CONF_API_ENTITIES, DEFAULT_API_ENTITIES)),

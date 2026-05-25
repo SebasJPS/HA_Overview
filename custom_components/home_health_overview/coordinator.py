@@ -27,6 +27,7 @@ from .const import (
     CONF_LINKQUALITY_THRESHOLD,
     CONF_LOW_BATTERY_THRESHOLD,
     CONF_MEMORY_WARNING_THRESHOLD,
+    CONF_PANEL_STYLE,
     CONF_STALE_HOURS,
     CONF_STORAGE_WARNING_THRESHOLD,
     CONF_SYSTEM_RESOURCE_ENTITIES,
@@ -42,6 +43,7 @@ from .const import (
     DEFAULT_LINKQUALITY_THRESHOLD,
     DEFAULT_LOW_BATTERY_THRESHOLD,
     DEFAULT_MEMORY_WARNING_THRESHOLD,
+    DEFAULT_PANEL_STYLE,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STALE_HOURS,
     DEFAULT_STORAGE_WARNING_THRESHOLD,
@@ -411,6 +413,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "ignored_devices": len(ignore_devices),
             "ignored_prefixes": len(ignore_prefixes),
         }
+        panel_style = str(settings.get(CONF_PANEL_STYLE, DEFAULT_PANEL_STYLE))
 
         offline_issue_count = len(offline_entities) + len(offline_device_details)
         score, score_breakdown = _calculate_score(
@@ -448,6 +451,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "ignore_entities": sorted(ignore_entities),
             "ignore_devices": sorted(ignore_devices),
             "ignore_prefixes": list(ignore_prefixes),
+            "panel_style": panel_style,
             "source_status": source_status,
             "offline_entities": offline_entities,
             "offline_details": offline_details,

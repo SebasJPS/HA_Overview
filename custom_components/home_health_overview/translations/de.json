@@ -13,6 +13,7 @@
           "cpu_warning_threshold": "CPU-Warnschwelle (%)",
           "memory_warning_threshold": "RAM-Warnschwelle (%)",
           "storage_warning_threshold": "Speicher-Warnschwelle (%)",
+          "panel_style": "Dashboard-Look",
           "api_entities": "API-/Watchlist-Entitäten, kommagetrennt",
           "addon_entities": "Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt",
           "system_resource_entities": "Systemressourcen-Watchlist, kommagetrennt",
@@ -37,6 +38,7 @@
           "cpu_warning_threshold": "CPU-Warnschwelle (%)",
           "memory_warning_threshold": "RAM-Warnschwelle (%)",
           "storage_warning_threshold": "Speicher-Warnschwelle (%)",
+          "panel_style": "Dashboard-Look",
           "api_entities": "API-/Watchlist-Entitäten, kommagetrennt",
           "addon_entities": "Add-on-/Bridge-Watchlist-Entitäten, kommagetrennt",
           "system_resource_entities": "Systemressourcen-Watchlist, kommagetrennt",
@@ -67,6 +69,14 @@
     "binary_sensor": {
       "critical": { "name": "Kritisch" },
       "warning": { "name": "Warnung" }
+    }
+  },
+  "selector": {
+    "panel_style": {
+      "options": {
+        "nothing": "Nothing / Apple Clean",
+        "bauhaus": "Neo-Bauhaus Klassisch"
+      }
     }
   }
 }

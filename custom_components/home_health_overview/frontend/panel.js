@@ -197,6 +197,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const entities = getEntities(hass);
     const score = asNumber(entities.score?.state, 0);
     const attrs = entities.score?.attributes || {};
+    const panelStyle = ["nothing", "bauhaus"].includes(attrs.panel_style) ? attrs.panel_style : "nothing";
     const breakdown = attrs.breakdown?.components || [];
     const categories = attrs.categories || {};
     const sourceStatus = attrs.source_status || {};
@@ -228,11 +229,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
           display: block;
           min-height: 100vh;
           color: var(--hh-ink);
-          background:
-            linear-gradient(90deg, rgba(17, 17, 17, .045) 1px, transparent 1px),
-            linear-gradient(180deg, rgba(17, 17, 17, .045) 1px, transparent 1px),
-            var(--hh-paper);
-          background-size: 42px 42px;
+          background: ${panelBackground(panelStyle)};
+          background-size: ${panelStyle === "bauhaus" ? "42px 42px" : "24px 24px, auto, auto"};
           font-family: Inter, "IBM Plex Sans", var(--paper-font-body1_-_font-family, Roboto, system-ui, sans-serif);
         }
         * { box-sizing: border-box; }
@@ -437,6 +435,225 @@ class HomeHealthOverviewPanel extends HTMLElement {
         .score-grid, .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; padding: 14px; }
         .mini { border: 2px solid var(--hh-line); border-radius: 4px; padding: 12px; background: #ffffff; }
         .mini strong { font-weight: 900; }
+        .theme-nothing {
+          --hh-ink: #111111;
+          --hh-paper: #f8f8f6;
+          --hh-surface: rgba(255, 255, 255, .78);
+          --hh-line: rgba(17, 17, 17, .1);
+          --hh-muted: rgba(17, 17, 17, .58);
+          --hh-red: #ff3b30;
+          --hh-blue: #0a84ff;
+          --hh-yellow: #ffcc00;
+          --hh-green: #30d158;
+          font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", var(--paper-font-body1_-_font-family, Roboto, system-ui, sans-serif);
+        }
+        .theme-nothing.page {
+          max-width: 1480px;
+          padding: 26px 18px 36px;
+        }
+        .theme-nothing .masthead {
+          margin-bottom: 18px;
+        }
+        .theme-nothing .mark {
+          width: 50px;
+          height: 50px;
+          border: 1px solid rgba(17, 17, 17, .16);
+          border-radius: 16px;
+          background:
+            radial-gradient(circle, var(--hh-ink) 1.4px, transparent 1.7px) 8px 8px / 8px 8px,
+            rgba(255, 255, 255, .84);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .88), 0 12px 30px rgba(0, 0, 0, .09);
+        }
+        .theme-nothing .mark::before { display: none; }
+        .theme-nothing .mark::after {
+          right: 8px;
+          bottom: 8px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--hh-red);
+          box-shadow: 0 0 0 5px rgba(255, 59, 48, .12);
+        }
+        .theme-nothing .eyebrow {
+          font-size: 12px;
+          font-weight: 750;
+        }
+        .theme-nothing h1 {
+          font-size: 56px;
+          line-height: .96;
+          font-weight: 850;
+        }
+        .theme-nothing .status-chip {
+          min-height: 42px;
+          padding: 0 15px;
+          border: 1px solid rgba(17, 17, 17, .1);
+          border-radius: 999px;
+          background: rgba(255, 255, 255, .72);
+          color: #202024;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 12px 28px rgba(0, 0, 0, .08);
+          text-transform: none;
+          backdrop-filter: blur(22px);
+        }
+        .theme-nothing .header {
+          grid-template-columns: minmax(320px, 430px) 1fr;
+          gap: 16px;
+        }
+        .theme-nothing .score,
+        .theme-nothing .kpi,
+        .theme-nothing .section,
+        .theme-nothing .toolbar {
+          border: 1px solid rgba(17, 17, 17, .1);
+          border-radius: 28px;
+          background: rgba(255, 255, 255, .76);
+          box-shadow: 0 24px 70px rgba(0, 0, 0, .12);
+          backdrop-filter: blur(24px) saturate(150%);
+        }
+        .theme-nothing .score {
+          min-height: 340px;
+          padding: 28px;
+        }
+        .theme-nothing .score::after {
+          right: 28px;
+          bottom: 28px;
+          top: auto;
+          width: 142px;
+          height: 142px;
+          border-radius: 50%;
+          background: conic-gradient(${scoreColor(score)} 0 ${Math.min(Math.max(score, 0), 100)}%, rgba(17, 17, 17, .08) ${Math.min(Math.max(score, 0), 100)}% 100%);
+          box-shadow: inset 0 0 0 16px rgba(255, 255, 255, .82);
+        }
+        .theme-nothing .score::before {
+          content: "";
+          position: absolute;
+          inset: 18px 18px auto auto;
+          width: 130px;
+          height: 130px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(17, 17, 17, .55) 1.3px, transparent 1.6px) 0 0 / 8px 8px;
+          opacity: .2;
+        }
+        .theme-nothing .score-value {
+          font-size: 108px;
+          font-weight: 850;
+          letter-spacing: 0;
+        }
+        .theme-nothing .score-label,
+        .theme-nothing .kpi-label {
+          text-transform: none;
+          font-weight: 720;
+        }
+        .theme-nothing .score-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          max-width: 270px;
+        }
+        .theme-nothing .score-meta .small {
+          margin: 0;
+          padding: 7px 10px;
+          border: 1px solid rgba(17, 17, 17, .09);
+          border-radius: 999px;
+          background: rgba(255, 255, 255, .64);
+          color: #2d2d31;
+          font-size: 12px;
+          font-weight: 700;
+        }
+        .theme-nothing .kpis {
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 12px;
+        }
+        .theme-nothing .kpi {
+          min-height: 150px;
+          padding: 18px;
+          background: rgba(255, 255, 255, .9);
+          box-shadow: 0 16px 42px rgba(0, 0, 0, .07);
+        }
+        .theme-nothing .kpi::before {
+          inset: 18px auto auto 18px;
+          width: 42px;
+          height: 18px;
+          background: radial-gradient(circle, rgba(17, 17, 17, .34) 1.3px, transparent 1.6px) 0 0 / 6px 6px;
+        }
+        .theme-nothing .kpi-value {
+          margin-top: 42px;
+          font-size: 42px;
+          font-weight: 820;
+        }
+        .theme-nothing .toolbar {
+          margin-top: 18px;
+          padding: 10px;
+          box-shadow: 0 18px 44px rgba(0, 0, 0, .1);
+        }
+        .theme-nothing input,
+        .theme-nothing select {
+          border: 1px solid rgba(17, 17, 17, .1);
+          border-radius: 16px;
+          background: rgba(255, 255, 255, .76);
+          font-weight: 520;
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .85);
+        }
+        .theme-nothing input:focus,
+        .theme-nothing select:focus {
+          outline: 3px solid rgba(10, 132, 255, .22);
+        }
+        .theme-nothing .grid {
+          gap: 16px;
+          margin-top: 18px;
+        }
+        .theme-nothing .section {
+          overflow: hidden;
+        }
+        .theme-nothing .section-head {
+          padding: 18px 18px 12px;
+          border-bottom: 0;
+          background: transparent;
+          color: var(--hh-ink);
+        }
+        .theme-nothing .section h2 {
+          font-size: 20px;
+          font-weight: 820;
+        }
+        .theme-nothing .count {
+          color: var(--hh-muted);
+        }
+        .theme-nothing th {
+          background: rgba(255, 255, 255, .42);
+        }
+        .theme-nothing th,
+        .theme-nothing td {
+          border-bottom: 1px solid rgba(17, 17, 17, .08);
+        }
+        .theme-nothing tr:hover td {
+          background: rgba(10, 132, 255, .06);
+        }
+        .theme-nothing .entity {
+          color: #111111;
+        }
+        .theme-nothing button {
+          border: 1px solid rgba(17, 17, 17, .11);
+          border-radius: 999px;
+          background: #111111;
+          color: #ffffff;
+          text-transform: none;
+        }
+        .theme-nothing button:hover {
+          background: #2a2a2d;
+        }
+        .theme-nothing .bar {
+          height: 8px;
+          border: 0;
+          border-radius: 999px;
+          background: rgba(17, 17, 17, .08);
+        }
+        .theme-nothing .fill {
+          border-radius: inherit;
+          background: linear-gradient(90deg, #111111, var(--hh-red));
+        }
+        .theme-nothing .mini {
+          border: 1px solid rgba(17, 17, 17, .08);
+          border-radius: 20px;
+          background: rgba(255, 255, 255, .65);
+        }
         @media (max-width: 760px) {
           .page { padding: 12px; }
           .masthead { grid-template-columns: 1fr; align-items: start; }
@@ -450,9 +667,17 @@ class HomeHealthOverviewPanel extends HTMLElement {
           th, td { padding: 10px 8px; }
           .actions { gap: 4px; }
           button { padding: 7px 8px; }
+          .theme-nothing h1 { font-size: 38px; }
+          .theme-nothing .header { grid-template-columns: 1fr; }
+          .theme-nothing .score { min-height: 300px; }
+          .theme-nothing .score-value { font-size: 82px; }
+          .theme-nothing .score::after {
+            width: 112px;
+            height: 112px;
+          }
         }
       </style>
-      <div class="page">
+      <div class="page theme-${panelStyle}">
         <div class="masthead">
           <div class="brand">
             <div class="mark" aria-hidden="true"></div>
@@ -799,6 +1024,19 @@ function statusColor(score) {
   if (score >= 90) return "var(--hh-green)";
   if (score >= 70) return "var(--hh-yellow)";
   return "var(--hh-red)";
+}
+
+function panelBackground(panelStyle) {
+  if (panelStyle === "bauhaus") {
+    return `
+            linear-gradient(90deg, rgba(17, 17, 17, .045) 1px, transparent 1px),
+            linear-gradient(180deg, rgba(17, 17, 17, .045) 1px, transparent 1px),
+            var(--hh-paper)`;
+  }
+  return `
+            radial-gradient(circle at 12px 12px, rgba(17, 17, 17, .1) 1.2px, transparent 1.3px) 0 0 / 24px 24px,
+            radial-gradient(circle at 78% 14%, rgba(255, 59, 48, .11), transparent 28%),
+            linear-gradient(135deg, #f8f8f6 0%, #ffffff 42%, #eef1f4 100%)`;
 }
 
 function formatDate(value) {
