@@ -14,13 +14,13 @@
           "memory_warning_threshold": "RAM warning threshold (%)",
           "storage_warning_threshold": "Storage warning threshold (%)",
           "panel_style": "Dashboard look",
-          "api_entities": "API/watchlist entities, comma-separated",
-          "addon_entities": "Add-on/bridge watchlist entities, comma-separated",
-          "system_resource_entities": "System resource watchlist, comma-separated",
-          "include_entities": "Always monitor entities, comma-separated",
-          "ignore_entities": "Ignore entities, comma-separated",
+          "api_entities": "API/watchlist entities",
+          "addon_entities": "Add-on/bridge watchlist entities",
+          "system_resource_entities": "System resource watchlist",
+          "include_entities": "Always monitor entities",
+          "ignore_entities": "Ignore entities",
           "ignore_devices": "Ignore devices",
-          "ignore_prefixes": "Ignore entity prefixes, comma-separated"
+          "ignore_prefixes": "Ignore entity prefixes, one line or comma per prefix"
         }
       }
     }
@@ -39,13 +39,13 @@
           "memory_warning_threshold": "RAM warning threshold (%)",
           "storage_warning_threshold": "Storage warning threshold (%)",
           "panel_style": "Dashboard look",
-          "api_entities": "API/watchlist entities, comma-separated",
-          "addon_entities": "Add-on/bridge watchlist entities, comma-separated",
-          "system_resource_entities": "System resource watchlist, comma-separated",
-          "include_entities": "Always monitor entities, comma-separated",
-          "ignore_entities": "Ignore entities, comma-separated",
+          "api_entities": "API/watchlist entities",
+          "addon_entities": "Add-on/bridge watchlist entities",
+          "system_resource_entities": "System resource watchlist",
+          "include_entities": "Always monitor entities",
+          "ignore_entities": "Ignore entities",
           "ignore_devices": "Ignore devices",
-          "ignore_prefixes": "Ignore entity prefixes, comma-separated"
+          "ignore_prefixes": "Ignore entity prefixes, one line or comma per prefix"
         }
       }
     }
@@ -64,7 +64,8 @@
       "zigbee_linkquality_low": { "name": "Weak Zigbee Signal" },
       "addon_problems": { "name": "Add-on Problems" },
       "system_resource_problems": { "name": "High System Load" },
-      "updates_available": { "name": "Updates Available" }
+      "updates_available": { "name": "Updates Available" },
+      "problem_devices": { "name": "Problem Devices" }
     },
     "binary_sensor": {
       "critical": { "name": "Critical" },

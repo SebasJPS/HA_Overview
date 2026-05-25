@@ -86,6 +86,7 @@ sensor.home_health_overview_zigbee_linkquality_low
 sensor.home_health_overview_addon_problems
 sensor.home_health_overview_system_resource_problems
 sensor.home_health_overview_updates_available
+sensor.home_health_overview_problem_devices
 binary_sensor.home_health_overview_critical
 binary_sensor.home_health_overview_warning
 ```
@@ -138,4 +139,4 @@ Home Health Overview is free and will remain free.
 
 ## Status
 
-Aktuelle Version / Current version: `0.7.10`
+Aktuelle Version / Current version: `0.8.0`

@@ -40,6 +40,9 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
             ],
             "total_addon_watchlist_entities": data["total_addon_watchlist_entities"],
             "total_system_resource_entities": data["total_system_resource_entities"],
+            "total_devices": data["total_devices"],
+            "total_problem_devices": data["total_problem_devices"],
+            "duration_penalty": data["duration_penalty"],
             "include_entities": data["include_entities"],
             "ignore_entities": data["ignore_entities"],
             "ignore_devices": data["ignore_devices"],
@@ -93,6 +96,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
                 "updates_available": {
                     "count": len(data["update_available_entities"]),
                     "details": data["update_available_details"],
+                },
+                "device_health": {
+                    "count": len(data["problem_device_details"]),
+                    "details": data["problem_device_details"],
                 },
             },
         },
@@ -221,6 +228,18 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         attrs_fn=lambda data: {
             "entities": data["update_available_entities"],
             "details": data["update_available_details"],
+        },
+    ),
+    HomeHealthSensorDescription(
+        key="problem_devices",
+        translation_key="problem_devices",
+        icon="mdi:devices",
+        native_unit_of_measurement="devices",
+        value_fn=lambda data: len(data["problem_device_details"]),
+        attrs_fn=lambda data: {
+            "devices": [device["device_id"] for device in data["problem_device_details"]],
+            "details": data["problem_device_details"],
+            "total_devices": data["total_devices"],
         },
     ),
 )

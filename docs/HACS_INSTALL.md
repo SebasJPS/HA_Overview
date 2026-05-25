@@ -48,7 +48,7 @@ Beim Hinzufügen kannst du konfigurieren:
 - Systemressourcen-Watchlist per Entity-Selector
 - Entitäten immer überwachen per Entity-Selector
 - Entitäten ignorieren per Entity-Selector
-- Entitäts-Prefixe ignorieren, kommagetrennt
+- Entitäts-Prefixe ignorieren, eine Zeile oder Komma pro Prefix
 
 Ab Version `0.7.0` nutzt die Options-Oberfläche Entity-Selectoren für Entitätslisten. Im `Home Health` Sidebar-Panel kannst du Entitäten direkt öffnen, suchen, filtern und per Button ignorieren oder explizit überwachen.
 

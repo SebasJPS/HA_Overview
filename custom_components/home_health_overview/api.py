@@ -39,6 +39,13 @@ class HomeHealthConfigView(HomeAssistantView):
     async def post(self, request):
         """Handle a panel config action."""
         hass = request.app["hass"]
+        user = request.get("hass_user")
+        if user is None or not user.is_admin:
+            return web.json_response(
+                {"success": False, "error": "admin_required"},
+                status=403,
+            )
+
         payload = await request.json()
         entity_id = str(payload.get("entity_id", "")).strip()
         action = str(payload.get("action", "")).strip()

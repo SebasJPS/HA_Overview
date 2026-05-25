@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 import logging
+import re
 from statistics import mean, median
 from typing import Any
 
@@ -211,12 +212,14 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         for state in monitored_states:
             if state.state in {"unavailable", "unknown"}:
                 continue
+            if not _should_check_staleness(state, include_entities):
+                continue
             age = now - state.last_updated
             if age > timedelta(hours=stale_hours):
                 stale_entities.append(state.entity_id)
 
         temperature_entities = [
-            (state.entity_id, _float_or_none(state.state))
+            (state.entity_id, _temperature_celsius(state))
             for state in states
             if _is_temperature_sensor(state)
         ]
@@ -322,6 +325,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             device_registry,
             area_registry,
             stale_entities,
+            extra_fn=lambda state: _stale_extra(state, stale_hours, now),
         )
         temperature_outlier_details = _entity_details(
             self.hass,
@@ -331,8 +335,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             temp_outliers,
             extra_fn=lambda state: {
                 "median": temp_median,
-                "difference": round(float(state.state) - temp_median, 1)
-                if temp_median is not None and _float_or_none(state.state) is not None
+                "temperature_celsius": _temperature_celsius(state),
+                "difference": round(_temperature_celsius(state) - temp_median, 1)
+                if temp_median is not None and _temperature_celsius(state) is not None
                 else None,
             },
         )
@@ -383,6 +388,32 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             update_available_entities,
             extra_fn=_update_extra,
         )
+        issue_groups = {
+            "offline": offline_details + offline_device_details,
+            "stale": stale_details,
+            "low_battery": low_battery_details,
+            "critical_battery": critical_battery_details,
+            "temperature_outliers": temperature_outlier_details,
+            "apis_offline": api_offline_details,
+            "zigbee_linkquality_low": zigbee_linkquality_low_details,
+            "addon_problems": addon_problem_details,
+            "system_resource_problems": system_resource_problem_details,
+            "updates_available": update_available_details,
+        }
+        device_health_details = _device_health_details(
+            monitored_states,
+            entity_registry,
+            device_registry,
+            area_registry,
+            issue_groups,
+        )
+        problem_device_details = [
+            device for device in device_health_details if device["problem_count"]
+        ]
+        all_problem_details = [
+            detail for details in issue_groups.values() for detail in details
+        ]
+        duration_penalty = _duration_penalty(all_problem_details)
         source_status = {
             "mqtt_entities_found": len(mqtt_entities),
             "zigbee2mqtt_entities_found": len(
@@ -435,6 +466,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             system_resource_problem_count=len(system_resource_problem_entities),
             update_count=len(update_entities),
             update_available_count=len(update_available_entities),
+            device_count=len(device_health_details),
+            device_problem_count=len(problem_device_details),
+            duration_penalty=duration_penalty,
         )
 
         return {
@@ -447,6 +481,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "total_zigbee_linkquality_entities": len(zigbee_linkquality_entities),
             "total_addon_watchlist_entities": len(addon_watchlist_entities),
             "total_system_resource_entities": len(system_resources),
+            "total_devices": len(device_health_details),
+            "total_problem_devices": len(problem_device_details),
+            "duration_penalty": duration_penalty,
             "include_entities": include_entities,
             "ignore_entities": sorted(ignore_entities),
             "ignore_devices": sorted(ignore_devices),
@@ -477,6 +514,8 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "system_resource_problem_details": system_resource_problem_details,
             "update_available_entities": update_available_entities,
             "update_available_details": update_available_details,
+            "device_health_details": device_health_details[:MAX_DETAIL_ITEMS],
+            "problem_device_details": problem_device_details[:MAX_DETAIL_ITEMS],
             "critical": score < 60 or bool(critical_battery_entities),
             "warning": score < 90
             or bool(offline_entities)
@@ -492,12 +531,12 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
 
 def _parse_entity_list(value: str | list[str] | tuple[str, ...] | None) -> list[str]:
-    """Parse a comma-separated entity list."""
+    """Parse a comma- or newline-separated entity list."""
     if value is None:
         return []
     if isinstance(value, str):
-        return [item.strip() for item in value.split(",") if item.strip()]
-    return [item.strip() for item in value if item.strip()]
+        return [item.strip() for item in re.split(r"[,\n]+", value) if item.strip()]
+    return [str(item).strip() for item in value if str(item).strip()]
 
 
 def _float_or_none(value: Any) -> float | None:
@@ -562,6 +601,32 @@ def _is_temperature_sensor(state: Any) -> bool:
     }
 
 
+def _temperature_celsius(state: Any) -> float | None:
+    """Return a temperature state normalized to Celsius."""
+    value = _float_or_none(state.state)
+    if value is None:
+        return None
+    unit = state.attributes.get("unit_of_measurement")
+    if unit in {UnitOfTemperature.FAHRENHEIT, "°F", "F"}:
+        return round((value - 32) * 5 / 9, 1)
+    return value
+
+
+def _should_check_staleness(state: Any, include_entities: list[str]) -> bool:
+    """Return whether stale checks are meaningful for this state."""
+    if state.entity_id in include_entities:
+        return True
+    if not state.entity_id.startswith("sensor."):
+        return False
+    device_class = state.attributes.get("device_class")
+    return device_class not in {
+        "battery",
+        "date",
+        "enum",
+        "timestamp",
+    }
+
+
 def _is_linkquality_sensor(state: Any) -> bool:
     """Return whether a state looks like a Zigbee linkquality/LQI sensor."""
     if not state.entity_id.startswith("sensor."):
@@ -613,6 +678,18 @@ def _update_extra(state: Any) -> dict[str, Any]:
         "latest_version": state.attributes.get("latest_version"),
         "release_summary": state.attributes.get("release_summary"),
         "release_url": state.attributes.get("release_url"),
+    }
+
+
+def _stale_extra(state: Any, stale_hours: int, now: datetime) -> dict[str, Any]:
+    """Return stale-specific duration details."""
+    issue_started = state.last_updated + timedelta(hours=stale_hours)
+    duration_seconds = max(int((now - issue_started).total_seconds()), 0)
+    return {
+        "stale_threshold_hours": stale_hours,
+        "problem_since": issue_started.isoformat(),
+        "problem_duration_seconds": duration_seconds,
+        "problem_duration_hours": round(duration_seconds / 3600, 1),
     }
 
 
@@ -766,6 +843,9 @@ def _calculate_score(
     system_resource_problem_count: int,
     update_count: int,
     update_available_count: int,
+    device_count: int,
+    device_problem_count: int,
+    duration_penalty: int,
 ) -> tuple[int, dict[str, Any]]:
     """Calculate a weighted health score from all available health categories."""
     components = []
@@ -794,9 +874,10 @@ def _calculate_score(
     )
 
     if battery_count:
+        warning_battery_count = max(low_battery_count - critical_battery_count, 0)
         battery_penalty = (
-            (low_battery_count / battery_count) * 50
-            + (critical_battery_count / battery_count) * 50
+            (warning_battery_count / battery_count) * 50
+            + (critical_battery_count / battery_count) * 100
         )
         components.append(
             {
@@ -805,6 +886,7 @@ def _calculate_score(
                 "weight": 20,
                 "score": round(max(100 - battery_penalty, 0), 1),
                 "affected": low_battery_count,
+                "warning": warning_battery_count,
                 "critical": critical_battery_count,
                 "total": battery_count,
             }
@@ -888,6 +970,18 @@ def _calculate_score(
             }
         )
 
+    if device_count:
+        components.append(
+            {
+                "key": "devices",
+                "label": "Devices",
+                "weight": 15,
+                "score": _ratio_score(device_count, device_problem_count),
+                "affected": device_problem_count,
+                "total": device_count,
+            }
+        )
+
     total_weight = sum(component["weight"] for component in components)
     if not total_weight:
         return 100, {"components": [], "method": "weighted_average"}
@@ -895,9 +989,10 @@ def _calculate_score(
     score = round(
         sum(component["score"] * component["weight"] for component in components)
         / total_weight
-    )
+    ) - duration_penalty
     return max(min(score, 100), 0), {
         "method": "weighted_average",
+        "duration_penalty": duration_penalty,
         "components": components,
     }
 
@@ -953,6 +1048,10 @@ def _offline_device_details(
                 "last_changed": max(
                     state.last_changed for state in device_states
                 ).isoformat(),
+                **_duration_attrs(
+                    min(state.last_changed for state in device_states),
+                    datetime.now(timezone.utc),
+                ),
             }
         )
     return sorted(details, key=lambda item: (item["area"] or "", item["name"]))
@@ -968,6 +1067,7 @@ def _entity_details(
 ) -> list[dict[str, Any]]:
     """Return display details for entities."""
     details = []
+    now = datetime.now(timezone.utc)
     for entity_id in entity_ids[:MAX_DETAIL_ITEMS]:
         state = hass.states.get(entity_id)
         entity_entry = entity_registry.async_get(entity_id)
@@ -994,10 +1094,128 @@ def _entity_details(
             "last_updated": state.last_updated.isoformat() if state else None,
             "last_changed": state.last_changed.isoformat() if state else None,
         }
+        if state:
+            item.update(_duration_attrs(state.last_changed, now))
         if state and extra_fn:
             item.update(extra_fn(state))
         details.append(item)
     return details
+
+
+def _duration_attrs(issue_since: datetime, now: datetime) -> dict[str, Any]:
+    """Return normalized problem duration attributes."""
+    duration_seconds = max(int((now - issue_since).total_seconds()), 0)
+    return {
+        "problem_since": issue_since.isoformat(),
+        "problem_duration_seconds": duration_seconds,
+        "problem_duration_hours": round(duration_seconds / 3600, 1),
+    }
+
+
+def _duration_penalty(details: list[dict[str, Any]]) -> int:
+    """Return a small global penalty for long-standing problems."""
+    if not details:
+        return 0
+    longest_hours = max(
+        (float(detail.get("problem_duration_hours") or 0) for detail in details),
+        default=0,
+    )
+    if longest_hours >= 168:
+        return 10
+    if longest_hours >= 72:
+        return 7
+    if longest_hours >= 24:
+        return 4
+    if longest_hours >= 6:
+        return 2
+    return 0
+
+
+def _device_health_details(
+    states: list[Any],
+    entity_registry: er.EntityRegistry,
+    device_registry: dr.DeviceRegistry,
+    area_registry: ar.AreaRegistry,
+    issue_groups: dict[str, list[dict[str, Any]]],
+) -> list[dict[str, Any]]:
+    """Return aggregated health details per Home Assistant device."""
+    devices: dict[str, dict[str, Any]] = {}
+    for state in states:
+        device_id = _device_id_for_entity(entity_registry, state.entity_id)
+        if not device_id:
+            continue
+        device_entry = device_registry.async_get(device_id)
+        area_entry = (
+            area_registry.async_get_area(device_entry.area_id)
+            if device_entry and device_entry.area_id
+            else None
+        )
+        item = devices.setdefault(
+            device_id,
+            {
+                "type": "device_health",
+                "device_id": device_id,
+                "name": _device_name(device_entry) or device_id,
+                "area": area_entry.name if area_entry else None,
+                "entity_count": 0,
+                "problem_count": 0,
+                "score": 100,
+                "issues": [],
+                "issue_categories": {},
+                "longest_problem_duration_hours": 0,
+            },
+        )
+        item["entity_count"] += 1
+
+    for category, details in issue_groups.items():
+        for detail in details:
+            device_id = detail.get("device_id")
+            if detail.get("type") == "device":
+                device_id = detail.get("device_id")
+            if not device_id or device_id not in devices:
+                continue
+            item = devices[device_id]
+            severity = _device_issue_severity(category)
+            item["problem_count"] += 1
+            item["issue_categories"][category] = (
+                item["issue_categories"].get(category, 0) + 1
+            )
+            item["issues"].append(
+                {
+                    "category": category,
+                    "entity_id": detail.get("entity_id"),
+                    "name": detail.get("name"),
+                    "state": detail.get("state"),
+                    "severity": severity,
+                    "problem_duration_hours": detail.get("problem_duration_hours", 0),
+                }
+            )
+            item["longest_problem_duration_hours"] = max(
+                item["longest_problem_duration_hours"],
+                float(detail.get("problem_duration_hours") or 0),
+            )
+            item["score"] = max(item["score"] - severity, 0)
+
+    return sorted(
+        devices.values(),
+        key=lambda item: (item["score"], item["area"] or "", item["name"]),
+    )
+
+
+def _device_issue_severity(category: str) -> int:
+    """Return device-level penalty by issue category."""
+    return {
+        "offline": 45,
+        "critical_battery": 35,
+        "apis_offline": 30,
+        "addon_problems": 30,
+        "system_resource_problems": 25,
+        "zigbee_linkquality_low": 20,
+        "low_battery": 15,
+        "stale": 12,
+        "temperature_outliers": 10,
+        "updates_available": 5,
+    }.get(category, 10)
 
 
 def _device_name(device_entry: dr.DeviceEntry | None) -> str | None:

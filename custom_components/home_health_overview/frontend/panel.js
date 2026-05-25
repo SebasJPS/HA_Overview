@@ -17,6 +17,7 @@ const TEXT = {
     filterTemperature: "Temperatur",
     filterZigbee: "Zigbee",
     filterSystem: "System",
+    filterDevices: "Geräte",
     filterAddons: "Add-ons / APIs",
     filterUpdates: "Updates",
     offlineUnknown: "Offline / unbekannt",
@@ -29,6 +30,8 @@ const TEXT = {
     addonProblems: "Add-on Probleme",
     highSystemLoad: "Systemlast hoch",
     updatesAvailable: "Updates verfügbar",
+    problemDevices: "Geräte mit Problemen",
+    deviceHealthSection: "Geräte-Health",
     tempMedian: "Temperatur Median",
     tempAverage: "Temperatur Mittelwert",
     lowBatterySection: "Batterien unter Schwelle",
@@ -54,6 +57,7 @@ const TEXT = {
     update: "Update",
     installed: "Installiert",
     latest: "Neu",
+    duration: "Dauer",
     sources: "Gefundene Quellen",
     groups: "Gruppen",
     mqttEntities: "MQTT-Entitäten",
@@ -82,6 +86,7 @@ const TEXT = {
       addons: "Add-ons / Bridges",
       system_resources: "Systemressourcen",
       updates: "Updates",
+      devices: "Geräte",
     },
   },
   en: {
@@ -102,6 +107,7 @@ const TEXT = {
     filterTemperature: "Temperature",
     filterZigbee: "Zigbee",
     filterSystem: "System",
+    filterDevices: "Devices",
     filterAddons: "Add-ons / APIs",
     filterUpdates: "Updates",
     offlineUnknown: "Offline / unknown",
@@ -114,6 +120,8 @@ const TEXT = {
     addonProblems: "Add-on problems",
     highSystemLoad: "High system load",
     updatesAvailable: "Updates available",
+    problemDevices: "Problem devices",
+    deviceHealthSection: "Device health",
     tempMedian: "Temperature median",
     tempAverage: "Temperature average",
     lowBatterySection: "Batteries below threshold",
@@ -139,6 +147,7 @@ const TEXT = {
     update: "Update",
     installed: "Installed",
     latest: "Latest",
+    duration: "Duration",
     sources: "Detected sources",
     groups: "groups",
     mqttEntities: "MQTT entities",
@@ -167,6 +176,7 @@ const TEXT = {
       addons: "Add-ons / Bridges",
       system_resources: "System resources",
       updates: "Updates",
+      devices: "Devices",
     },
   },
 };
@@ -701,6 +711,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
             ${categoryKpi(categories.addon_problems, entities.addonProblems, text.addonProblems)}
             ${categoryKpi(categories.system_resource_problems, entities.systemResourceProblems, text.highSystemLoad)}
             ${categoryKpi(categories.updates_available, entities.updatesAvailable, text.updatesAvailable)}
+            ${categoryKpi(categories.device_health, entities.problemDevices, text.problemDevices)}
             ${valueKpi(temperatureMedian, text.tempMedian, "°C")}
             ${valueKpi(temperatureAverage, text.tempAverage, "°C")}
           </div>
@@ -769,6 +780,7 @@ function getEntities(hass) {
     addonProblems: findEntity(hass, "sensor.home_health_overview_addon_problems", "addon_problems"),
     systemResourceProblems: findEntity(hass, "sensor.home_health_overview_system_resource_problems", "system_resource_problems"),
     updatesAvailable: findEntity(hass, "sensor.home_health_overview_updates_available", "updates_available"),
+    problemDevices: findEntity(hass, "sensor.home_health_overview_problem_devices", "problem_devices"),
     tempMedian: findEntity(hass, "sensor.home_health_overview_temperature_median", "temperature_median"),
     tempAverage: findEntity(hass, "sensor.home_health_overview_temperature_average", "temperature_average"),
   };
@@ -786,6 +798,7 @@ function buildSections(categories, entities, text) {
     section("addon_problems", text.addonProblemSection, "addons", categories.addon_problems, entities.addonProblems),
     section("system_resource_problems", text.systemResourceSection, "system", categories.system_resource_problems, entities.systemResourceProblems, { resource: true }),
     section("updates_available", text.updatesAvailable, "updates", categories.updates_available, entities.updatesAvailable, { update: true }),
+    section("device_health", text.deviceHealthSection, "devices", categories.device_health, entities.problemDevices, { deviceHealth: true }),
   ];
 }
 
@@ -839,7 +852,7 @@ function table(rows, meta, busy, text) {
 
 function tableRow(row, meta, busy, text) {
   const entityId = row.entity_id || "";
-  const isDevice = row.type === "device";
+  const isDevice = row.type === "device" || row.type === "device_health";
   const targetId = isDevice ? row.device_id : entityId;
   return `
     <tr>
@@ -874,6 +887,7 @@ function detailMeta(row, meta, text) {
   if (meta.zigbee) details.push(`LQI ${row.linkquality ?? "-"}`, `${text.threshold} ${row.threshold ?? "-"}`);
   if (meta.resource) details.push(`${row.resource_type ?? "resource"}`, `${row.usage ?? "-"}% / ${row.threshold ?? "-"}%`);
   if (meta.update) details.push(`${text.installed} ${row.installed_version ?? "-"}`, `${text.latest} ${row.latest_version ?? "-"}`);
+  if (meta.deviceHealth) details.push(`Score ${row.score ?? "-"}%`, `${row.problem_count ?? 0} ${text.hints}`, `${text.duration} ${row.longest_problem_duration_hours ?? 0} h`);
   if (meta.lastUpdate && row.last_updated) details.push(`${text.update} ${formatDate(row.last_updated)}`);
   if (row.type === "device") details.push(`${row.unavailable_count || row.entity_count || 0} ${text.of} ${row.entity_count || 0}`);
   return details.length ? `<span class="small">${escapeHtml(details.join(" · "))}</span>` : `<span class="muted">-</span>`;
@@ -965,6 +979,7 @@ function scoreSection(components, text, selectedFilter) {
               ${option("temperature", text.filterTemperature, selectedFilter)}
               ${option("zigbee", text.filterZigbee, selectedFilter)}
               ${option("system", text.filterSystem, selectedFilter)}
+              ${option("devices", text.filterDevices, selectedFilter)}
               ${option("addons", text.filterAddons, selectedFilter)}
               ${option("updates", text.filterUpdates, selectedFilter)}
             </select>
