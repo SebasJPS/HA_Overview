@@ -259,6 +259,14 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 storage_threshold,
             )
         ]
+        update_entities = [
+            state.entity_id for state in states if state.entity_id.startswith("update.")
+        ]
+        update_available_entities = [
+            state.entity_id
+            for state in states
+            if state.entity_id.startswith("update.") and _is_update_available(state)
+        ]
         offline_details = _entity_details(
             self.hass,
             entity_registry,
@@ -339,6 +347,14 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 storage_threshold,
             ),
         )
+        update_available_details = _entity_details(
+            self.hass,
+            entity_registry,
+            device_registry,
+            area_registry,
+            update_available_entities,
+            extra_fn=_update_extra,
+        )
         source_status = {
             "mqtt_entities_found": len(mqtt_entities),
             "zigbee2mqtt_entities_found": len(
@@ -363,6 +379,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 ]
             ),
             "system_resource_entities_found": len(system_resources),
+            "update_entities_found": len(update_entities),
             "explicitly_included_entities": len(include_entities),
             "ignored_entities": len(ignore_entities),
             "ignored_prefixes": len(ignore_prefixes),
@@ -385,6 +402,8 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             addon_problem_count=len(addon_problem_entities),
             system_resource_count=len(system_resources),
             system_resource_problem_count=len(system_resource_problem_entities),
+            update_count=len(update_entities),
+            update_available_count=len(update_available_entities),
         )
 
         return {
@@ -421,6 +440,8 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "addon_problem_details": addon_problem_details,
             "system_resource_problem_entities": system_resource_problem_entities,
             "system_resource_problem_details": system_resource_problem_details,
+            "update_available_entities": update_available_entities,
+            "update_available_details": update_available_details,
             "critical": score < 60 or bool(critical_battery_entities),
             "warning": score < 90
             or bool(offline_entities)
@@ -429,6 +450,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             or bool(zigbee_linkquality_low_entities)
             or bool(addon_problem_entities)
             or bool(system_resource_problem_entities)
+            or bool(update_available_entities)
             or bool(stale_entities),
         }
 
@@ -517,6 +539,25 @@ def _is_problem_state(value: str) -> bool:
         "not_running",
         "disconnected",
         "false",
+    }
+
+
+def _is_update_available(state: Any) -> bool:
+    """Return whether a Home Assistant update entity has an update available."""
+    if str(state.state).lower() == "on":
+        return True
+    installed = state.attributes.get("installed_version")
+    latest = state.attributes.get("latest_version")
+    return bool(installed and latest and str(installed) != str(latest))
+
+
+def _update_extra(state: Any) -> dict[str, Any]:
+    """Return update version details for an update entity."""
+    return {
+        "installed_version": state.attributes.get("installed_version"),
+        "latest_version": state.attributes.get("latest_version"),
+        "release_summary": state.attributes.get("release_summary"),
+        "release_url": state.attributes.get("release_url"),
     }
 
 
@@ -668,6 +709,8 @@ def _calculate_score(
     addon_problem_count: int,
     system_resource_count: int,
     system_resource_problem_count: int,
+    update_count: int,
+    update_available_count: int,
 ) -> tuple[int, dict[str, Any]]:
     """Calculate a weighted health score from all available health categories."""
     components = []
@@ -775,6 +818,18 @@ def _calculate_score(
                 ),
                 "affected": system_resource_problem_count,
                 "total": system_resource_count,
+            }
+        )
+
+    if update_count:
+        components.append(
+            {
+                "key": "updates",
+                "label": "Updates",
+                "weight": 5,
+                "score": _ratio_score(update_count, update_available_count),
+                "affected": update_available_count,
+                "total": update_count,
             }
         )
 

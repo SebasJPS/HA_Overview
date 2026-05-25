@@ -1,3 +1,172 @@
+const TEXT = {
+  de: {
+    controlCenter: "Home Assistant Kontrollzentrum",
+    stable: "Stabil",
+    check: "Prüfen",
+    critical: "Kritisch",
+    hints: "Hinweise",
+    systemHealth: "Systemzustand",
+    explicitlyMonitored: "Explizit überwacht",
+    ignored: "Ignoriert",
+    searchPlaceholder: "Suchen nach Name, Entity, Bereich, Gerät",
+    filterProblems: "Nur Probleme",
+    filterAll: "Alle Sektionen",
+    filterOffline: "Offline",
+    filterStale: "Keine Updates",
+    filterBattery: "Batterien",
+    filterTemperature: "Temperatur",
+    filterZigbee: "Zigbee",
+    filterSystem: "System",
+    filterAddons: "Add-ons / APIs",
+    filterUpdates: "Updates",
+    offlineUnknown: "Offline / unbekannt",
+    noUpdates: "Keine Updates",
+    lowBatteries: "Batterien niedrig",
+    criticalBatteries: "Batterien kritisch",
+    tempOutliers: "Temp. Ausreißer",
+    apisOffline: "APIs offline",
+    zigbeeWeak: "Zigbee Signal schwach",
+    addonProblems: "Add-on Probleme",
+    highSystemLoad: "Systemlast hoch",
+    updatesAvailable: "Updates verfügbar",
+    tempMedian: "Temperatur Median",
+    tempAverage: "Temperatur Mittelwert",
+    lowBatterySection: "Batterien unter Schwelle",
+    criticalBatterySection: "Kritische Batterien",
+    temperatureOutlierSection: "Temperatur-Ausreißer",
+    apisOfflineSection: "APIs nicht erreichbar",
+    addonProblemSection: "Add-ons / Bridges mit Problemen",
+    systemResourceSection: "CPU / RAM / Speicher kritisch",
+    entries: "Einträge",
+    noEntries: "Keine Einträge.",
+    entity: "Entität",
+    state: "Status",
+    area: "Bereich",
+    device: "Gerät",
+    details: "Details",
+    action: "Aktion",
+    unknown: "Unbekannt",
+    ignore: "Ignorieren",
+    monitor: "Überwachen",
+    threshold: "Schwelle",
+    update: "Update",
+    installed: "Installiert",
+    latest: "Neu",
+    sources: "Gefundene Quellen",
+    groups: "Gruppen",
+    mqttEntities: "MQTT-Entitäten",
+    zigbee2mqttEntities: "Zigbee2MQTT-Entitäten",
+    zigbeeLinkqualitySensors: "Zigbee Linkquality-Sensoren",
+    bridgeStatusEntities: "Bridge-Status-Entitäten",
+    addonWatchlist: "Add-on Watchlist",
+    supervisorHints: "Supervisor/Add-on Hinweise",
+    systemResources: "Systemressourcen",
+    updateEntities: "Update-Entitäten",
+    ignoredEntities: "Ignorierte Entitäten",
+    ignoredPrefixes: "Ignorierte Prefixe",
+    scoreCalculation: "Score-Berechnung",
+    components: "Komponenten",
+    noScoreComponents: "Noch keine Score-Komponenten verfügbar.",
+    affected: "Betroffen",
+    of: "von",
+    weight: "Gewicht",
+    scoreLabels: {
+      availability: "Verfügbarkeit",
+      freshness: "Aktualität",
+      battery: "Batterie",
+      temperature: "Temperatur",
+      api: "APIs",
+      zigbee: "Zigbee",
+      addons: "Add-ons / Bridges",
+      system_resources: "Systemressourcen",
+      updates: "Updates",
+    },
+  },
+  en: {
+    controlCenter: "Home Assistant Control Center",
+    stable: "Stable",
+    check: "Check",
+    critical: "Critical",
+    hints: "notices",
+    systemHealth: "System health",
+    explicitlyMonitored: "Explicitly monitored",
+    ignored: "Ignored",
+    searchPlaceholder: "Search by name, entity, area, device",
+    filterProblems: "Problems only",
+    filterAll: "All sections",
+    filterOffline: "Offline",
+    filterStale: "Stale",
+    filterBattery: "Batteries",
+    filterTemperature: "Temperature",
+    filterZigbee: "Zigbee",
+    filterSystem: "System",
+    filterAddons: "Add-ons / APIs",
+    filterUpdates: "Updates",
+    offlineUnknown: "Offline / unknown",
+    noUpdates: "No updates",
+    lowBatteries: "Low batteries",
+    criticalBatteries: "Critical batteries",
+    tempOutliers: "Temp. outliers",
+    apisOffline: "APIs offline",
+    zigbeeWeak: "Weak Zigbee signal",
+    addonProblems: "Add-on problems",
+    highSystemLoad: "High system load",
+    updatesAvailable: "Updates available",
+    tempMedian: "Temperature median",
+    tempAverage: "Temperature average",
+    lowBatterySection: "Batteries below threshold",
+    criticalBatterySection: "Critical batteries",
+    temperatureOutlierSection: "Temperature outliers",
+    apisOfflineSection: "APIs unreachable",
+    addonProblemSection: "Add-ons / bridges with problems",
+    systemResourceSection: "CPU / RAM / storage critical",
+    entries: "entries",
+    noEntries: "No entries.",
+    entity: "Entity",
+    state: "State",
+    area: "Area",
+    device: "Device",
+    details: "Details",
+    action: "Action",
+    unknown: "Unknown",
+    ignore: "Ignore",
+    monitor: "Monitor",
+    threshold: "Threshold",
+    update: "Update",
+    installed: "Installed",
+    latest: "Latest",
+    sources: "Detected sources",
+    groups: "groups",
+    mqttEntities: "MQTT entities",
+    zigbee2mqttEntities: "Zigbee2MQTT entities",
+    zigbeeLinkqualitySensors: "Zigbee linkquality sensors",
+    bridgeStatusEntities: "Bridge status entities",
+    addonWatchlist: "Add-on watchlist",
+    supervisorHints: "Supervisor/add-on hints",
+    systemResources: "System resources",
+    updateEntities: "Update entities",
+    ignoredEntities: "Ignored entities",
+    ignoredPrefixes: "Ignored prefixes",
+    scoreCalculation: "Score calculation",
+    components: "components",
+    noScoreComponents: "No score components available yet.",
+    affected: "Affected",
+    of: "of",
+    weight: "Weight",
+    scoreLabels: {
+      availability: "Availability",
+      freshness: "Freshness",
+      battery: "Battery",
+      temperature: "Temperature",
+      api: "APIs",
+      zigbee: "Zigbee",
+      addons: "Add-ons / Bridges",
+      system_resources: "System resources",
+      updates: "Updates",
+    },
+  },
+};
+
 class HomeHealthOverviewPanel extends HTMLElement {
   constructor() {
     super();
@@ -29,12 +198,13 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const ignoreEntities = attrs.ignore_entities || [];
     const temperatureMedian = attrs.temperature_median ?? entities.tempMedian?.state ?? "?";
     const temperatureAverage = attrs.temperature_average ?? entities.tempAverage?.state ?? "?";
-    const sections = buildSections(categories, entities);
+    const text = getText(hass);
+    const sections = buildSections(categories, entities, text);
     const visibleSections = sections
       .map((section) => ({ ...section, rows: filterRows(section.rows, this._search, this._filter, section.key) }))
       .filter((section) => this._filter === "all" || section.rows.length || ["sources", "score"].includes(section.key));
     const problemCount = sections.reduce((sum, section) => sum + section.rows.length, 0);
-    const statusLabel = score >= 90 ? "Stabil" : score >= 70 ? "Prüfen" : "Kritisch";
+    const statusLabel = score >= 90 ? text.stable : score >= 70 ? text.check : text.critical;
 
     this.innerHTML = `
       <style>
@@ -279,62 +449,64 @@ class HomeHealthOverviewPanel extends HTMLElement {
           <div class="brand">
             <div class="mark" aria-hidden="true"></div>
             <div>
-              <div class="eyebrow">Home Assistant Kontrollzentrum</div>
+              <div class="eyebrow">${text.controlCenter}</div>
               <h1>Home Health</h1>
             </div>
           </div>
-          <div class="status-chip">${statusLabel} · ${problemCount} Hinweise</div>
+          <div class="status-chip">${statusLabel} · ${problemCount} ${text.hints}</div>
         </div>
 
         <div class="header">
           <section class="score">
             <div>
               <div class="score-value">${score}%</div>
-              <div class="score-label">Systemzustand</div>
+              <div class="score-label">${text.systemHealth}</div>
             </div>
             <div class="score-meta">
-              <div class="small">Explizit überwacht: ${includeEntities.length}</div>
-              <div class="small">Ignoriert: ${ignoreEntities.length}</div>
+              <div class="small">${text.explicitlyMonitored}: ${includeEntities.length}</div>
+              <div class="small">${text.ignored}: ${ignoreEntities.length}</div>
             </div>
           </section>
           <div class="kpis">
-            ${categoryKpi(categories.offline, entities.offline, "Offline / unbekannt")}
-            ${categoryKpi(categories.stale, entities.stale, "Keine Updates")}
-            ${categoryKpi(categories.low_battery, entities.lowBattery, "Batterien niedrig")}
-            ${categoryKpi(categories.critical_battery, entities.criticalBattery, "Batterien kritisch")}
-            ${categoryKpi(categories.temperature_outliers, entities.temperatureOutliers, "Temp. Ausreißer")}
-            ${categoryKpi(categories.apis_offline, entities.apisOffline, "APIs offline")}
-            ${categoryKpi(categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, "Zigbee Signal schwach")}
-            ${categoryKpi(categories.addon_problems, entities.addonProblems, "Add-on Probleme")}
-            ${categoryKpi(categories.system_resource_problems, entities.systemResourceProblems, "Systemlast hoch")}
-            ${valueKpi(temperatureMedian, "Temperatur Median", "°C")}
-            ${valueKpi(temperatureAverage, "Temperatur Mittelwert", "°C")}
+            ${categoryKpi(categories.offline, entities.offline, text.offlineUnknown)}
+            ${categoryKpi(categories.stale, entities.stale, text.noUpdates)}
+            ${categoryKpi(categories.low_battery, entities.lowBattery, text.lowBatteries)}
+            ${categoryKpi(categories.critical_battery, entities.criticalBattery, text.criticalBatteries)}
+            ${categoryKpi(categories.temperature_outliers, entities.temperatureOutliers, text.tempOutliers)}
+            ${categoryKpi(categories.apis_offline, entities.apisOffline, text.apisOffline)}
+            ${categoryKpi(categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, text.zigbeeWeak)}
+            ${categoryKpi(categories.addon_problems, entities.addonProblems, text.addonProblems)}
+            ${categoryKpi(categories.system_resource_problems, entities.systemResourceProblems, text.highSystemLoad)}
+            ${categoryKpi(categories.updates_available, entities.updatesAvailable, text.updatesAvailable)}
+            ${valueKpi(temperatureMedian, text.tempMedian, "°C")}
+            ${valueKpi(temperatureAverage, text.tempAverage, "°C")}
           </div>
         </div>
 
         <div class="toolbar">
           <div class="search">
-            <input id="hh-search" type="search" placeholder="Suchen nach Name, Entity, Bereich, Gerät" value="${escapeAttr(this._search)}">
+            <input id="hh-search" type="search" placeholder="${escapeAttr(text.searchPlaceholder)}" value="${escapeAttr(this._search)}">
           </div>
           <div class="filter">
             <select id="hh-filter">
-              ${option("problems", "Nur Probleme", this._filter)}
-              ${option("all", "Alle Sektionen", this._filter)}
-              ${option("offline", "Offline", this._filter)}
-              ${option("stale", "Keine Updates", this._filter)}
-              ${option("battery", "Batterien", this._filter)}
-              ${option("temperature", "Temperatur", this._filter)}
-              ${option("zigbee", "Zigbee", this._filter)}
-              ${option("system", "System", this._filter)}
-              ${option("addons", "Add-ons / APIs", this._filter)}
+              ${option("problems", text.filterProblems, this._filter)}
+              ${option("all", text.filterAll, this._filter)}
+              ${option("offline", text.filterOffline, this._filter)}
+              ${option("stale", text.filterStale, this._filter)}
+              ${option("battery", text.filterBattery, this._filter)}
+              ${option("temperature", text.filterTemperature, this._filter)}
+              ${option("zigbee", text.filterZigbee, this._filter)}
+              ${option("system", text.filterSystem, this._filter)}
+              ${option("addons", text.filterAddons, this._filter)}
+              ${option("updates", text.filterUpdates, this._filter)}
             </select>
           </div>
         </div>
 
         <div class="grid">
-          ${scoreSection(breakdown)}
-          ${sourceSection(sourceStatus)}
-          ${visibleSections.map((section) => tableSection(section, this._busy)).join("")}
+          ${scoreSection(breakdown, text)}
+          ${sourceSection(sourceStatus, text)}
+          ${visibleSections.map((section) => tableSection(section, this._busy, text)).join("")}
         </div>
       </div>
     `;
@@ -397,22 +569,24 @@ function getEntities(hass) {
     zigbeeLinkqualityLow: findEntity(hass, "sensor.home_health_overview_zigbee_linkquality_low", "zigbee_linkquality_low"),
     addonProblems: findEntity(hass, "sensor.home_health_overview_addon_problems", "addon_problems"),
     systemResourceProblems: findEntity(hass, "sensor.home_health_overview_system_resource_problems", "system_resource_problems"),
+    updatesAvailable: findEntity(hass, "sensor.home_health_overview_updates_available", "updates_available"),
     tempMedian: findEntity(hass, "sensor.home_health_overview_temperature_median", "temperature_median"),
     tempAverage: findEntity(hass, "sensor.home_health_overview_temperature_average", "temperature_average"),
   };
 }
 
-function buildSections(categories, entities) {
+function buildSections(categories, entities, text) {
   return [
-    section("offline", "Offline / unbekannt", "offline", categories.offline, entities.offline),
-    section("stale", "Keine Updates", "stale", categories.stale, entities.stale, { lastUpdate: true }),
-    section("low_battery", "Batterien unter Schwelle", "battery", categories.low_battery, entities.lowBattery),
-    section("critical_battery", "Kritische Batterien", "battery", categories.critical_battery, entities.criticalBattery),
-    section("temperature_outliers", "Temperatur-Ausreißer", "temperature", categories.temperature_outliers, entities.temperatureOutliers, { temperature: true }),
-    section("apis_offline", "APIs nicht erreichbar", "addons", categories.apis_offline, entities.apisOffline),
-    section("zigbee_linkquality_low", "Zigbee Signal schwach", "zigbee", categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, { zigbee: true }),
-    section("addon_problems", "Add-ons / Bridges mit Problemen", "addons", categories.addon_problems, entities.addonProblems),
-    section("system_resource_problems", "CPU / RAM / Speicher kritisch", "system", categories.system_resource_problems, entities.systemResourceProblems, { resource: true }),
+    section("offline", text.offlineUnknown, "offline", categories.offline, entities.offline),
+    section("stale", text.noUpdates, "stale", categories.stale, entities.stale, { lastUpdate: true }),
+    section("low_battery", text.lowBatterySection, "battery", categories.low_battery, entities.lowBattery),
+    section("critical_battery", text.criticalBatterySection, "battery", categories.critical_battery, entities.criticalBattery),
+    section("temperature_outliers", text.temperatureOutlierSection, "temperature", categories.temperature_outliers, entities.temperatureOutliers, { temperature: true }),
+    section("apis_offline", text.apisOfflineSection, "addons", categories.apis_offline, entities.apisOffline),
+    section("zigbee_linkquality_low", text.zigbeeWeak, "zigbee", categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, { zigbee: true }),
+    section("addon_problems", text.addonProblemSection, "addons", categories.addon_problems, entities.addonProblems),
+    section("system_resource_problems", text.systemResourceSection, "system", categories.system_resource_problems, entities.systemResourceProblems, { resource: true }),
+    section("updates_available", text.updatesAvailable, "updates", categories.updates_available, entities.updatesAvailable, { update: true }),
   ];
 }
 
@@ -439,67 +613,68 @@ function filterRows(rows, search, filter, group) {
   ].filter(Boolean).join(" ").toLowerCase().includes(query));
 }
 
-function tableSection(sectionData, busy) {
+function tableSection(sectionData, busy, text) {
   const rows = sectionData.rows;
   return `
     <section class="section">
       <div class="section-head">
         <h2>${escapeHtml(sectionData.title)}</h2>
-        <div class="count">${rows.length} Einträge</div>
+        <div class="count">${rows.length} ${text.entries}</div>
       </div>
-      ${rows.length ? table(rows, sectionData.meta, busy) : `<div class="empty">Keine Einträge.</div>`}
+      ${rows.length ? table(rows, sectionData.meta, busy, text) : `<div class="empty">${text.noEntries}</div>`}
     </section>
   `;
 }
 
-function table(rows, meta, busy) {
+function table(rows, meta, busy, text) {
   return `
     <table>
       <thead>
         <tr>
-          <th style="width:32%">Entität</th>
-          <th style="width:12%">Status</th>
-          <th style="width:18%">Bereich</th>
-          <th style="width:20%">Gerät</th>
-          <th>Details</th>
-          <th style="width:170px">Aktion</th>
+          <th style="width:32%">${text.entity}</th>
+          <th style="width:12%">${text.state}</th>
+          <th style="width:18%">${text.area}</th>
+          <th style="width:20%">${text.device}</th>
+          <th>${text.details}</th>
+          <th style="width:170px">${text.action}</th>
         </tr>
       </thead>
       <tbody>
-        ${rows.map((row) => tableRow(row, meta, busy)).join("")}
+        ${rows.map((row) => tableRow(row, meta, busy, text)).join("")}
       </tbody>
     </table>
   `;
 }
 
-function tableRow(row, meta, busy) {
+function tableRow(row, meta, busy, text) {
   const entityId = row.entity_id || "";
   return `
     <tr>
       <td>
-        <div class="entity" data-entity="${escapeAttr(entityId)}">${escapeHtml(row.name || entityId || "Unbekannt")}</div>
+        <div class="entity" data-entity="${escapeAttr(entityId)}">${escapeHtml(row.name || entityId || text.unknown)}</div>
         <div class="small">${escapeHtml(entityId)}</div>
       </td>
       <td class="state">${escapeHtml(row.state ?? "-")}</td>
       <td>${escapeHtml(row.area || "-")}</td>
       <td>${escapeHtml(row.device || "-")}</td>
-      <td>${detailMeta(row, meta)}</td>
+      <td>${detailMeta(row, meta, text)}</td>
       <td>
         <div class="actions">
-          ${actionButton("ignore", "Ignorieren", entityId, busy)}
-          ${actionButton("monitor", "Überwachen", entityId, busy)}
+          ${actionButton("ignore", text.ignore, entityId, busy)}
+          ${actionButton("monitor", text.monitor, entityId, busy)}
         </div>
       </td>
     </tr>
   `;
 }
 
-function detailMeta(row, meta) {
+function detailMeta(row, meta, text) {
   const details = [];
   if (meta.temperature) details.push(`Median ${row.median ?? "-"} °C`, `Δ ${row.difference ?? "-"} °C`);
-  if (meta.zigbee) details.push(`LQI ${row.linkquality ?? "-"}`, `Schwelle ${row.threshold ?? "-"}`);
+  if (meta.zigbee) details.push(`LQI ${row.linkquality ?? "-"}`, `${text.threshold} ${row.threshold ?? "-"}`);
   if (meta.resource) details.push(`${row.resource_type ?? "resource"}`, `${row.usage ?? "-"}% / ${row.threshold ?? "-"}%`);
-  if (meta.lastUpdate && row.last_updated) details.push(`Update ${formatDate(row.last_updated)}`);
+  if (meta.update) details.push(`${text.installed} ${row.installed_version ?? "-"}`, `${text.latest} ${row.latest_version ?? "-"}`);
+  if (meta.lastUpdate && row.last_updated) details.push(`${text.update} ${formatDate(row.last_updated)}`);
   return details.length ? `<span class="small">${escapeHtml(details.join(" · "))}</span>` : `<span class="muted">-</span>`;
 }
 
@@ -538,22 +713,23 @@ function option(value, label, selected) {
   return `<option value="${value}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>`;
 }
 
-function sourceSection(sourceStatus) {
+function sourceSection(sourceStatus, text) {
   const items = [
-    ["MQTT-Entitäten", sourceStatus.mqtt_entities_found],
-    ["Zigbee2MQTT-Entitäten", sourceStatus.zigbee2mqtt_entities_found],
-    ["Zigbee Linkquality-Sensoren", sourceStatus.zigbee_linkquality_sensors_found],
-    ["Bridge-Status-Entitäten", sourceStatus.zigbee_bridge_entities_found],
-    ["Add-on Watchlist", sourceStatus.addon_watchlist_entities_found],
-    ["Supervisor/Add-on Hinweise", sourceStatus.supervisor_entities_found],
-    ["Systemressourcen", sourceStatus.system_resource_entities_found],
-    ["Explizit überwacht", sourceStatus.explicitly_included_entities],
-    ["Ignorierte Entitäten", sourceStatus.ignored_entities],
-    ["Ignorierte Prefixe", sourceStatus.ignored_prefixes],
+    [text.mqttEntities, sourceStatus.mqtt_entities_found],
+    [text.zigbee2mqttEntities, sourceStatus.zigbee2mqtt_entities_found],
+    [text.zigbeeLinkqualitySensors, sourceStatus.zigbee_linkquality_sensors_found],
+    [text.bridgeStatusEntities, sourceStatus.zigbee_bridge_entities_found],
+    [text.addonWatchlist, sourceStatus.addon_watchlist_entities_found],
+    [text.supervisorHints, sourceStatus.supervisor_entities_found],
+    [text.systemResources, sourceStatus.system_resource_entities_found],
+    [text.updateEntities, sourceStatus.update_entities_found],
+    [text.explicitlyMonitored, sourceStatus.explicitly_included_entities],
+    [text.ignoredEntities, sourceStatus.ignored_entities],
+    [text.ignoredPrefixes, sourceStatus.ignored_prefixes],
   ];
   return `
     <section class="section">
-      <div class="section-head"><h2>Gefundene Quellen</h2><div class="count">${items.length} Gruppen</div></div>
+      <div class="section-head"><h2>${text.sources}</h2><div class="count">${items.length} ${text.groups}</div></div>
       <div class="source-grid">
         ${items.map(([label, value]) => `<div class="mini"><div class="small">${escapeHtml(label)}</div><div class="kpi-value">${value ?? 0}</div></div>`).join("")}
       </div>
@@ -561,23 +737,34 @@ function sourceSection(sourceStatus) {
   `;
 }
 
-function scoreSection(components) {
+function scoreSection(components, text) {
   const rows = components.length
     ? components.map((component) => `
       <div class="mini">
-        <div><strong>${escapeHtml(component.label)}</strong>: ${component.score}%</div>
-        <div class="small">Betroffen: ${component.affected || 0} von ${component.total || 0} · Gewicht: ${component.weight}</div>
+        <div><strong>${escapeHtml(componentLabel(component, text))}</strong>: ${component.score}%</div>
+        <div class="small">${text.affected}: ${component.affected || 0} ${text.of} ${component.total || 0} · ${text.weight}: ${component.weight}</div>
         <div class="bar"><div class="fill" style="width:${component.score}%"></div></div>
       </div>
     `).join("")
-    : `<div class="empty">Noch keine Score-Komponenten verfügbar.</div>`;
+    : `<div class="empty">${text.noScoreComponents}</div>`;
 
   return `
     <section class="section">
-      <div class="section-head"><h2>Score-Berechnung</h2><div class="count">${components.length} Komponenten</div></div>
+      <div class="section-head"><h2>${text.scoreCalculation}</h2><div class="count">${components.length} ${text.components}</div></div>
       <div class="score-grid">${rows}</div>
     </section>
   `;
+}
+
+function getText(hass) {
+  const language = (hass.locale?.language || hass.selectedLanguage || navigator.language || "en")
+    .toLowerCase()
+    .split("-")[0];
+  return TEXT[language] || TEXT.en;
+}
+
+function componentLabel(component, text) {
+  return text.scoreLabels?.[component.key] || component.label;
 }
 
 function scoreColor(score) {

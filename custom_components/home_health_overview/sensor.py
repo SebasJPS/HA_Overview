@@ -83,6 +83,10 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
                     "count": len(data["system_resource_problem_entities"]),
                     "details": data["system_resource_problem_details"],
                 },
+                "updates_available": {
+                    "count": len(data["update_available_entities"]),
+                    "details": data["update_available_details"],
+                },
             },
         },
     ),
@@ -197,6 +201,17 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         attrs_fn=lambda data: {
             "entities": data["system_resource_problem_entities"],
             "details": data["system_resource_problem_details"],
+        },
+    ),
+    HomeHealthSensorDescription(
+        key="updates_available",
+        translation_key="updates_available",
+        icon="mdi:update",
+        native_unit_of_measurement="entities",
+        value_fn=lambda data: len(data["update_available_entities"]),
+        attrs_fn=lambda data: {
+            "entities": data["update_available_entities"],
+            "details": data["update_available_details"],
         },
     ),
 )

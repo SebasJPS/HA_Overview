@@ -59,7 +59,8 @@
       "apis_offline": { "name": "APIs offline" },
       "zigbee_linkquality_low": { "name": "Zigbee Signal schwach" },
       "addon_problems": { "name": "Add-on Probleme" },
-      "system_resource_problems": { "name": "Systemlast hoch" }
+      "system_resource_problems": { "name": "Systemlast hoch" },
+      "updates_available": { "name": "Updates verfügbar" }
     },
     "binary_sensor": {
       "critical": { "name": "Kritisch" },
