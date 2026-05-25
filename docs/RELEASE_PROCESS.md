@@ -22,13 +22,11 @@ Er prüft:
 
 1. Version in `custom_components/home_health_overview/manifest.json` erhöhen.
 2. Änderung committen und nach `main` pushen.
-3. GitHub Actions erstellt automatisch den passenden Tag und GitHub Release aus der Manifest-Version.
-
-Optional kann der passende Tag weiterhin manuell gepusht werden:
+3. Passenden Tag erstellen und pushen. Erst der Tag startet den Release-Workflow.
 
 ```text
-git tag -a v0.7.6 -m "Home Health Overview 0.7.6"
-git push origin v0.7.6
+git tag -a v0.7.8 -m "Home Health Overview 0.7.8"
+git push origin v0.7.8
 ```
 
 Der Release-Workflow bricht ab, wenn der Tag nicht zur `manifest.json`-Version passt.

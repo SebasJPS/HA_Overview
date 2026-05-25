@@ -603,11 +603,7 @@ def _is_problem_state(value: str) -> bool:
 
 def _is_update_available(state: Any) -> bool:
     """Return whether a Home Assistant update entity has an update available."""
-    if str(state.state).lower() == "on":
-        return True
-    installed = state.attributes.get("installed_version")
-    latest = state.attributes.get("latest_version")
-    return bool(installed and latest and str(installed) != str(latest))
+    return str(state.state).lower() == "on"
 
 
 def _update_extra(state: Any) -> dict[str, Any]:

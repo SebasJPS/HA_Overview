@@ -212,7 +212,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
       .map((section) => ({ ...section, rows: filterRows(section.rows, this._search, this._filter, section.key) }))
       .filter((section) => this._filter === "all" || section.rows.length || ["sources", "score"].includes(section.key));
     const problemCount = sections.reduce((sum, section) => sum + section.rows.length, 0);
-    const statusLabel = score >= 90 ? text.stable : score >= 70 ? text.check : text.critical;
+    const statusLevel = getStatusLevel(score, problemCount);
+    const statusLabel = statusLevel === "stable" ? text.stable : statusLevel === "check" ? text.check : text.critical;
 
     this.innerHTML = `
       <style>
@@ -295,8 +296,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
           min-height: 40px;
           padding: 0 14px;
           border: 2px solid var(--hh-ink);
-          background: ${statusColor(score)};
-          color: ${score >= 70 && score < 90 ? "var(--hh-ink)" : "#ffffff"};
+          background: ${statusColor(statusLevel)};
+          color: ${statusLevel === "check" ? "var(--hh-ink)" : "#ffffff"};
           font-weight: 900;
           text-transform: uppercase;
         }
@@ -1020,9 +1021,15 @@ function scoreColor(score) {
   return "var(--error-color, #c62828)";
 }
 
-function statusColor(score) {
-  if (score >= 90) return "var(--hh-green)";
-  if (score >= 70) return "var(--hh-yellow)";
+function getStatusLevel(score, problemCount) {
+  if (score < 70) return "critical";
+  if (problemCount > 0 || score < 90) return "check";
+  return "stable";
+}
+
+function statusColor(statusLevel) {
+  if (statusLevel === "stable") return "var(--hh-green)";
+  if (statusLevel === "check") return "var(--hh-yellow)";
   return "var(--hh-red)";
 }
 
