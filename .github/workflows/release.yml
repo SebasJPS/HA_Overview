@@ -2,6 +2,8 @@ name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*.*.*"
   workflow_dispatch:
@@ -25,6 +27,7 @@ jobs:
           python-version: "3.12"
 
       - name: Validate version and files
+        id: version
         run: |
           python -m compileall -q custom_components/home_health_overview
           python - <<'PY'
@@ -33,11 +36,13 @@ jobs:
           from pathlib import Path
 
           ref_name = os.environ["GITHUB_REF_NAME"]
-          expected = ref_name[1:] if ref_name.startswith("v") else ref_name
           manifest = json.loads(Path("custom_components/home_health_overview/manifest.json").read_text())
           actual = manifest["version"]
-          if actual != expected:
+          if ref_name.startswith("v") and actual != ref_name[1:]:
               raise SystemExit(f"manifest version {actual} does not match tag {ref_name}")
+          with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
+              output.write(f"version={actual}\n")
+              output.write(f"tag=v{actual}\n")
 
           for path in [
               "hacs.json",
@@ -56,7 +61,7 @@ jobs:
 
       - name: Build release notes
         run: |
-          TAG="${GITHUB_REF_NAME}"
+          TAG="${{ steps.version.outputs.tag }}"
           PREVIOUS_TAG="$(git describe --tags --abbrev=0 "${TAG}^" 2>/dev/null || true)"
 
           {
@@ -79,5 +84,8 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           body_path: RELEASE_NOTES.md
+          make_latest: true
           fail_on_unmatched_files: true
