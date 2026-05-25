@@ -25,8 +25,8 @@ Er prüft:
 3. Passenden Tag erstellen und pushen. Erst der Tag startet den Release-Workflow.
 
 ```text
-git tag -a v0.7.9 -m "Home Health Overview 0.7.9"
-git push origin v0.7.9
+git tag -a v0.7.10 -m "Home Health Overview 0.7.10"
+git push origin v0.7.10
 ```
 
 Der Release-Workflow bricht ab, wenn der Tag nicht zur `manifest.json`-Version passt.

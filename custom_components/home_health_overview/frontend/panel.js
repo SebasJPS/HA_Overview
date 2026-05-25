@@ -304,7 +304,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
           gap: 14px;
           align-items: stretch;
         }
-        .score, .kpi, .section, .toolbar {
+        .score, .kpi, .section {
           border: 2px solid var(--hh-ink);
           border-radius: 6px;
           background: var(--hh-surface);
@@ -367,16 +367,6 @@ class HomeHealthOverviewPanel extends HTMLElement {
         .kpi:nth-child(4n)::before { background: var(--hh-red); }
         .kpi-value { font-size: 34px; line-height: .95; font-weight: 900; color: var(--hh-ink); }
         .kpi-label { margin-top: 10px; padding-left: 2px; font-size: 12px; font-weight: 750; text-transform: uppercase; }
-        .toolbar {
-          display: flex;
-          gap: 10px;
-          align-items: center;
-          justify-content: flex-end;
-          margin-top: 20px;
-          padding: 12px;
-          flex-wrap: wrap;
-          box-shadow: 4px 4px 0 var(--hh-ink);
-        }
         select {
           width: 100%;
           border: 2px solid var(--hh-ink);
@@ -388,7 +378,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
           font-weight: 700;
         }
         select:focus { outline: 3px solid var(--hh-yellow); outline-offset: 1px; }
-        .filter { flex: 0 0 220px; }
+        .filter { flex: 0 0 220px; min-width: 190px; }
         .grid { display: grid; grid-template-columns: 1fr; gap: 18px; margin-top: 20px; }
         .section { overflow: hidden; }
         .section-head {
@@ -402,6 +392,13 @@ class HomeHealthOverviewPanel extends HTMLElement {
           color: #ffffff;
         }
         .section h2 { margin: 0; font-size: 18px; line-height: 1.1; font-weight: 900; }
+        .section-meta {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
         .count { color: rgba(255, 255, 255, .78); font-size: 12px; font-weight: 800; white-space: nowrap; text-transform: uppercase; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th, td { padding: 12px; border-bottom: 1px solid var(--hh-line); text-align: left; vertical-align: top; font-size: 13px; }
@@ -498,8 +495,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
         }
         .theme-nothing .score,
         .theme-nothing .kpi,
-        .theme-nothing .section,
-        .theme-nothing .toolbar {
+        .theme-nothing .section {
           border: 1px solid rgba(17, 17, 17, .1);
           border-radius: 28px;
           background: rgba(255, 255, 255, .76);
@@ -577,11 +573,6 @@ class HomeHealthOverviewPanel extends HTMLElement {
           font-size: 42px;
           font-weight: 820;
         }
-        .theme-nothing .toolbar {
-          margin-top: 18px;
-          padding: 10px;
-          box-shadow: 0 18px 44px rgba(0, 0, 0, .1);
-        }
         .theme-nothing select {
           border: 1px solid rgba(17, 17, 17, .1);
           border-radius: 16px;
@@ -654,11 +645,13 @@ class HomeHealthOverviewPanel extends HTMLElement {
           .page { padding: 12px; }
           .masthead { grid-template-columns: 1fr; align-items: start; }
           .header { grid-template-columns: 1fr; }
-          .score, .toolbar, .section { box-shadow: 3px 3px 0 var(--hh-ink); }
+          .score, .section { box-shadow: 3px 3px 0 var(--hh-ink); }
           .score { min-height: 190px; }
           h1 { font-size: 32px; }
           .score-value { font-size: 76px; }
           .filter { flex: 1 1 220px; }
+          .section-head { align-items: flex-start; }
+          .section-meta { justify-content: flex-start; }
           th:nth-child(3), td:nth-child(3), th:nth-child(4), td:nth-child(4) { display: none; }
           th, td { padding: 10px 8px; }
           .actions { gap: 4px; }
@@ -713,25 +706,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
           </div>
         </div>
 
-        <div class="toolbar">
-          <div class="filter">
-            <select id="hh-filter">
-              ${option("problems", text.filterProblems, this._filter)}
-              ${option("all", text.filterAll, this._filter)}
-              ${option("offline", text.filterOffline, this._filter)}
-              ${option("stale", text.filterStale, this._filter)}
-              ${option("battery", text.filterBattery, this._filter)}
-              ${option("temperature", text.filterTemperature, this._filter)}
-              ${option("zigbee", text.filterZigbee, this._filter)}
-              ${option("system", text.filterSystem, this._filter)}
-              ${option("addons", text.filterAddons, this._filter)}
-              ${option("updates", text.filterUpdates, this._filter)}
-            </select>
-          </div>
-        </div>
-
         <div class="grid">
-          ${scoreSection(breakdown, text)}
+          ${scoreSection(breakdown, text, this._filter)}
           ${sourceSection(sourceStatus, text)}
           ${visibleSections.map((section) => tableSection(section, this._busy, text)).join("")}
         </div>
@@ -963,7 +939,7 @@ function sourceSection(sourceStatus, text) {
   `;
 }
 
-function scoreSection(components, text) {
+function scoreSection(components, text, selectedFilter) {
   const rows = components.length
     ? components.map((component) => `
       <div class="mini">
@@ -976,7 +952,26 @@ function scoreSection(components, text) {
 
   return `
     <section class="section">
-      <div class="section-head"><h2>${text.scoreCalculation}</h2><div class="count">${components.length} ${text.components}</div></div>
+      <div class="section-head">
+        <h2>${text.scoreCalculation}</h2>
+        <div class="section-meta">
+          <div class="filter">
+            <select id="hh-filter">
+              ${option("problems", text.filterProblems, selectedFilter)}
+              ${option("all", text.filterAll, selectedFilter)}
+              ${option("offline", text.filterOffline, selectedFilter)}
+              ${option("stale", text.filterStale, selectedFilter)}
+              ${option("battery", text.filterBattery, selectedFilter)}
+              ${option("temperature", text.filterTemperature, selectedFilter)}
+              ${option("zigbee", text.filterZigbee, selectedFilter)}
+              ${option("system", text.filterSystem, selectedFilter)}
+              ${option("addons", text.filterAddons, selectedFilter)}
+              ${option("updates", text.filterUpdates, selectedFilter)}
+            </select>
+          </div>
+          <div class="count">${components.length} ${text.components}</div>
+        </div>
+      </div>
       <div class="score-grid">${rows}</div>
     </section>
   `;
