@@ -27,8 +27,8 @@ Er prüft:
 Optional kann der passende Tag weiterhin manuell gepusht werden:
 
 ```text
-git tag -a v0.7.5 -m "Home Health Overview 0.7.5"
-git push origin v0.7.5
+git tag -a v0.7.6 -m "Home Health Overview 0.7.6"
+git push origin v0.7.6
 ```
 
 Der Release-Workflow bricht ab, wenn der Tag nicht zur `manifest.json`-Version passt.
