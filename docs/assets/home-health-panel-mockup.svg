@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="820" viewBox="0 0 1280 820" role="img" aria-labelledby="title desc">
+  <title id="title">Home Health Overview Neo-Bauhaus panel mockup</title>
+  <desc id="desc">A Home Assistant dashboard mockup with a large Home Health header, score panel, KPI tiles, search controls, and issue sections in a Neo-Bauhaus style.</desc>
+  <defs>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M 42 0 L 0 0 0 42" fill="none" stroke="#111111" stroke-opacity=".07" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="7" dy="7" stdDeviation="0" flood-color="#111111" flood-opacity="1"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="820" fill="#f7f4ed"/>
+  <rect width="1280" height="820" fill="url(#grid)"/>
+
+  <g transform="translate(54 44)">
+    <g>
+      <rect x="0" y="0" width="54" height="54" fill="#111111"/>
+      <circle cx="20" cy="20" r="12" fill="#f6c431"/>
+      <rect x="27" y="27" width="27" height="27" fill="#e53935"/>
+    </g>
+    <text x="72" y="18" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="800" fill="#6d665c">HOME ASSISTANT KONTROLLZENTRUM</text>
+    <text x="72" y="58" font-family="Inter, Arial, sans-serif" font-size="50" font-weight="900" fill="#111111">Home Health</text>
+    <rect x="980" y="8" width="184" height="42" fill="#f6c431" stroke="#111111" stroke-width="3"/>
+    <text x="1002" y="35" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="900" fill="#111111">PRUEFEN · 8 HINWEISE</text>
+  </g>
+
+  <g transform="translate(54 132)">
+    <rect x="0" y="0" width="318" height="230" rx="6" fill="#fffdf7" stroke="#111111" stroke-width="3" filter="url(#shadow)"/>
+    <circle cx="284" cy="34" r="60" fill="#f9a825"/>
+    <text x="28" y="106" font-family="Inter, Arial, sans-serif" font-size="92" font-weight="900" fill="#111111">82%</text>
+    <text x="30" y="142" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="900" fill="#6d665c">SYSTEMZUSTAND</text>
+    <text x="30" y="184" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#6d665c">Explizit ueberwacht: 43</text>
+    <text x="30" y="208" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#6d665c">Ignoriert: 12</text>
+  </g>
+
+  <g transform="translate(398 132)">
+    <g fill="#fffdf7" stroke="#111111" stroke-width="3">
+      <rect x="0" y="0" width="172" height="104" rx="6"/>
+      <rect x="184" y="0" width="172" height="104" rx="6"/>
+      <rect x="368" y="0" width="172" height="104" rx="6"/>
+      <rect x="552" y="0" width="172" height="104" rx="6"/>
+      <rect x="736" y="0" width="172" height="104" rx="6"/>
+      <rect x="0" y="124" width="172" height="104" rx="6"/>
+      <rect x="184" y="124" width="172" height="104" rx="6"/>
+      <rect x="368" y="124" width="172" height="104" rx="6"/>
+      <rect x="552" y="124" width="172" height="104" rx="6"/>
+      <rect x="736" y="124" width="172" height="104" rx="6"/>
+    </g>
+    <g>
+      <rect x="0" y="0" width="9" height="104" fill="#1565c0"/>
+      <rect x="184" y="0" width="9" height="104" fill="#1565c0"/>
+      <rect x="368" y="0" width="9" height="104" fill="#f6c431"/>
+      <rect x="552" y="0" width="9" height="104" fill="#e53935"/>
+      <rect x="736" y="0" width="9" height="104" fill="#1565c0"/>
+      <rect x="0" y="124" width="9" height="104" fill="#f6c431"/>
+      <rect x="184" y="124" width="9" height="104" fill="#e53935"/>
+      <rect x="368" y="124" width="9" height="104" fill="#1565c0"/>
+      <rect x="552" y="124" width="9" height="104" fill="#f6c431"/>
+      <rect x="736" y="124" width="9" height="104" fill="#1b8a5a"/>
+    </g>
+    <g font-family="Inter, Arial, sans-serif" fill="#111111">
+      <text x="22" y="45" font-size="36" font-weight="900">2</text><text x="22" y="76" font-size="12" font-weight="900" fill="#6d665c">OFFLINE</text>
+      <text x="206" y="45" font-size="36" font-weight="900">3</text><text x="206" y="76" font-size="12" font-weight="900" fill="#6d665c">KEINE UPDATES</text>
+      <text x="390" y="45" font-size="36" font-weight="900">5</text><text x="390" y="76" font-size="12" font-weight="900" fill="#6d665c">BATTERIEN</text>
+      <text x="574" y="45" font-size="36" font-weight="900">1</text><text x="574" y="76" font-size="12" font-weight="900" fill="#6d665c">KRITISCH</text>
+      <text x="758" y="45" font-size="36" font-weight="900">1</text><text x="758" y="76" font-size="12" font-weight="900" fill="#6d665c">TEMP. AUSREISSER</text>
+      <text x="22" y="169" font-size="36" font-weight="900">0</text><text x="22" y="200" font-size="12" font-weight="900" fill="#6d665c">APIS OFFLINE</text>
+      <text x="206" y="169" font-size="36" font-weight="900">2</text><text x="206" y="200" font-size="12" font-weight="900" fill="#6d665c">ZIGBEE SIGNAL</text>
+      <text x="390" y="169" font-size="36" font-weight="900">0</text><text x="390" y="200" font-size="12" font-weight="900" fill="#6d665c">ADD-ONS</text>
+      <text x="574" y="169" font-size="36" font-weight="900">1</text><text x="574" y="200" font-size="12" font-weight="900" fill="#6d665c">SYSTEMLAST</text>
+      <text x="758" y="169" font-size="36" font-weight="900">21.4°C</text><text x="758" y="200" font-size="12" font-weight="900" fill="#6d665c">TEMP. MEDIAN</text>
+    </g>
+  </g>
+
+  <g transform="translate(54 398)">
+    <rect x="0" y="0" width="1172" height="62" rx="6" fill="#fffdf7" stroke="#111111" stroke-width="3" filter="url(#shadow)"/>
+    <rect x="18" y="14" width="812" height="34" rx="4" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+    <text x="38" y="37" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#6d665c">Suchen nach Name, Entity, Bereich, Geraet</text>
+    <rect x="852" y="14" width="300" height="34" rx="4" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+    <text x="874" y="37" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="900" fill="#111111">Nur Probleme</text>
+  </g>
+
+  <g transform="translate(54 498)">
+    <rect x="0" y="0" width="570" height="252" rx="6" fill="#fffdf7" stroke="#111111" stroke-width="3" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="570" height="54" rx="6" fill="#111111"/>
+    <text x="20" y="35" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="900" fill="#ffffff">Score-Berechnung</text>
+    <text x="448" y="34" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="900" fill="#c8c1b6">3 KOMPONENTEN</text>
+    <g transform="translate(18 74)" font-family="Inter, Arial, sans-serif">
+      <rect x="0" y="0" width="534" height="42" fill="#ffffff" stroke="#c9c1b8" stroke-width="2"/>
+      <text x="14" y="27" font-size="15" font-weight="900" fill="#111111">Verfuegbarkeit: 84%</text>
+      <rect x="338" y="15" width="166" height="12" fill="#ffffff" stroke="#111111" stroke-width="2"/><rect x="340" y="17" width="139" height="8" fill="#1565c0"/>
+      <rect x="0" y="58" width="534" height="42" fill="#ffffff" stroke="#c9c1b8" stroke-width="2"/>
+      <text x="14" y="85" font-size="15" font-weight="900" fill="#111111">Batterien: 74%</text>
+      <rect x="338" y="73" width="166" height="12" fill="#ffffff" stroke="#111111" stroke-width="2"/><rect x="340" y="75" width="123" height="8" fill="#f6c431"/>
+      <rect x="0" y="116" width="534" height="42" fill="#ffffff" stroke="#c9c1b8" stroke-width="2"/>
+      <text x="14" y="143" font-size="15" font-weight="900" fill="#111111">Temperatur: 92%</text>
+      <rect x="338" y="131" width="166" height="12" fill="#ffffff" stroke="#111111" stroke-width="2"/><rect x="340" y="133" width="153" height="8" fill="#1b8a5a"/>
+    </g>
+  </g>
+
+  <g transform="translate(656 498)">
+    <rect x="0" y="0" width="570" height="252" rx="6" fill="#fffdf7" stroke="#111111" stroke-width="3" filter="url(#shadow)"/>
+    <rect x="0" y="0" width="570" height="54" rx="6" fill="#111111"/>
+    <text x="20" y="35" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="900" fill="#ffffff">Offline / unbekannt</text>
+    <text x="480" y="34" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="900" fill="#c8c1b6">2 EINTRAEGE</text>
+    <g font-family="Inter, Arial, sans-serif">
+      <rect x="0" y="54" width="570" height="34" fill="#f0eadf"/>
+      <text x="18" y="76" font-size="12" font-weight="900" fill="#6d665c">ENTITAET</text>
+      <text x="266" y="76" font-size="12" font-weight="900" fill="#6d665c">STATUS</text>
+      <text x="372" y="76" font-size="12" font-weight="900" fill="#6d665c">BEREICH</text>
+      <text x="470" y="76" font-size="12" font-weight="900" fill="#6d665c">AKTION</text>
+      <line x1="0" y1="122" x2="570" y2="122" stroke="#d5cec4"/>
+      <line x1="0" y1="178" x2="570" y2="178" stroke="#d5cec4"/>
+      <text x="18" y="111" font-size="15" font-weight="900" fill="#1565c0">Wohnzimmer Bewegungsmelder</text>
+      <text x="18" y="132" font-size="12" font-weight="700" fill="#6d665c">binary_sensor.wohnzimmer_bewegung</text>
+      <text x="266" y="114" font-size="13" font-weight="900" fill="#111111">unavailable</text>
+      <text x="372" y="114" font-size="13" font-weight="700" fill="#111111">Wohnzimmer</text>
+      <rect x="470" y="96" width="76" height="28" rx="4" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+      <text x="484" y="115" font-size="10" font-weight="900" fill="#111111">IGNORIEREN</text>
+      <text x="18" y="167" font-size="15" font-weight="900" fill="#1565c0">Garten Steckdose</text>
+      <text x="18" y="188" font-size="12" font-weight="700" fill="#6d665c">switch.garten_steckdose</text>
+      <text x="266" y="170" font-size="13" font-weight="900" fill="#111111">unknown</text>
+      <text x="372" y="170" font-size="13" font-weight="700" fill="#111111">Garten</text>
+      <rect x="470" y="152" width="76" height="28" rx="4" fill="#ffffff" stroke="#111111" stroke-width="2"/>
+      <text x="484" y="171" font-size="10" font-weight="900" fill="#111111">IGNORIEREN</text>
+    </g>
+  </g>
+</svg>

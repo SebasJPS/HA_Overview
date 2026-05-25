@@ -4,6 +4,8 @@ Eine HACS-installierbare Home-Assistant-Integration, die den Zustand deines Smar
 
 Home Health Overview erkennt problematische Entitäten, schwache Batterien, veraltete Sensorwerte, API-/Bridge-Probleme, Zigbee-Signalqualität und Systemressourcen. Zusätzlich liefert die Integration einen gewichteten Health Score und ein eigenes Sidebar-Panel mit Suche, Filtern und direkten Aktionen.
 
+![Home Health Overview Panel Mockup](docs/assets/home-health-panel-mockup.svg)
+
 ## Highlights
 
 - Moderner `Home Health` Sidebar-Bereich im Neo-Bauhaus-Stil
@@ -49,6 +51,8 @@ Das Sidebar-Panel ist der zentrale Einstiegspunkt. Es zeigt:
 
 Betroffene Entitäten können im Panel angeklickt werden, um die Home-Assistant-Detailansicht zu öffnen.
 
+![Home Health Overview Workflow Mockup](docs/assets/home-health-workflow-mockup.svg)
+
 ## Wichtige Sensoren
 
 Die Integration legt unter anderem diese Entitäten an:
@@ -85,6 +89,8 @@ Der Home Health Score bewertet den Gesamtzustand proportional über mehrere Bere
 - Systemressourcen wie CPU, RAM und Speicher
 
 Eine einzelne Offline-Entität senkt den Score nur anteilig zum Gesamtbestand. Dadurch bleibt der Score auch in größeren Installationen aussagekräftig und springt nicht wegen eines einzelnen Geräts sofort auf kritisch.
+
+Das Mockup oben zeigt die gedachte Logik: Home Assistant liefert Rohzustände, die Integration gruppiert und bewertet sie, und das Panel macht daraus konkrete Handlungslisten.
 
 ## Konfiguration
 
@@ -143,4 +149,4 @@ Der Release-Workflow prüft, ob Tag und Manifest-Version zusammenpassen.
 
 ## Status
 
-Aktuelle Version: `0.7.1`
+Aktuelle Version: `0.7.2`
