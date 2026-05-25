@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from homeassistant.components.frontend import (
@@ -17,10 +18,21 @@ PANEL_URL_PATH = "home-health-overview"
 PANEL_COMPONENT_NAME = "home-health-overview-panel"
 FRONTEND_URL = f"/{DOMAIN}/frontend"
 FRONTEND_PATH = Path(__file__).parent / "frontend"
+MANIFEST_PATH = Path(__file__).parent / "manifest.json"
+
+
+def _frontend_version() -> str:
+    """Return the integration version for frontend cache busting."""
+    try:
+        return json.loads(MANIFEST_PATH.read_text(encoding="utf-8")).get("version", "dev")
+    except (OSError, json.JSONDecodeError):
+        return "dev"
 
 
 async def async_register_panel(hass: HomeAssistant) -> None:
     """Register the Home Health sidebar panel."""
+    frontend_version = _frontend_version()
+
     await hass.http.async_register_static_paths(
         [
             StaticPathConfig(
@@ -40,7 +52,7 @@ async def async_register_panel(hass: HomeAssistant) -> None:
         config={
             "_panel_custom": {
                 "name": PANEL_COMPONENT_NAME,
-                "module_url": f"{FRONTEND_URL}/panel.js",
+                "module_url": f"{FRONTEND_URL}/panel.js?v={frontend_version}",
                 "embed_iframe": False,
                 "trust_external": False,
             }
