@@ -16,6 +16,7 @@ from .const import (
     CONF_CPU_WARNING_THRESHOLD,
     CONF_CRITICAL_BATTERY_THRESHOLD,
     CONF_IGNORE_ENTITIES,
+    CONF_IGNORE_DEVICES,
     CONF_IGNORE_PREFIXES,
     CONF_INCLUDE_ENTITIES,
     CONF_LINKQUALITY_THRESHOLD,
@@ -30,6 +31,7 @@ from .const import (
     DEFAULT_CPU_WARNING_THRESHOLD,
     DEFAULT_CRITICAL_BATTERY_THRESHOLD,
     DEFAULT_IGNORE_ENTITIES,
+    DEFAULT_IGNORE_DEVICES,
     DEFAULT_IGNORE_PREFIXES,
     DEFAULT_INCLUDE_ENTITIES,
     DEFAULT_LINKQUALITY_THRESHOLD,
@@ -182,6 +184,12 @@ def _schema(values: dict[str, Any] | None = None) -> vol.Schema:
                     values.get(CONF_IGNORE_ENTITIES, DEFAULT_IGNORE_ENTITIES)
                 ),
             ): selector.EntitySelector(selector.EntitySelectorConfig(multiple=True)),
+            vol.Optional(
+                CONF_IGNORE_DEVICES,
+                default=_as_list(
+                    values.get(CONF_IGNORE_DEVICES, DEFAULT_IGNORE_DEVICES)
+                ),
+            ): selector.DeviceSelector(selector.DeviceSelectorConfig(multiple=True)),
             vol.Optional(
                 CONF_IGNORE_PREFIXES,
                 default=values.get(CONF_IGNORE_PREFIXES, DEFAULT_IGNORE_PREFIXES),

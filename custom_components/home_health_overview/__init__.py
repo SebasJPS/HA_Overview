@@ -44,5 +44,6 @@ async def async_update_options(
     hass: HomeAssistant,
     entry: HomeHealthConfigEntry,
 ) -> None:
-    """Reload the integration when options change."""
-    await hass.config_entries.async_reload(entry.entry_id)
+    """Refresh health data when options change."""
+    coordinator = entry.runtime_data
+    await coordinator.async_request_refresh()

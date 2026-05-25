@@ -18,6 +18,7 @@
           "system_resource_entities": "Systemressourcen-Watchlist, kommagetrennt",
           "include_entities": "Entitäten immer überwachen, kommagetrennt",
           "ignore_entities": "Entitäten ignorieren, kommagetrennt",
+          "ignore_devices": "Geräte ignorieren",
           "ignore_prefixes": "Entitäts-Prefixe ignorieren, kommagetrennt"
         }
       }
@@ -41,6 +42,7 @@
           "system_resource_entities": "Systemressourcen-Watchlist, kommagetrennt",
           "include_entities": "Entitäten immer überwachen, kommagetrennt",
           "ignore_entities": "Entitäten ignorieren, kommagetrennt",
+          "ignore_devices": "Geräte ignorieren",
           "ignore_prefixes": "Entitäts-Prefixe ignorieren, kommagetrennt"
         }
       }

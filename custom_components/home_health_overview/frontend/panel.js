@@ -8,6 +8,7 @@ const TEXT = {
     systemHealth: "Systemzustand",
     explicitlyMonitored: "Explizit überwacht",
     ignored: "Ignoriert",
+    ignoredDevices: "Ignorierte Geräte",
     searchPlaceholder: "Suchen nach Name, Entity, Bereich, Gerät",
     filterProblems: "Nur Probleme",
     filterAll: "Alle Sektionen",
@@ -40,6 +41,7 @@ const TEXT = {
     entries: "Einträge",
     noEntries: "Keine Einträge.",
     entity: "Entität",
+    entityCount: "Entitäten",
     state: "Status",
     area: "Bereich",
     device: "Gerät",
@@ -47,6 +49,7 @@ const TEXT = {
     action: "Aktion",
     unknown: "Unbekannt",
     ignore: "Ignorieren",
+    ignoreDevice: "Gerät ignorieren",
     monitor: "Überwachen",
     threshold: "Schwelle",
     update: "Update",
@@ -91,6 +94,7 @@ const TEXT = {
     systemHealth: "System health",
     explicitlyMonitored: "Explicitly monitored",
     ignored: "Ignored",
+    ignoredDevices: "Ignored devices",
     searchPlaceholder: "Search by name, entity, area, device",
     filterProblems: "Problems only",
     filterAll: "All sections",
@@ -123,6 +127,7 @@ const TEXT = {
     entries: "entries",
     noEntries: "No entries.",
     entity: "Entity",
+    entityCount: "Entities",
     state: "State",
     area: "Area",
     device: "Device",
@@ -130,6 +135,7 @@ const TEXT = {
     action: "Action",
     unknown: "Unknown",
     ignore: "Ignore",
+    ignoreDevice: "Ignore device",
     monitor: "Monitor",
     threshold: "Threshold",
     update: "Update",
@@ -196,6 +202,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const sourceStatus = attrs.source_status || {};
     const includeEntities = attrs.include_entities || [];
     const ignoreEntities = attrs.ignore_entities || [];
+    const ignoreDevices = attrs.ignore_devices || [];
     const temperatureMedian = attrs.temperature_median ?? entities.tempMedian?.state ?? "?";
     const temperatureAverage = attrs.temperature_average ?? entities.tempAverage?.state ?? "?";
     const text = getText(hass);
@@ -405,7 +412,8 @@ class HomeHealthOverviewPanel extends HTMLElement {
         th { color: var(--hh-muted); font-weight: 900; background: #f0eadf; text-transform: uppercase; font-size: 11px; }
         tr:last-child td { border-bottom: 0; }
         tr:hover td { background: rgba(21, 101, 192, .06); }
-        .entity { color: var(--hh-blue); cursor: pointer; overflow-wrap: anywhere; font-weight: 900; }
+        .entity { color: var(--hh-blue); overflow-wrap: anywhere; font-weight: 900; }
+        .entity[data-entity] { cursor: pointer; }
         .small { color: var(--hh-muted); font-size: 12px; margin-top: 4px; line-height: 1.35; overflow-wrap: anywhere; }
         .state { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 800; }
         .actions { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -465,6 +473,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
             <div class="score-meta">
               <div class="small">${text.explicitlyMonitored}: ${includeEntities.length}</div>
               <div class="small">${text.ignored}: ${ignoreEntities.length}</div>
+              <div class="small">${text.ignoredDevices}: ${ignoreDevices.length}</div>
             </div>
           </section>
           <div class="kpis">
@@ -607,9 +616,11 @@ function filterRows(rows, search, filter, group) {
   return rows.filter((row) => [
     row.name,
     row.entity_id,
+    row.device_id,
     row.area,
     row.device,
     row.state,
+    ...(row.entity_ids || []),
   ].filter(Boolean).join(" ").toLowerCase().includes(query));
 }
 
@@ -648,11 +659,17 @@ function table(rows, meta, busy, text) {
 
 function tableRow(row, meta, busy, text) {
   const entityId = row.entity_id || "";
+  const isDevice = row.type === "device";
+  const targetId = isDevice ? row.device_id : entityId;
   return `
     <tr>
       <td>
-        <div class="entity" data-entity="${escapeAttr(entityId)}">${escapeHtml(row.name || entityId || text.unknown)}</div>
-        <div class="small">${escapeHtml(entityId)}</div>
+        ${
+          isDevice
+            ? `<div class="entity">${escapeHtml(row.name || text.unknown)}</div>`
+            : `<div class="entity" data-entity="${escapeAttr(entityId)}">${escapeHtml(row.name || entityId || text.unknown)}</div>`
+        }
+        <div class="small">${escapeHtml(isDevice ? `${row.entity_count || 0} ${text.entityCount}` : entityId)}</div>
       </td>
       <td class="state">${escapeHtml(row.state ?? "-")}</td>
       <td>${escapeHtml(row.area || "-")}</td>
@@ -660,8 +677,11 @@ function tableRow(row, meta, busy, text) {
       <td>${detailMeta(row, meta, text)}</td>
       <td>
         <div class="actions">
-          ${actionButton("ignore", text.ignore, entityId, busy)}
-          ${actionButton("monitor", text.monitor, entityId, busy)}
+          ${
+            isDevice
+              ? actionButton("ignore_device", text.ignoreDevice, targetId, busy)
+              : `${actionButton("ignore", text.ignore, targetId, busy)}${actionButton("monitor", text.monitor, targetId, busy)}`
+          }
         </div>
       </td>
     </tr>
@@ -675,6 +695,7 @@ function detailMeta(row, meta, text) {
   if (meta.resource) details.push(`${row.resource_type ?? "resource"}`, `${row.usage ?? "-"}% / ${row.threshold ?? "-"}%`);
   if (meta.update) details.push(`${text.installed} ${row.installed_version ?? "-"}`, `${text.latest} ${row.latest_version ?? "-"}`);
   if (meta.lastUpdate && row.last_updated) details.push(`${text.update} ${formatDate(row.last_updated)}`);
+  if (row.type === "device") details.push(`${row.unavailable_count || row.entity_count || 0} ${text.of} ${row.entity_count || 0}`);
   return details.length ? `<span class="small">${escapeHtml(details.join(" · "))}</span>` : `<span class="muted">-</span>`;
 }
 
@@ -725,6 +746,7 @@ function sourceSection(sourceStatus, text) {
     [text.updateEntities, sourceStatus.update_entities_found],
     [text.explicitlyMonitored, sourceStatus.explicitly_included_entities],
     [text.ignoredEntities, sourceStatus.ignored_entities],
+    [text.ignoredDevices, sourceStatus.ignored_devices],
     [text.ignoredPrefixes, sourceStatus.ignored_prefixes],
   ];
   return `

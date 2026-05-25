@@ -42,14 +42,20 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
             "total_system_resource_entities": data["total_system_resource_entities"],
             "include_entities": data["include_entities"],
             "ignore_entities": data["ignore_entities"],
+            "ignore_devices": data["ignore_devices"],
             "ignore_prefixes": data["ignore_prefixes"],
             "source_status": data["source_status"],
             "temperature_median": data["temperature_median"],
             "temperature_average": data["temperature_average"],
             "categories": {
                 "offline": {
-                    "count": len(data["offline_entities"]),
-                    "details": data["offline_details"],
+                    "count": len(data["offline_entities"])
+                    + len(data["offline_devices"]),
+                    "details": data["offline_device_details"] + data["offline_details"],
+                },
+                "offline_devices": {
+                    "count": len(data["offline_devices"]),
+                    "details": data["offline_device_details"],
                 },
                 "stale": {
                     "count": len(data["stale_entities"]),
@@ -99,6 +105,8 @@ SENSORS: tuple[HomeHealthSensorDescription, ...] = (
         attrs_fn=lambda data: {
             "entities": data["offline_entities"],
             "details": data["offline_details"],
+            "devices": data["offline_devices"],
+            "device_details": data["offline_device_details"],
         },
     ),
     HomeHealthSensorDescription(

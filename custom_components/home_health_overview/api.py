@@ -10,6 +10,7 @@ from homeassistant.components.http import HomeAssistantView
 from homeassistant.core import HomeAssistant
 
 from .const import (
+    CONF_IGNORE_DEVICES,
     CONF_IGNORE_ENTITIES,
     CONF_INCLUDE_ENTITIES,
     DOMAIN,
@@ -44,8 +45,10 @@ class HomeHealthConfigView(HomeAssistantView):
 
         if not entity_id or action not in {
             "ignore",
+            "ignore_device",
             "monitor",
             "unignore",
+            "unignore_device",
             "unmonitor",
         }:
             return web.json_response(
@@ -64,28 +67,37 @@ class HomeHealthConfigView(HomeAssistantView):
 
         include_entities = _parse_entity_list(options.get(CONF_INCLUDE_ENTITIES))
         ignore_entities = _parse_entity_list(options.get(CONF_IGNORE_ENTITIES))
+        ignore_devices = _parse_entity_list(options.get(CONF_IGNORE_DEVICES))
 
         if action == "ignore":
             ignore_entities = _add_item(ignore_entities, entity_id)
             include_entities = _remove_item(include_entities, entity_id)
+        elif action == "ignore_device":
+            ignore_devices = _add_item(ignore_devices, entity_id)
         elif action == "monitor":
             include_entities = _add_item(include_entities, entity_id)
             ignore_entities = _remove_item(ignore_entities, entity_id)
         elif action == "unignore":
             ignore_entities = _remove_item(ignore_entities, entity_id)
+        elif action == "unignore_device":
+            ignore_devices = _remove_item(ignore_devices, entity_id)
         elif action == "unmonitor":
             include_entities = _remove_item(include_entities, entity_id)
 
         options[CONF_INCLUDE_ENTITIES] = include_entities
         options[CONF_IGNORE_ENTITIES] = ignore_entities
+        options[CONF_IGNORE_DEVICES] = ignore_devices
 
         hass.config_entries.async_update_entry(entry, options=options)
-        await hass.config_entries.async_reload(entry.entry_id)
+        coordinator = getattr(entry, "runtime_data", None)
+        if coordinator is not None:
+            await coordinator.async_request_refresh()
         return web.json_response(
             {
                 "success": True,
                 "include_entities": include_entities,
                 "ignore_entities": ignore_entities,
+                "ignore_devices": ignore_devices,
             }
         )
 

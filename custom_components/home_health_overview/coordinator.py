@@ -20,6 +20,7 @@ from .const import (
     CONF_API_ENTITIES,
     CONF_CPU_WARNING_THRESHOLD,
     CONF_CRITICAL_BATTERY_THRESHOLD,
+    CONF_IGNORE_DEVICES,
     CONF_IGNORE_ENTITIES,
     CONF_IGNORE_PREFIXES,
     CONF_INCLUDE_ENTITIES,
@@ -34,6 +35,7 @@ from .const import (
     DEFAULT_API_ENTITIES,
     DEFAULT_CPU_WARNING_THRESHOLD,
     DEFAULT_CRITICAL_BATTERY_THRESHOLD,
+    DEFAULT_IGNORE_DEVICES,
     DEFAULT_IGNORE_ENTITIES,
     DEFAULT_IGNORE_PREFIXES,
     DEFAULT_INCLUDE_ENTITIES,
@@ -125,6 +127,9 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ignore_entities = set(
             _parse_entity_list(settings.get(CONF_IGNORE_ENTITIES, DEFAULT_IGNORE_ENTITIES))
         )
+        ignore_devices = set(
+            _parse_entity_list(settings.get(CONF_IGNORE_DEVICES, DEFAULT_IGNORE_DEVICES))
+        )
         ignore_prefixes = tuple(
             _parse_entity_list(settings.get(CONF_IGNORE_PREFIXES, DEFAULT_IGNORE_PREFIXES))
         )
@@ -135,7 +140,13 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         states = [
             state
             for state in self.hass.states.async_all()
-            if not _is_ignored_entity(state.entity_id, ignore_entities, ignore_prefixes)
+            if not _is_ignored_state(
+                state.entity_id,
+                entity_registry,
+                ignore_entities,
+                ignore_devices,
+                ignore_prefixes,
+            )
             or state.entity_id in include_entities
         ]
         monitored_states = [
@@ -154,11 +165,26 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             state = self.hass.states.get(entity_id)
             if state is not None and state not in monitored_states:
                 monitored_states.append(state)
+        offline_eligible_states = [
+            state
+            for state in monitored_states
+            if not _starts_with(state.entity_id, IGNORED_OFFLINE_PREFIXES)
+        ]
+        offline_device_details = _offline_device_details(
+            offline_eligible_states,
+            entity_registry,
+            device_registry,
+            area_registry,
+        )
+        offline_device_ids = {
+            device["device_id"] for device in offline_device_details
+        }
         offline_entities = [
             state.entity_id
-            for state in monitored_states
+            for state in offline_eligible_states
             if state.state in {"unavailable", "unknown"}
-            and not _starts_with(state.entity_id, IGNORED_OFFLINE_PREFIXES)
+            and _device_id_for_entity(entity_registry, state.entity_id)
+            not in offline_device_ids
         ]
 
         battery_entities = [
@@ -382,12 +408,14 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "update_entities_found": len(update_entities),
             "explicitly_included_entities": len(include_entities),
             "ignored_entities": len(ignore_entities),
+            "ignored_devices": len(ignore_devices),
             "ignored_prefixes": len(ignore_prefixes),
         }
 
+        offline_issue_count = len(offline_entities) + len(offline_device_details)
         score, score_breakdown = _calculate_score(
             total_entities=len(monitored_states),
-            offline_count=len(offline_entities),
+            offline_count=offline_issue_count,
             stale_count=len(stale_entities),
             battery_count=len(battery_entities),
             low_battery_count=len(low_battery_entities),
@@ -418,10 +446,13 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "total_system_resource_entities": len(system_resources),
             "include_entities": include_entities,
             "ignore_entities": sorted(ignore_entities),
+            "ignore_devices": sorted(ignore_devices),
             "ignore_prefixes": list(ignore_prefixes),
             "source_status": source_status,
             "offline_entities": offline_entities,
             "offline_details": offline_details,
+            "offline_devices": [device["device_id"] for device in offline_device_details],
+            "offline_device_details": offline_device_details,
             "low_battery_entities": low_battery_entities,
             "low_battery_details": low_battery_details,
             "critical_battery_entities": critical_battery_entities,
@@ -445,6 +476,7 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "critical": score < 60 or bool(critical_battery_entities),
             "warning": score < 90
             or bool(offline_entities)
+            or bool(offline_device_details)
             or bool(api_offline_entities)
             or bool(low_battery_entities)
             or bool(zigbee_linkquality_low_entities)
@@ -484,6 +516,29 @@ def _is_ignored_entity(
 ) -> bool:
     """Return whether an entity should be ignored by user settings."""
     return entity_id in ignored_entities or _starts_with(entity_id, ignored_prefixes)
+
+
+def _is_ignored_state(
+    entity_id: str,
+    entity_registry: er.EntityRegistry,
+    ignored_entities: set[str],
+    ignored_devices: set[str],
+    ignored_prefixes: tuple[str, ...],
+) -> bool:
+    """Return whether a state should be ignored by entity or device settings."""
+    if _is_ignored_entity(entity_id, ignored_entities, ignored_prefixes):
+        return True
+    device_id = _device_id_for_entity(entity_registry, entity_id)
+    return bool(device_id and device_id in ignored_devices)
+
+
+def _device_id_for_entity(
+    entity_registry: er.EntityRegistry,
+    entity_id: str,
+) -> str | None:
+    """Return the Home Assistant device ID for an entity."""
+    entity_entry = entity_registry.async_get(entity_id)
+    return entity_entry.device_id if entity_entry else None
 
 
 def _is_temperature_sensor(state: Any) -> bool:
@@ -854,6 +909,55 @@ def _ratio_score(total: int, affected: int) -> float:
     return round(max(100 - (affected / total) * 100, 0), 1)
 
 
+def _offline_device_details(
+    states: list[Any],
+    entity_registry: er.EntityRegistry,
+    device_registry: dr.DeviceRegistry,
+    area_registry: ar.AreaRegistry,
+) -> list[dict[str, Any]]:
+    """Return devices where all monitored entities are unavailable or unknown."""
+    by_device: dict[str, list[Any]] = {}
+    for state in states:
+        device_id = _device_id_for_entity(entity_registry, state.entity_id)
+        if not device_id:
+            continue
+        by_device.setdefault(device_id, []).append(state)
+
+    details = []
+    for device_id, device_states in by_device.items():
+        if len(device_states) < 2:
+            continue
+        if any(state.state not in {"unavailable", "unknown"} for state in device_states):
+            continue
+
+        device_entry = device_registry.async_get(device_id)
+        area_entry = (
+            area_registry.async_get_area(device_entry.area_id)
+            if device_entry and device_entry.area_id
+            else None
+        )
+        details.append(
+            {
+                "type": "device",
+                "device_id": device_id,
+                "name": _device_name(device_entry) or device_id,
+                "state": "unavailable",
+                "area": area_entry.name if area_entry else None,
+                "device": _device_name(device_entry),
+                "entity_count": len(device_states),
+                "unavailable_count": len(device_states),
+                "entity_ids": sorted(state.entity_id for state in device_states),
+                "last_updated": max(
+                    state.last_updated for state in device_states
+                ).isoformat(),
+                "last_changed": max(
+                    state.last_changed for state in device_states
+                ).isoformat(),
+            }
+        )
+    return sorted(details, key=lambda item: (item["area"] or "", item["name"]))
+
+
 def _entity_details(
     hass: HomeAssistant,
     entity_registry: er.EntityRegistry,
@@ -880,11 +984,13 @@ def _entity_details(
         area_entry = area_registry.async_get_area(area_id) if area_id else None
 
         item = {
+            "type": "entity",
             "entity_id": entity_id,
             "name": state.name if state else entity_id,
             "state": state.state if state else "missing",
             "area": area_entry.name if area_entry else None,
             "device": _device_name(device_entry),
+            "device_id": entity_entry.device_id if entity_entry else None,
             "last_updated": state.last_updated.isoformat() if state else None,
             "last_changed": state.last_changed.isoformat() if state else None,
         }
