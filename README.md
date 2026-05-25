@@ -4,29 +4,18 @@ Eine HACS-installierbare Home-Assistant-Integration, die den Zustand deines Smar
 
 A HACS-installable Home Assistant integration that summarizes your smart home health in one compact dashboard.
 
-![Home Health Overview Nothing Apple Clean Mockup](docs/assets/home-health-panel-mockup.svg)
+![Home Health Overview Dashboard Mockup](docs/assets/home-health-panel-mockup.svg)
 
-## Deutsch
+## Highlights
 
-Home Health Overview erkennt problematische Entitäten, schwache Batterien, veraltete Sensorwerte, verfügbare Updates, API-/Bridge-Probleme, Zigbee-Signalqualität und Systemressourcen. Zusätzlich liefert die Integration einen gewichteten Health Score und ein eigenes Sidebar-Panel mit Suche, Filtern und direkten Aktionen.
+- Health Score von 0 bis 100 / health score from 0 to 100
+- Problemzähler für Offline-Entitäten, veraltete Werte, Batterien, Updates, APIs, Zigbee, Add-ons und Systemressourcen
+- Sidebar-Panel `Home Health` mit Filtern, Score-Komponenten, Datenquellen und direkten Aktionen
+- Umschaltbarer Look: `Nothing / Apple Clean` als Standard oder `Neo-Bauhaus Klassisch`
+- Konfigurierbare Ignore-Listen, Geräte-Ignore, Prefix-Filter und explizite Watchlists
+- Optionales Lovelace-YAML-Dashboard zusätzlich zum Sidebar-Panel
 
-### Highlights
-
-- Moderner `Home Health` Sidebar-Bereich im Nothing-/Apple-Clean-Look
-- Umschaltbarer Dashboard-Look: `Nothing / Apple Clean` oder `Neo-Bauhaus Klassisch`
-- Gewichteter Home Health Score von 0 bis 100
-- Erkennung von `offline`- und `unknown`-Entitäten
-- Warnungen für niedrige und kritische Batteriestände
-- Erkennung von Entitäten ohne aktuelle Updates
-- Anzeige verfügbarer Home-Assistant-Updates aus `update.*`-Entitäten
-- Temperatur-Median, Mittelwert und Ausreißer
-- API-, Add-on- und Bridge-Watchlists
-- Zigbee2MQTT-/MQTT-Erkennung und schwache Linkquality
-- CPU-, RAM- und Speicherüberwachung
-- Konfigurierbare Ignore-Listen, Prefix-Filter und explizite Watchlists
-- Lovelace-YAML-Dashboard als Alternative oder Ergänzung
-
-### Installation über HACS
+## Installation
 
 1. Öffne HACS in Home Assistant.
 2. Gehe zu `Integrationen`.
@@ -43,105 +32,45 @@ Home Health Overview erkennt problematische Entitäten, schwache Batterien, vera
 8. Öffne `Einstellungen -> Geräte & Dienste -> Integration hinzufügen`.
 9. Suche nach `Home Health Overview` und füge die Integration hinzu.
 
+English: In HACS, add this repository as an `Integration`, install `Home Health Overview`, restart Home Assistant, then add the integration under `Settings -> Devices & services`.
+
+## Nutzung / Usage
+
 Nach der Einrichtung erscheint links in Home Assistant das Sidebar-Panel `Home Health`.
 
-### Nutzung
+Das Panel zeigt den aktuellen Systemzustand als Score, wichtige Problemzähler als KPI-Kacheln, Score-Komponenten, erkannte Datenquellen und betroffene Entitäten als gefilterte Tabellen. Einzelne Entitäten können direkt ignoriert oder explizit überwacht werden. Betroffene Entitäten öffnen per Klick die Home-Assistant-Detailansicht.
 
-Das Sidebar-Panel zeigt den aktuellen Systemzustand als Score, wichtige Problemzähler als KPI-Kacheln, Score-Komponenten, gefundene Datenquellen und betroffene Entitäten als durchsuchbare Tabellen. Einzelne Entitäten können direkt ignoriert oder explizit überwacht werden.
-
-Betroffene Entitäten können im Panel angeklickt werden, um die Home-Assistant-Detailansicht zu öffnen.
+The panel shows the current health score, problem counters, score components, detected data sources, and affected entities in filtered tables. Affected entities can be opened in Home Assistant, ignored, or explicitly monitored.
 
 ![Home Health Overview Workflow Mockup](docs/assets/home-health-workflow-mockup.svg)
 
-Der neue Standard-Look ist bewusst ruhiger: helle Flächen, kompakte KPI-Kacheln, klare Problemsektionen und dezente Dot-Matrix-Details. Wenn du den bisherigen kantigeren Look bevorzugst, kannst du ihn in den Optionen wieder aktivieren.
+## Dashboard-Look
 
-### Wichtige Sensoren
-
-```text
-sensor.home_health_overview_health_score
-sensor.home_health_overview_offline_entities
-sensor.home_health_overview_stale_entities
-sensor.home_health_overview_low_batteries
-sensor.home_health_overview_critical_batteries
-sensor.home_health_overview_temperature_median
-sensor.home_health_overview_temperature_average
-sensor.home_health_overview_temperature_outliers
-sensor.home_health_overview_apis_offline
-sensor.home_health_overview_zigbee_linkquality_low
-sensor.home_health_overview_addon_problems
-sensor.home_health_overview_system_resource_problems
-sensor.home_health_overview_updates_available
-binary_sensor.home_health_overview_critical
-binary_sensor.home_health_overview_warning
-```
-
-Die Zähler-Sensoren enthalten ein Attribut `details`. Darin stehen die betroffenen Einträge mit Name, Entity-ID, Bereich, Gerät, Status und weiteren Kontextdaten wie letztem Update, Batteriewert, Temperaturabweichung, Linkquality oder installierter und verfügbarer Update-Version.
-
-### Konfiguration
-
-Die Optionen findest du in Home Assistant unter:
+Die Optionen findest du unter:
 
 ```text
 Einstellungen -> Geräte & Dienste -> Home Health Overview -> Konfigurieren
 ```
 
-Dort kannst du Entitäten explizit überwachen, Entitäten ignorieren, Prefixe ausblenden, API-/Add-on-/Bridge-Watchlists pflegen und Schwellenwerte passend zu deinem Setup setzen.
+Unter `Dashboard-Look` kannst du wählen:
 
-Zusätzlich kannst du unter `Dashboard-Look` zwischen diesen Panel-Designs wählen:
-
-- `Nothing / Apple Clean`: neuer Standard-Look mit hellen, ruhigen Karten und Dot-Matrix-Akzenten
+- `Nothing / Apple Clean`: neuer Standard mit hellen, ruhigen Karten und Dot-Matrix-Akzenten
 - `Neo-Bauhaus Klassisch`: bisheriger kontrastreicher Look mit Raster, harten Linien und Bauhaus-Akzenten
+
+English: Configure the dashboard look under `Settings -> Devices & services -> Home Health Overview -> Configure`.
 
 ![Home Health Overview Style Options Mockup](docs/assets/home-health-style-options-mockup.svg)
 
-## English
+## Konfiguration / Configuration
 
-Home Health Overview detects problematic entities, weak batteries, stale sensor values, available updates, API/bridge issues, Zigbee signal quality, and system resource problems. It also provides a weighted health score and a dedicated sidebar panel with search, filters, and direct actions.
+In den Optionen kannst du:
 
-### Highlights
+- Entitäten immer überwachen
+- Entitäten, Geräte oder Prefixe ignorieren
+- API-, Add-on-, Bridge- und Systemressourcen-Watchlists pflegen
+- Schwellenwerte für Batterien, veraltete Updates, Temperaturausreißer, Zigbee-Linkquality, CPU, RAM und Speicher anpassen
 
-- Modern `Home Health` sidebar panel in a Nothing / Apple Clean style
-- Selectable dashboard look: `Nothing / Apple Clean` or `Neo-Bauhaus Classic`
-- Weighted Home Health Score from 0 to 100
-- Detection of `offline` and `unknown` entities
-- Warnings for low and critical batteries
-- Detection of entities without recent updates
-- Display of available Home Assistant updates from `update.*` entities
-- Temperature median, average, and outliers
-- API, add-on, and bridge watchlists
-- Zigbee2MQTT/MQTT detection and weak linkquality
-- CPU, RAM, and storage monitoring
-- Configurable ignore lists, prefix filters, and explicit watchlists
-- Optional Lovelace YAML dashboard
-
-### HACS Installation
-
-1. Open HACS in Home Assistant.
-2. Go to `Integrations`.
-3. Open the menu in the top right and choose `Custom repositories`.
-4. Add this repository:
-
-   ```text
-   https://github.com/SebasJPS/HA_Overview
-   ```
-
-5. Select `Integration` as the category.
-6. Install `Home Health Overview`.
-7. Restart Home Assistant.
-8. Open `Settings -> Devices & services -> Add integration`.
-9. Search for `Home Health Overview` and add the integration.
-
-After setup, the `Home Health` sidebar panel appears in Home Assistant.
-
-### Usage
-
-The sidebar panel shows the current system health score, important problem counters as KPI tiles, score components, detected data sources, and affected entities in searchable tables. Individual entities can be ignored or explicitly monitored from the panel.
-
-Affected entities can be clicked in the panel to open the Home Assistant more-info dialog.
-
-The new default look is intentionally calmer: bright surfaces, compact KPI cards, clear problem sections, and subtle dot-matrix details. If you prefer the previous sharper look, you can switch it back in the options.
-
-### Important Sensors
+## Wichtige Sensoren / Important Sensors
 
 ```text
 sensor.home_health_overview_health_score
@@ -161,30 +90,13 @@ binary_sensor.home_health_overview_critical
 binary_sensor.home_health_overview_warning
 ```
 
-Counter sensors include a `details` attribute with affected entries, including name, entity ID, area, device, state, and context such as last update, battery value, temperature delta, linkquality, or installed and available update versions.
+Die Zähler-Sensoren enthalten ein Attribut `details` mit Name, Entity-ID, Bereich, Gerät, Status und weiteren Kontextdaten wie letztem Update, Batteriewert, Temperaturabweichung, Linkquality oder installierter und verfügbarer Update-Version.
 
-### Configuration
-
-Options are available in Home Assistant under:
-
-```text
-Settings -> Devices & services -> Home Health Overview -> Configure
-```
-
-You can explicitly monitor entities, ignore entities, hide prefixes, maintain API/add-on/bridge watchlists, and adjust thresholds for your setup.
-
-You can also choose the panel design under `Dashboard look`:
-
-- `Nothing / Apple Clean`: new default with bright, calm cards and dot-matrix accents
-- `Neo-Bauhaus Classic`: previous high-contrast look with grid, hard lines, and Bauhaus accents
-
-![Home Health Overview Style Options Mockup](docs/assets/home-health-style-options-mockup.svg)
+Counter sensors include a `details` attribute with affected entries and context such as last update, battery value, temperature delta, linkquality, or installed/latest update versions.
 
 ## Lovelace Dashboard
 
 Zusätzlich zum Sidebar-Panel liegt ein YAML-Dashboard bei:
-
-In addition to the sidebar panel, a YAML dashboard is included:
 
 ```text
 dashboards/home-health-dashboard.yaml
@@ -192,19 +104,9 @@ dashboards/home-health-dashboard.yaml
 
 Die ältere YAML-Paket-Variante bleibt als Alternative erhalten:
 
-The older YAML package variant remains available as an alternative:
-
 ```text
 packages/home_health.yaml
 ```
-
-## Support
-
-Home Health Overview ist kostenlos und bleibt kostenlos.
-
-Home Health Overview is free and will remain free.
-
-[Buy me a coffee](https://buymeacoffee.com/sebasbe)
 
 ## Projektdateien / Project Files
 
@@ -218,18 +120,21 @@ Home Health Overview is free and will remain free.
 
 ## Releases
 
-Dieses Repository nutzt GitHub Actions für Validierung und Releases. Der Release-Prozess ist:
+Dieses Repository nutzt GitHub Actions für Validierung und Releases.
 
-This repository uses GitHub Actions for validation and releases. The release process is:
-
-1. Version in `custom_components/home_health_overview/manifest.json` erhöhen / bump the version.
-2. Änderung nach `main` committen und pushen / commit and push to `main`.
-3. Passenden Tag erstellen, zum Beispiel `v0.7.9` / create the matching tag, for example `v0.7.9`.
-4. Tag pushen / push the tag.
+1. Version in `custom_components/home_health_overview/manifest.json` erhöhen.
+2. Änderung nach `main` committen und pushen.
+3. Der Release-Workflow erstellt den passenden Tag und GitHub Release aus der Manifest-Version.
 
 Der Release-Workflow prüft, ob Tag und Manifest-Version zusammenpassen.
 
-The release workflow checks that the tag and manifest version match.
+## Support
+
+Home Health Overview ist kostenlos und bleibt kostenlos.
+
+Home Health Overview is free and will remain free.
+
+[Buy me a coffee](https://buymeacoffee.com/sebasbe)
 
 ## Status
 
