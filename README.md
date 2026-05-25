@@ -213,4 +213,4 @@ The release workflow checks that the tag and manifest version match.
 
 ## Status
 
-Aktuelle Version / Current version: `0.7.6`
+Aktuelle Version / Current version: `0.7.7`
