@@ -126,6 +126,16 @@ packages/home_health.yaml
 
 Details zum manuellen Live-Stellen stehen in [docs/LIVE_STELLEN.md](docs/LIVE_STELLEN.md).
 
+## Support
+
+Home Health Overview ist kostenlos und bleibt kostenlos.
+
+Wenn dir das Projekt hilft und du die Weiterentwicklung unterstützen möchtest, kannst du mir freiwillig einen Kaffee spendieren:
+
+[Buy me a coffee](https://buymeacoffee.com/sebasbe)
+
+Danke für jede Unterstützung.
+
 ## Projektdateien
 
 - [custom_components/home_health_overview](custom_components/home_health_overview) enthält die HACS-Integration.
