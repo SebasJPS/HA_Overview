@@ -390,15 +390,15 @@ class HomeHealthCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         )
         issue_groups = {
             "offline": offline_details + offline_device_details,
-            "stale": stale_details,
             "low_battery": low_battery_details,
             "critical_battery": critical_battery_details,
             "temperature_outliers": temperature_outlier_details,
-            "apis_offline": api_offline_details,
             "zigbee_linkquality_low": zigbee_linkquality_low_details,
-            "addon_problems": addon_problem_details,
-            "system_resource_problems": system_resource_problem_details,
-            "updates_available": update_available_details,
+            "stale": [
+                detail
+                for detail in stale_details
+                if float(detail.get("problem_duration_hours") or 0) >= 24
+            ],
         }
         device_health_details = _device_health_details(
             monitored_states,
@@ -1207,14 +1207,10 @@ def _device_issue_severity(category: str) -> int:
     return {
         "offline": 45,
         "critical_battery": 35,
-        "apis_offline": 30,
-        "addon_problems": 30,
-        "system_resource_problems": 25,
         "zigbee_linkquality_low": 20,
         "low_battery": 15,
         "stale": 12,
         "temperature_outliers": 10,
-        "updates_available": 5,
     }.get(category, 10)
 
 
