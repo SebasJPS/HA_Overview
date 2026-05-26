@@ -4,6 +4,9 @@ views:
     path: home-health
     icon: mdi:heart-pulse
     cards:
+      - type: picture
+        image: /home_health_overview/frontend/home-health-app.svg
+
       - type: gauge
         entity: sensor.home_health_overview_health_score
         name: Home Health Score

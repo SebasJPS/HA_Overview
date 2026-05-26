@@ -183,6 +183,8 @@ const TEXT = {
   },
 };
 
+const FRONTEND_ASSET_URL = "/home_health_overview/frontend";
+
 class HomeHealthOverviewPanel extends HTMLElement {
   constructor() {
     super();
@@ -263,11 +265,17 @@ class HomeHealthOverviewPanel extends HTMLElement {
         }
         .mark {
           position: relative;
-          width: 54px;
+          width: 70px;
           height: 54px;
           flex: 0 0 auto;
           background: var(--hh-ink);
           overflow: hidden;
+        }
+        .mark img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
         .mark::before {
           content: "";
@@ -465,25 +473,15 @@ class HomeHealthOverviewPanel extends HTMLElement {
           margin-bottom: 18px;
         }
         .theme-nothing .mark {
-          width: 50px;
-          height: 50px;
+          width: 74px;
+          height: 54px;
           border: 1px solid rgba(17, 17, 17, .16);
           border-radius: 16px;
-          background:
-            radial-gradient(circle, var(--hh-ink) 1.4px, transparent 1.7px) 8px 8px / 8px 8px,
-            rgba(255, 255, 255, .84);
+          background: rgba(255, 255, 255, .84);
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, .88), 0 12px 30px rgba(0, 0, 0, .09);
         }
         .theme-nothing .mark::before { display: none; }
-        .theme-nothing .mark::after {
-          right: 8px;
-          bottom: 8px;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          background: var(--hh-red);
-          box-shadow: 0 0 0 5px rgba(255, 59, 48, .12);
-        }
+        .theme-nothing .mark::after { display: none; }
         .theme-nothing .eyebrow {
           font-size: 12px;
           font-weight: 750;
@@ -684,7 +682,9 @@ class HomeHealthOverviewPanel extends HTMLElement {
       <div class="page theme-${panelStyle}">
         <div class="masthead">
           <div class="brand">
-            <div class="mark" aria-hidden="true"></div>
+            <div class="mark" aria-hidden="true">
+              <img src="${FRONTEND_ASSET_URL}/home-health-app.svg" alt="" loading="lazy">
+            </div>
             <div>
               <div class="eyebrow">${text.controlCenter}</div>
               <h1>Home Health</h1>
