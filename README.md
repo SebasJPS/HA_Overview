@@ -139,4 +139,4 @@ Home Health Overview is free and will remain free.
 
 ## Status
 
-Aktuelle Version / Current version: `0.8.5`
+Aktuelle Version / Current version: `0.8.6`

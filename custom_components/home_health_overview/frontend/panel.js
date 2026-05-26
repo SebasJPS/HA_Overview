@@ -188,7 +188,7 @@ const FRONTEND_ASSET_URL = "/home_health_overview/frontend";
 class HomeHealthOverviewPanel extends HTMLElement {
   constructor() {
     super();
-    this._filter = "problems";
+    this._filter = "all";
     this._busy = new Set();
   }
 
@@ -711,7 +711,7 @@ class HomeHealthOverviewPanel extends HTMLElement {
         </div>
 
         <div class="grid">
-          ${scoreSection(visibleBreakdown, breakdown.length, text, this._filter)}
+          ${scoreSection(visibleBreakdown, breakdown.length, text)}
           ${sourceSection(visibleSources, text)}
           ${visibleSections.map((section) => tableSection(section, this._busy, text)).join("")}
         </div>
@@ -722,10 +722,6 @@ class HomeHealthOverviewPanel extends HTMLElement {
   }
 
   bindEvents() {
-    this.querySelector("#hh-filter")?.addEventListener("change", (event) => {
-      this._filter = event.target.value;
-      this.render();
-    });
     this.querySelectorAll("[data-entity]").forEach((element) => {
       element.addEventListener("click", () => this.openMoreInfo(element.dataset.entity));
     });
@@ -1024,7 +1020,7 @@ function sourceSection(items, text) {
   `;
 }
 
-function scoreSection(components, totalComponents, text, selectedFilter) {
+function scoreSection(components, totalComponents, text) {
   const rows = components.length
     ? components.map((component) => `
       <div class="mini">
@@ -1040,21 +1036,6 @@ function scoreSection(components, totalComponents, text, selectedFilter) {
       <div class="section-head">
         <h2>${text.scoreCalculation}</h2>
         <div class="section-meta">
-          <div class="filter">
-            <select id="hh-filter">
-              ${option("problems", text.filterProblems, selectedFilter)}
-              ${option("all", text.filterAll, selectedFilter)}
-              ${option("offline", text.filterOffline, selectedFilter)}
-              ${option("stale", text.filterStale, selectedFilter)}
-              ${option("battery", text.filterBattery, selectedFilter)}
-              ${option("temperature", text.filterTemperature, selectedFilter)}
-              ${option("zigbee", text.filterZigbee, selectedFilter)}
-              ${option("system", text.filterSystem, selectedFilter)}
-              ${option("devices", text.filterDevices, selectedFilter)}
-              ${option("addons", text.filterAddons, selectedFilter)}
-              ${option("updates", text.filterUpdates, selectedFilter)}
-            </select>
-          </div>
           <div class="count">${components.length} / ${totalComponents} ${text.components}</div>
         </div>
       </div>
