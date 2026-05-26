@@ -1,13 +1,6 @@
 name: Deploy Home Health to Home Assistant
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "packages/**"
-      - "dashboards/**"
-      - ".github/workflows/deploy-home-assistant.yml"
   workflow_dispatch:
 
 jobs:

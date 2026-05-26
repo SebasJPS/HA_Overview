@@ -10,7 +10,7 @@ Es gibt zwei sinnvolle Wege:
    - Du pullst die Dateien nach `/config`.
 
 2. **GitHub Actions deployed zu Home Assistant**
-   - Automatischer bei jedem Push auf `main`.
+   - Manuell über GitHub Actions startbar.
    - GitHub braucht Netzwerkzugriff auf Home Assistant.
    - Praktisch nur sauber mit VPN/Tailscale, fester Domain oder freigegebenem SSH.
 
@@ -22,11 +22,11 @@ Die vorbereitete Vorlage liegt hier:
 
 ## Empfohlener Weg
 
-Für dein Setup ist wahrscheinlich **GitHub Actions + SSH über Tailscale** am saubersten:
+Für dein Setup ist wahrscheinlich **GitHub Actions + SSH über Tailscale** am saubersten, wenn du den Deploy wirklich aus GitHub heraus ausführen willst:
 
 - kein öffentlich offener SSH-Port nötig
 - GitHub kann über Tailscale ins Heimnetz
-- Deployment passiert automatisch nach Push
+- Deployment kann bei Bedarf manuell gestartet werden
 
 Ohne Tailscale/VPN müsste Home Assistant von GitHub aus erreichbar sein. Das würde ich für ein Heimnetz nur machen, wenn du genau weißt, wie du SSH sicher absicherst.
 
@@ -85,9 +85,10 @@ lovelace:
 
 1. Änderung an `packages/` oder `dashboards/` machen.
 2. Nach GitHub pushen.
-3. GitHub Actions kopiert die Dateien nach Home Assistant.
-4. Home Assistant prüft die Konfiguration.
-5. Wenn die Prüfung erfolgreich ist, wird Home Assistant neu gestartet.
+3. In GitHub unter `Actions -> Deploy Home Health to Home Assistant -> Run workflow` starten.
+4. GitHub Actions kopiert die Dateien nach Home Assistant.
+5. Home Assistant prüft die Konfiguration.
+6. Wenn die Prüfung erfolgreich ist, wird Home Assistant neu gestartet.
 
 ## Wichtig
 
