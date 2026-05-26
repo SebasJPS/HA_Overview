@@ -220,6 +220,9 @@ class HomeHealthOverviewPanel extends HTMLElement {
     const visibleSections = sections
       .map((section) => ({ ...section, rows: filterRows(section.rows, this._filter, section.key) }))
       .filter((section) => this._filter === "all" || section.rows.length || ["sources", "score"].includes(section.key));
+    const visibleKpis = filterKpiItems(buildKpiItems(categories, entities, text, temperatureMedian, temperatureAverage), this._filter);
+    const visibleBreakdown = filterScoreComponents(breakdown, this._filter);
+    const visibleSources = filterSourceItems(buildSourceItems(sourceStatus, text), this._filter);
     const problemCount = sections.reduce((sum, section) => sum + section.rows.length, 0);
     const statusLevel = getStatusLevel(score, problemCount);
     const statusLabel = statusLevel === "stable" ? text.stable : statusLevel === "check" ? text.check : text.critical;
@@ -703,25 +706,13 @@ class HomeHealthOverviewPanel extends HTMLElement {
             </div>
           </section>
           <div class="kpis">
-            ${categoryKpi(categories.offline, entities.offline, text.offlineUnknown)}
-            ${categoryKpi(categories.stale, entities.stale, text.noUpdates)}
-            ${categoryKpi(categories.low_battery, entities.lowBattery, text.lowBatteries)}
-            ${categoryKpi(categories.critical_battery, entities.criticalBattery, text.criticalBatteries)}
-            ${categoryKpi(categories.temperature_outliers, entities.temperatureOutliers, text.tempOutliers)}
-            ${categoryKpi(categories.apis_offline, entities.apisOffline, text.apisOffline)}
-            ${categoryKpi(categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, text.zigbeeWeak)}
-            ${categoryKpi(categories.addon_problems, entities.addonProblems, text.addonProblems)}
-            ${categoryKpi(categories.system_resource_problems, entities.systemResourceProblems, text.highSystemLoad)}
-            ${categoryKpi(categories.updates_available, entities.updatesAvailable, text.updatesAvailable)}
-            ${categoryKpi(categories.device_health, entities.problemDevices, text.problemDevices)}
-            ${valueKpi(temperatureMedian, text.tempMedian, "°C")}
-            ${valueKpi(temperatureAverage, text.tempAverage, "°C")}
+            ${visibleKpis.map((item) => item.html).join("")}
           </div>
         </div>
 
         <div class="grid">
-          ${scoreSection(breakdown, text, this._filter)}
-          ${sourceSection(sourceStatus, text)}
+          ${scoreSection(visibleBreakdown, breakdown.length, text, this._filter)}
+          ${sourceSection(visibleSources, text)}
           ${visibleSections.map((section) => tableSection(section, this._busy, text)).join("")}
         </div>
       </div>
@@ -933,41 +924,116 @@ function option(value, label, selected) {
   return `<option value="${value}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>`;
 }
 
-function sourceSection(sourceStatus, text) {
-  const items = [
-    [text.mqttEntities, sourceStatus.mqtt_entities_found],
-    [text.zigbee2mqttEntities, sourceStatus.zigbee2mqtt_entities_found],
-    [text.zigbeeLinkqualitySensors, sourceStatus.zigbee_linkquality_sensors_found],
-    [text.bridgeStatusEntities, sourceStatus.zigbee_bridge_entities_found],
-    [text.addonWatchlist, sourceStatus.addon_watchlist_entities_found],
-    [text.supervisorHints, sourceStatus.supervisor_entities_found],
-    [text.systemResources, sourceStatus.system_resource_entities_found],
-    [text.updateEntities, sourceStatus.update_entities_found],
-    [text.explicitlyMonitored, sourceStatus.explicitly_included_entities],
-    [text.ignoredEntities, sourceStatus.ignored_entities],
-    [text.ignoredDevices, sourceStatus.ignored_devices],
-    [text.ignoredPrefixes, sourceStatus.ignored_prefixes],
+function buildKpiItems(categories, entities, text, temperatureMedian, temperatureAverage) {
+  return [
+    kpiItem("offline", categories.offline, entities.offline, text.offlineUnknown),
+    kpiItem("stale", categories.stale, entities.stale, text.noUpdates),
+    kpiItem("battery", categories.low_battery, entities.lowBattery, text.lowBatteries),
+    kpiItem("battery", categories.critical_battery, entities.criticalBattery, text.criticalBatteries),
+    kpiItem("temperature", categories.temperature_outliers, entities.temperatureOutliers, text.tempOutliers),
+    kpiItem("addons", categories.apis_offline, entities.apisOffline, text.apisOffline),
+    kpiItem("zigbee", categories.zigbee_linkquality_low, entities.zigbeeLinkqualityLow, text.zigbeeWeak),
+    kpiItem("addons", categories.addon_problems, entities.addonProblems, text.addonProblems),
+    kpiItem("system", categories.system_resource_problems, entities.systemResourceProblems, text.highSystemLoad),
+    kpiItem("updates", categories.updates_available, entities.updatesAvailable, text.updatesAvailable),
+    kpiItem("devices", categories.device_health, entities.problemDevices, text.problemDevices),
+    { group: "temperature", hasProblem: false, html: valueKpi(temperatureMedian, text.tempMedian, "°C") },
+    { group: "temperature", hasProblem: false, html: valueKpi(temperatureAverage, text.tempAverage, "°C") },
   ];
+}
+
+function kpiItem(group, category, entity, label) {
+  const value = category?.count ?? entity?.state ?? 0;
+  return {
+    group,
+    hasProblem: asNumber(value, 0) > 0,
+    html: categoryKpi(category, entity, label),
+  };
+}
+
+function filterKpiItems(items, filter) {
+  if (filter === "all") return items;
+  if (filter === "problems") return items.filter((item) => item.hasProblem);
+  return items.filter((item) => item.group === filter);
+}
+
+function buildSourceItems(sourceStatus, text) {
+  return [
+    sourceItem("offline", text.mqttEntities, sourceStatus.mqtt_entities_found),
+    sourceItem("zigbee", text.zigbee2mqttEntities, sourceStatus.zigbee2mqtt_entities_found),
+    sourceItem("zigbee", text.zigbeeLinkqualitySensors, sourceStatus.zigbee_linkquality_sensors_found),
+    sourceItem("addons", text.bridgeStatusEntities, sourceStatus.zigbee_bridge_entities_found),
+    sourceItem("addons", text.addonWatchlist, sourceStatus.addon_watchlist_entities_found),
+    sourceItem("addons", text.supervisorHints, sourceStatus.supervisor_entities_found),
+    sourceItem("system", text.systemResources, sourceStatus.system_resource_entities_found),
+    sourceItem("updates", text.updateEntities, sourceStatus.update_entities_found),
+    sourceItem("all", text.explicitlyMonitored, sourceStatus.explicitly_included_entities),
+    sourceItem("all", text.ignoredEntities, sourceStatus.ignored_entities),
+    sourceItem("devices", text.ignoredDevices, sourceStatus.ignored_devices),
+    sourceItem("all", text.ignoredPrefixes, sourceStatus.ignored_prefixes),
+  ];
+}
+
+function sourceItem(group, label, value) {
+  return {
+    group,
+    label,
+    value,
+    hasValue: asNumber(value, 0) > 0,
+  };
+}
+
+function filterSourceItems(items, filter) {
+  if (filter === "all") return items;
+  if (filter === "problems") return items.filter((item) => item.hasValue);
+  return items.filter((item) => item.group === filter);
+}
+
+function filterScoreComponents(components, filter) {
+  if (filter === "all") return components;
+  if (filter === "problems") return components.filter((component) => asNumber(component.affected, 0) > 0);
+  return components.filter((component) => scoreComponentGroups(component).includes(filter));
+}
+
+function scoreComponentGroups(component) {
+  const groups = {
+    availability: ["offline"],
+    freshness: ["stale"],
+    battery: ["battery"],
+    temperature: ["temperature"],
+    api: ["addons"],
+    zigbee: ["zigbee"],
+    addons: ["addons"],
+    system_resources: ["system"],
+    updates: ["updates"],
+    devices: ["devices"],
+  };
+  return groups[component.key] || [component.key];
+}
+
+function sourceSection(items, text) {
   return `
     <section class="section">
       <div class="section-head"><h2>${text.sources}</h2><div class="count">${items.length} ${text.groups}</div></div>
       <div class="source-grid">
-        ${items.map(([label, value]) => `<div class="mini"><div class="small">${escapeHtml(label)}</div><div class="kpi-value">${value ?? 0}</div></div>`).join("")}
+        ${items.length
+          ? items.map(({ label, value }) => `<div class="mini"><div class="small">${escapeHtml(label)}</div><div class="kpi-value">${value ?? 0}</div></div>`).join("")
+          : `<div class="empty">${text.noEntries}</div>`}
       </div>
     </section>
   `;
 }
 
-function scoreSection(components, text, selectedFilter) {
+function scoreSection(components, totalComponents, text, selectedFilter) {
   const rows = components.length
     ? components.map((component) => `
       <div class="mini">
         <div><strong>${escapeHtml(componentLabel(component, text))}</strong>: ${component.score}%</div>
         <div class="small">${text.affected}: ${component.affected || 0} ${text.of} ${component.total || 0} · ${text.weight}: ${component.weight}</div>
-        <div class="bar"><div class="fill" style="width:${component.score}%"></div></div>
+        <div class="bar"><div class="fill" style="width:${clampScore(component.score)}%; background:${scoreGradient(component.score)}"></div></div>
       </div>
     `).join("")
-    : `<div class="empty">${text.noScoreComponents}</div>`;
+    : `<div class="empty">${totalComponents ? text.noEntries : text.noScoreComponents}</div>`;
 
   return `
     <section class="section">
@@ -989,7 +1055,7 @@ function scoreSection(components, text, selectedFilter) {
               ${option("updates", text.filterUpdates, selectedFilter)}
             </select>
           </div>
-          <div class="count">${components.length} ${text.components}</div>
+          <div class="count">${components.length} / ${totalComponents} ${text.components}</div>
         </div>
       </div>
       <div class="score-grid">${rows}</div>
@@ -1006,6 +1072,18 @@ function getText(hass) {
 
 function componentLabel(component, text) {
   return text.scoreLabels?.[component.key] || component.label;
+}
+
+function clampScore(score) {
+  return Math.min(Math.max(asNumber(score, 0), 0), 100);
+}
+
+function scoreGradient(score) {
+  const normalized = clampScore(score);
+  const hue = Math.round((normalized / 100) * 120);
+  const color = `hsl(${hue}, 78%, 45%)`;
+  const softColor = `hsl(${hue}, 78%, 58%)`;
+  return `linear-gradient(90deg, ${color}, ${softColor})`;
 }
 
 function scoreColor(score) {
