@@ -1,69 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="430" viewBox="0 0 1080 430" role="img" aria-labelledby="title desc">
   <title id="title">Home Health Overview workflow mockup</title>
-  <desc id="desc">A compact mockup showing how Home Health Overview turns Home Assistant entities into categories, a health score, and an actionable sidebar panel.</desc>
+  <desc id="desc">A compact workflow graphic in the same visual style as the real Home Health dashboard.</desc>
   <defs>
-    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
-      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="#111111" stroke-opacity=".06" stroke-width="1"/>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1.1" fill="#111111" opacity=".11"/>
     </pattern>
-    <filter id="shadow" x="-5%" y="-5%" width="115%" height="115%">
-      <feDropShadow dx="6" dy="6" stdDeviation="0" flood-color="#111111" flood-opacity="1"/>
+    <pattern id="microDots" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="#111111" opacity=".28"/>
+    </pattern>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbf7f4"/>
+      <stop offset=".55" stop-color="#f6eeee"/>
+      <stop offset="1" stop-color="#eee4df"/>
+    </linearGradient>
+    <filter id="shadow" x="-8%" y="-8%" width="116%" height="124%">
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#2a1814" flood-opacity=".08"/>
     </filter>
   </defs>
-  <rect width="1080" height="430" fill="#f7f4ed"/>
-  <rect width="1080" height="430" fill="url(#grid)"/>
+  <rect width="1080" height="430" fill="url(#bg)"/>
+  <rect width="1080" height="430" fill="url(#dots)"/>
 
-  <g font-family="Inter, Arial, sans-serif">
-    <text x="46" y="58" font-size="34" font-weight="900" fill="#111111">Vom Status zum Handeln</text>
-    <text x="46" y="84" font-size="15" font-weight="700" fill="#6d665c">Mockup der Datenlogik hinter dem Home-Health-Panel</text>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Arial, sans-serif">
+    <text x="42" y="58" font-size="34" font-weight="850" fill="#111111">Vom Status zum Handeln</text>
+    <text x="42" y="86" font-size="15" font-weight="750" fill="#777174">Die gleiche Logik hinter dem echten Home-Health-Dashboard.</text>
 
-    <g transform="translate(46 124)" filter="url(#shadow)">
-      <rect width="250" height="210" rx="6" fill="#fffdf7" stroke="#111111" stroke-width="3"/>
-      <rect width="250" height="46" rx="6" fill="#111111"/>
-      <text x="18" y="30" font-size="17" font-weight="900" fill="#ffffff">Quellen</text>
-      <circle cx="204" cy="23" r="13" fill="#f6c431"/>
-      <text x="18" y="78" font-size="15" font-weight="900" fill="#111111">Home Assistant Entities</text>
-      <text x="18" y="106" font-size="13" font-weight="700" fill="#6d665c">Sensoren, Binary Sensoren,</text>
-      <text x="18" y="126" font-size="13" font-weight="700" fill="#6d665c">MQTT, Zigbee2MQTT,</text>
-      <text x="18" y="146" font-size="13" font-weight="700" fill="#6d665c">Supervisor und Systemdaten</text>
-      <rect x="18" y="168" width="92" height="24" rx="4" fill="#1565c0"/>
-      <text x="32" y="185" font-size="11" font-weight="900" fill="#ffffff">ERKENNEN</text>
+    <g transform="translate(42 126)">
+      <g filter="url(#shadow)">
+        <rect width="280" height="218" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#111111" stroke-opacity=".06"/>
+      </g>
+      <rect x="24" y="24" width="48" height="18" fill="url(#microDots)"/>
+      <text x="24" y="76" font-size="20" font-weight="900" fill="#111111">Quellen finden</text>
+      <text x="24" y="110" font-size="14" font-weight="700" fill="#777174">Home Assistant Entities, MQTT,</text>
+      <text x="24" y="132" font-size="14" font-weight="700" fill="#777174">Zigbee2MQTT, Supervisor,</text>
+      <text x="24" y="154" font-size="14" font-weight="700" fill="#777174">Updates und Systemdaten.</text>
+      <text x="24" y="198" font-size="42" font-weight="900" fill="#111111">1447</text>
+      <text x="126" y="198" font-size="14" font-weight="850" fill="#777174">Entitaeten</text>
     </g>
 
-    <path d="M 326 230 H 386" stroke="#111111" stroke-width="5"/>
-    <path d="M 386 230 L 370 218 M 386 230 L 370 242" stroke="#111111" stroke-width="5" fill="none"/>
+    <path d="M344 236H394" stroke="#111111" stroke-opacity=".42" stroke-width="5" stroke-linecap="round"/>
+    <path d="M394 236l-14-11m14 11-14 11" stroke="#111111" stroke-opacity=".42" stroke-width="5" stroke-linecap="round" fill="none"/>
 
-    <g transform="translate(416 124)" filter="url(#shadow)">
-      <rect width="250" height="210" rx="6" fill="#fffdf7" stroke="#111111" stroke-width="3"/>
-      <rect width="250" height="46" rx="6" fill="#111111"/>
-      <text x="18" y="30" font-size="17" font-weight="900" fill="#ffffff">Bewertung</text>
-      <rect x="194" y="10" width="28" height="28" fill="#e53935"/>
-      <text x="18" y="78" font-size="15" font-weight="900" fill="#111111">Gewichteter Health Score</text>
-      <text x="18" y="106" font-size="13" font-weight="700" fill="#6d665c">Verfuegbarkeit, Aktualitaet,</text>
-      <text x="18" y="126" font-size="13" font-weight="700" fill="#6d665c">Batterien, Temperatur, APIs,</text>
-      <text x="18" y="146" font-size="13" font-weight="700" fill="#6d665c">Zigbee und Ressourcen</text>
-      <rect x="18" y="168" width="166" height="14" fill="#ffffff" stroke="#111111" stroke-width="2"/>
-      <rect x="20" y="170" width="136" height="10" fill="#f6c431"/>
-      <text x="194" y="182" font-size="22" font-weight="900" fill="#111111">82%</text>
+    <g transform="translate(418 126)">
+      <g filter="url(#shadow)">
+        <rect width="280" height="218" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#111111" stroke-opacity=".06"/>
+      </g>
+      <rect x="24" y="24" width="48" height="18" fill="url(#microDots)"/>
+      <text x="24" y="76" font-size="20" font-weight="900" fill="#111111">Score berechnen</text>
+      <text x="24" y="110" font-size="14" font-weight="700" fill="#777174">Gewichtete Komponenten fuer</text>
+      <text x="24" y="132" font-size="14" font-weight="700" fill="#777174">Verfuegbarkeit, Geraete,</text>
+      <text x="24" y="154" font-size="14" font-weight="700" fill="#777174">Add-ons und Ressourcen.</text>
+      <text x="24" y="198" font-size="54" font-weight="900" fill="#111111">91%</text>
+      <rect x="154" y="178" width="96" height="8" rx="4" fill="#ededed"/>
+      <rect x="154" y="178" width="87" height="8" rx="4" fill="#32d436"/>
     </g>
 
-    <path d="M 696 230 H 756" stroke="#111111" stroke-width="5"/>
-    <path d="M 756 230 L 740 218 M 756 230 L 740 242" stroke="#111111" stroke-width="5" fill="none"/>
+    <path d="M720 236H770" stroke="#111111" stroke-opacity=".42" stroke-width="5" stroke-linecap="round"/>
+    <path d="M770 236l-14-11m14 11-14 11" stroke="#111111" stroke-opacity=".42" stroke-width="5" stroke-linecap="round" fill="none"/>
 
-    <g transform="translate(786 124)" filter="url(#shadow)">
-      <rect width="250" height="210" rx="6" fill="#fffdf7" stroke="#111111" stroke-width="3"/>
-      <rect width="250" height="46" rx="6" fill="#111111"/>
-      <text x="18" y="30" font-size="17" font-weight="900" fill="#ffffff">Aktionen</text>
-      <rect x="192" y="0" width="58" height="46" fill="#1565c0"/>
-      <text x="18" y="78" font-size="15" font-weight="900" fill="#111111">Panel mit konkreten Listen</text>
-      <text x="18" y="106" font-size="13" font-weight="700" fill="#6d665c">Suchen, filtern, Detailansicht</text>
-      <text x="18" y="126" font-size="13" font-weight="700" fill="#6d665c">oeffnen und direkt entscheiden:</text>
-      <rect x="18" y="150" width="88" height="30" rx="4" fill="#ffffff" stroke="#111111" stroke-width="2"/>
-      <text x="31" y="170" font-size="11" font-weight="900" fill="#111111">IGNORIEREN</text>
-      <rect x="116" y="150" width="104" height="30" rx="4" fill="#f6c431" stroke="#111111" stroke-width="2"/>
-      <text x="130" y="170" font-size="11" font-weight="900" fill="#111111">UEBERWACHEN</text>
+    <g transform="translate(794 126)">
+      <g filter="url(#shadow)">
+        <rect width="244" height="218" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#111111" stroke-opacity=".06"/>
+      </g>
+      <rect x="24" y="24" width="48" height="18" fill="url(#microDots)"/>
+      <text x="24" y="76" font-size="20" font-weight="900" fill="#111111">Entscheiden</text>
+      <text x="24" y="110" font-size="14" font-weight="700" fill="#777174">Problemgruppen oeffnen,</text>
+      <text x="24" y="132" font-size="14" font-weight="700" fill="#777174">Details pruefen und Geraete</text>
+      <text x="24" y="154" font-size="14" font-weight="700" fill="#777174">direkt ignorieren.</text>
+      <rect x="24" y="174" width="138" height="34" rx="17" fill="#111111"/>
+      <text x="40" y="196" font-size="12" font-weight="850" fill="#ffffff">Geraet ignorieren</text>
     </g>
 
-    <rect x="46" y="374" width="990" height="2" fill="#111111"/>
-    <text x="46" y="402" font-size="13" font-weight="800" fill="#6d665c">Ziel: Nicht nur Status anzeigen, sondern schneller entscheiden, welche Entitaeten wichtig sind.</text>
+    <rect x="42" y="382" width="996" height="1" fill="#111111" opacity=".12"/>
+    <text x="42" y="408" font-size="13" font-weight="800" fill="#777174">Ziel: nicht nur Status anzeigen, sondern schnell erkennen, welche Bereiche echte Aufmerksamkeit brauchen.</text>
   </g>
 </svg>

@@ -4,7 +4,7 @@ Eine HACS-installierbare Home-Assistant-Integration, die den Zustand deines Smar
 
 A HACS-installable Home Assistant integration that summarizes your smart home health in one compact dashboard.
 
-![Home Health Overview Dashboard Mockup](docs/assets/home-health-panel-mockup.svg)
+![Home Health Overview Dashboard](docs/assets/home-health-panel-mockup.svg)
 
 ## Highlights
 
@@ -42,7 +42,7 @@ Das Panel zeigt den aktuellen Systemzustand als Score, wichtige Problemzähler a
 
 The panel shows the current health score, problem counters, score components, detected data sources, and affected entities in filtered tables. Affected entities can be opened in Home Assistant, ignored, or explicitly monitored.
 
-![Home Health Overview Workflow Mockup](docs/assets/home-health-workflow-mockup.svg)
+![Home Health Overview Workflow](docs/assets/home-health-workflow-mockup.svg)
 
 ## Dashboard-Look
 
@@ -59,7 +59,7 @@ Unter `Dashboard-Look` kannst du wählen:
 
 English: Configure the dashboard look under `Settings -> Devices & services -> Home Health Overview -> Configure`.
 
-![Home Health Overview Style Options Mockup](docs/assets/home-health-style-options-mockup.svg)
+![Home Health Overview Style Options](docs/assets/home-health-style-options-mockup.svg)
 
 ## Konfiguration / Configuration
 
@@ -139,4 +139,4 @@ Home Health Overview is free and will remain free.
 
 ## Status
 
-Aktuelle Version / Current version: `0.8.4`
+Aktuelle Version / Current version: `0.8.5`

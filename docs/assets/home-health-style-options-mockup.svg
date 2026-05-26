@@ -1,58 +1,64 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="420" viewBox="0 0 1080 420" role="img" aria-labelledby="title desc">
   <title id="title">Home Health dashboard style options mockup</title>
-  <desc id="desc">Mockup of the Home Assistant options dialog showing the dashboard look selector with Nothing Apple Clean and Neo Bauhaus Classic choices.</desc>
+  <desc id="desc">A Home Assistant options graphic using the same clean rounded style as the current Home Health dashboard.</desc>
   <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1.1" fill="#111111" opacity=".11"/>
+    </pattern>
+    <pattern id="microDots" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.1" fill="#111111" opacity=".28"/>
+    </pattern>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbf7f4"/>
+      <stop offset=".55" stop-color="#f6eeee"/>
+      <stop offset="1" stop-color="#eee4df"/>
+    </linearGradient>
     <filter id="shadow" x="-8%" y="-8%" width="116%" height="124%">
-      <feDropShadow dx="0" dy="20" stdDeviation="24" flood-color="#000000" flood-opacity=".14"/>
+      <feDropShadow dx="0" dy="16" stdDeviation="22" flood-color="#2a1814" flood-opacity=".08"/>
     </filter>
-    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
-      <circle cx="11" cy="11" r="1.1" fill="#111111" opacity=".12"/>
-    </pattern>
-    <pattern id="microdots" width="8" height="8" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="1.2" fill="#111111" opacity=".3"/>
-    </pattern>
   </defs>
-  <rect width="1080" height="420" fill="#f7f7f5"/>
+  <rect width="1080" height="420" fill="url(#bg)"/>
   <rect width="1080" height="420" fill="url(#dots)"/>
 
   <g font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Arial, sans-serif">
-    <text x="48" y="60" font-size="34" font-weight="850" fill="#111111">Dashboard-Look im Setup waehlen</text>
-    <text x="48" y="88" font-size="15" font-weight="650" fill="#6d6d72">Default ist Nothing / Apple Clean. Der bisherige Neo-Bauhaus-Look bleibt als zweite Option erhalten.</text>
+    <text x="42" y="58" font-size="34" font-weight="850" fill="#111111">Dashboard-Look im Setup waehlen</text>
+    <text x="42" y="86" font-size="15" font-weight="750" fill="#777174">Die Optionen zeigen denselben hellen Stil wie das echte Dashboard.</text>
 
-    <g transform="translate(48 124)" filter="url(#shadow)">
-      <rect width="450" height="236" rx="28" fill="#ffffff" stroke="#111111" stroke-opacity=".1"/>
-      <text x="28" y="42" font-size="20" font-weight="850" fill="#111111">Home Health Overview Optionen</text>
-      <text x="28" y="82" font-size="13" font-weight="760" fill="#6d6d72">Dashboard-Look</text>
-      <rect x="28" y="98" width="394" height="48" rx="16" fill="#f8f8f8" stroke="#111111" stroke-opacity=".1"/>
-      <text x="46" y="128" font-size="16" font-weight="760" fill="#111111">Nothing / Apple Clean</text>
-      <path d="M394 116 L404 126 L414 116" fill="none" stroke="#111111" stroke-width="2.5" stroke-linecap="round"/>
-      <text x="28" y="182" font-size="13" font-weight="760" fill="#6d6d72">Update-Erkennung</text>
-      <rect x="28" y="198" width="186" height="28" rx="14" fill="#111111"/>
-      <text x="44" y="217" font-size="12" font-weight="800" fill="#ffffff">Status on = Update</text>
+    <g transform="translate(42 122)" filter="url(#shadow)">
+      <rect width="456" height="238" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#111111" stroke-opacity=".06"/>
+      <text x="28" y="44" font-size="21" font-weight="900" fill="#111111">Home Health Overview Optionen</text>
+      <text x="28" y="84" font-size="13" font-weight="850" fill="#777174">Dashboard-Look</text>
+      <rect x="28" y="100" width="398" height="48" rx="16" fill="#ffffff" stroke="#111111" stroke-opacity=".1"/>
+      <text x="46" y="130" font-size="16" font-weight="800" fill="#111111">Nothing / Apple Clean</text>
+      <path d="M394 118l10 10 10-10" fill="none" stroke="#111111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="28" y="186" font-size="13" font-weight="850" fill="#777174">Update-Erkennung</text>
+      <rect x="28" y="202" width="184" height="28" rx="14" fill="#111111"/>
+      <text x="44" y="221" font-size="12" font-weight="850" fill="#ffffff">Status on = Update</text>
     </g>
 
-    <g transform="translate(544 124)">
+    <g transform="translate(544 122)">
       <g filter="url(#shadow)">
-        <rect width="218" height="236" rx="28" fill="#ffffff" stroke="#111111" stroke-opacity=".1"/>
+        <rect width="236" height="238" rx="28" fill="#ffffff" fill-opacity=".88" stroke="#111111" stroke-opacity=".06"/>
       </g>
-      <rect x="24" y="24" width="46" height="46" rx="15" fill="#ffffff" stroke="#111111" stroke-opacity=".12"/>
-      <rect x="33" y="33" width="28" height="28" fill="url(#microdots)"/>
-      <circle cx="62" cy="62" r="5" fill="#ff3b30"/>
-      <text x="24" y="112" font-size="44" font-weight="850" fill="#111111">94%</text>
-      <text x="26" y="142" font-size="14" font-weight="760" fill="#6d6d72">Clean Default</text>
-      <rect x="26" y="176" width="76" height="28" rx="14" fill="#111111"/>
-      <text x="42" y="194" font-size="12" font-weight="800" fill="#ffffff">Modern</text>
+      <rect x="24" y="24" width="74" height="54" rx="16" fill="#ffffff" stroke="#111111" stroke-opacity=".12"/>
+      <path d="M38 54 61 35 84 54v19H38z" fill="#2f7fa4"/>
+      <path d="M34 54 59 33a4 4 0 0 1 5 0l25 21" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="51" y="55" width="22" height="18" rx="4" fill="#ffffff"/>
+      <path d="M54 64h5l4-8 6 15 4-7h5" fill="none" stroke="#ff3b30" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="24" y="132" font-size="54" font-weight="900" fill="#111111">91%</text>
+      <text x="26" y="164" font-size="14" font-weight="850" fill="#777174">Clean Default</text>
+      <rect x="26" y="196" width="92" height="30" rx="15" fill="#111111"/>
+      <text x="43" y="216" font-size="12" font-weight="850" fill="#ffffff">Aktuell</text>
 
-      <g transform="translate(262 0)" filter="url(#shadow)">
-        <rect width="218" height="236" rx="8" fill="#fffdf7" stroke="#111111" stroke-width="3"/>
+      <g transform="translate(270 0)" filter="url(#shadow)">
+        <rect width="224" height="238" rx="28" fill="#ffffff" fill-opacity=".78" stroke="#111111" stroke-opacity=".06"/>
       </g>
-      <rect x="286" y="24" width="48" height="48" fill="#111111"/>
-      <circle cx="304" cy="42" r="11" fill="#f6c431"/>
-      <rect x="310" y="48" width="24" height="24" fill="#e53935"/>
-      <text x="286" y="112" font-size="44" font-weight="900" fill="#111111">82%</text>
-      <text x="288" y="142" font-size="14" font-weight="900" fill="#6d665c">Neo-Bauhaus</text>
-      <rect x="288" y="176" width="76" height="28" rx="4" fill="#f6c431" stroke="#111111" stroke-width="2"/>
-      <text x="303" y="194" font-size="12" font-weight="900" fill="#111111">Klassik</text>
+      <rect x="294" y="24" width="50" height="50" rx="14" fill="#ffffff" stroke="#111111" stroke-opacity=".12"/>
+      <rect x="305" y="35" width="28" height="28" fill="url(#microDots)"/>
+      <text x="294" y="132" font-size="54" font-weight="900" fill="#111111">82%</text>
+      <text x="296" y="164" font-size="14" font-weight="850" fill="#777174">Neo-Bauhaus</text>
+      <rect x="296" y="196" width="86" height="30" rx="15" fill="#ffffff" stroke="#111111" stroke-opacity=".14"/>
+      <text x="314" y="216" font-size="12" font-weight="850" fill="#111111">Optional</text>
     </g>
   </g>
 </svg>
